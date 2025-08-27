@@ -12,11 +12,20 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	velocity_ = {-kWalkSpeed, 0, 0};
 
+	walkTimer_ = 0.0f;
+
 }
 
 void Enemy::Update() {
 
 	worldTransform_.translation_.x += velocity_.x;
+
+	walkTimer_ += 1.0f / 60.0f;
+
+	float t = std::fmod(walkTimer_, kWalkMotionTime) / kWalkMotionTime;
+	float param = std::sin(t * 2.0f * std::numbers::pi_v<float>);
+	float radian = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
+	worldTransform_.rotation_.x = radian;
 
 	worldTransform_.UpdateMatrix();
 
