@@ -5,6 +5,7 @@ GameScene::~GameScene() {
 	delete modelPlayer_;
 	delete player_;
 	delete mapChipField_;
+	delete enemy_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -20,6 +21,7 @@ void GameScene::Initialize() {
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
+	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
 
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
@@ -30,6 +32,11 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
+
+	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(5, 18);
+	enemy_ = new Enemy();
+	enemy_->Initialize(modelEnemy_, &camera_, enemyPosition);
+	enemy_->SetMapChipField(mapChipField_);
 
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
@@ -46,7 +53,10 @@ void GameScene::Initialize() {
 
 }
 
-void GameScene::Update() { player_->Update(); 
+void GameScene::Update() {
+	
+	player_->Update(); 
+	enemy_->Update();
 
 for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
@@ -84,6 +94,7 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw(camera_);
+	enemy_->Draw();
 
 	Model::PostDraw();
 

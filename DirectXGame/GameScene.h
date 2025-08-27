@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "MapChipField.h"
 #include "CameraController.h"
+#include "Enemy.h"
 
 using namespace KamataEngine;
 
@@ -43,5 +44,9 @@ private:
 	MapChipField* mapChipField_;
 
 	CameraController* cameraController_;
+
+	Enemy* enemy_ = nullptr;
+
+	Model* modelEnemy_ = nullptr;
 
 };
