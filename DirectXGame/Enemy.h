@@ -26,4 +26,8 @@ Camera* camera_ = nullptr;
 
 MapChipField* mapChipField_ = nullptr;
 
+static inline const float kWalkSpeed = 0.04f;
+
+Vector3 velocity_ = {};
+
 };

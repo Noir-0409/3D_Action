@@ -10,9 +10,13 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	worldTransform_.rotation_.y = std::numbers::pi_v<float> / -2.0f;
 
+	velocity_ = {-kWalkSpeed, 0, 0};
+
 }
 
 void Enemy::Update() {
+
+	worldTransform_.translation_.x += velocity_.x;
 
 	worldTransform_.UpdateMatrix();
 
