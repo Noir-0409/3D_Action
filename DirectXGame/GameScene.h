@@ -4,6 +4,7 @@
 #include "MapChipField.h"
 #include "CameraController.h"
 #include "Enemy.h"
+#include "Skydome.h"
 
 using namespace KamataEngine;
 
@@ -48,5 +49,9 @@ private:
 	Enemy* enemy_ = nullptr;
 
 	Model* modelEnemy_ = nullptr;
+
+	Skydome* skydome_ = nullptr;
+
+	Model* modelSkydome_ = nullptr;
 
 };

@@ -6,6 +6,7 @@ GameScene::~GameScene() {
 	delete player_;
 	delete mapChipField_;
 	delete enemy_;
+	delete modelSkydome_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -21,7 +22,8 @@ void GameScene::Initialize() {
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
-	modelEnemy_ = Model::CreateFromOBJ("enemy", true);
+	modelEnemy_ = Model::CreateFromOBJ("enemy");
+	modelSkydome_ = Model::CreateFromOBJ("skydome");
 
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
@@ -43,6 +45,9 @@ void GameScene::Initialize() {
 	cameraController_->SetTarget(player_);
 	cameraController_->Initialize();
 	cameraController_->Reset();
+
+	skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_, &camera_);
 
 	input_ = Input::GetInstance();
 
@@ -69,6 +74,7 @@ for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks
 	}
 
 cameraController_->Update();
+	skydome_->Update();
 
 }
 
@@ -95,6 +101,7 @@ void GameScene::Draw() {
 
 	player_->Draw(camera_);
 	enemy_->Draw();
+	skydome_->Draw();
 
 	Model::PostDraw();
 
