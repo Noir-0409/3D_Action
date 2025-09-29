@@ -26,6 +26,8 @@ public:
 
 	void GenerateBlocks();
 
+	bool IsFinished() { return isFinished_; }
+
 private:
 	// カメラ
 	Camera camera_;
@@ -53,5 +55,7 @@ private:
 	Skydome* skydome_ = nullptr;
 
 	Model* modelSkydome_ = nullptr;
+
+	bool isFinished_ = false;
 
 };
