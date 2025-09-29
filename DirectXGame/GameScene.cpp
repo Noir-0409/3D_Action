@@ -141,6 +141,5 @@ void GameScene::GenerateBlocks() {
 			}
 		}
 	}
-
 }
 
