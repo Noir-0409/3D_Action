@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "input/Input.h"
+#include "TitleSkydome.h"
 
 using namespace KamataEngine;
 
@@ -25,4 +26,8 @@ private:
 	KamataEngine::Camera camera_;
 
 	bool isFinished_ = false;
+
+	TitleSkydome* titleSkydome_ = nullptr;
+	Model* modelSkydome_ = nullptr;
+
 };
