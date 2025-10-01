@@ -29,6 +29,8 @@ void TitleScene::Update() {
 		isFinished_ = true;
 	}
 
+	titleSkydome_->Update();
+
 }
 
 void TitleScene::Draw() {
