@@ -73,6 +73,11 @@ for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks
 		}
 	}
 
+if (input_->TriggerKey(DIK_SPACE)) {
+
+		isFinished_ = true;
+	}
+
 cameraController_->Update();
 	skydome_->Update();
 
