@@ -5,6 +5,8 @@ GameScene::~GameScene() {
 	delete modelPlayer_;
 	delete player_;
 	delete mapChipField_;
+	delete enemy_;
+	delete modelSkydome_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -19,29 +21,47 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
-
 	modelBlock_ = Model::CreateFromOBJ("block");
+	modelEnemy_ = Model::CreateFromOBJ("enemy");
+	modelSkydome_ = Model::CreateFromOBJ("skydome");
 
-	// カメラの初期化
+	mapChipField_ = new MapChipField();
+	mapChipField_->LoadMapChipCSV("Resources/map.csv");
+
 	camera_.Initialize();
 
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
 	player_ = new Player();
+	player_->Initialize(modelPlayer_, &camera_, playerPosition);
+	player_->SetMapChipField(mapChipField_);
 
-	player_->Initialize(modelPlayer_);
+	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(5, 18);
+	enemy_ = new Enemy();
+	enemy_->Initialize(modelEnemy_, &camera_, enemyPosition);
+	enemy_->SetMapChipField(mapChipField_);
+
+	cameraController_ = new CameraController();
+	cameraController_->SetCamera(&camera_);
+	cameraController_->SetTarget(player_);
+	cameraController_->Initialize();
+	cameraController_->Reset();
+
+	skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_, &camera_);
 
 	input_ = Input::GetInstance();
 
 	worldTransform_.Initialize();
 
-	mapChipField_ = new MapChipField;
-
-	mapChipField_->LoadMapChipCSV("Resources/map.csv");
-
 	GenerateBlocks();
+
 
 }
 
-void GameScene::Update() { player_->Update(); 
+void GameScene::Update() {
+	
+	player_->Update(); 
+	enemy_->Update();
 
 for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
@@ -52,6 +72,9 @@ for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks
 			worldTransformBlockYoko->UpdateMatrix();
 		}
 	}
+
+cameraController_->Update();
+	skydome_->Update();
 
 }
 
@@ -77,6 +100,8 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw(camera_);
+	enemy_->Draw();
+	skydome_->Draw();
 
 	Model::PostDraw();
 
@@ -116,5 +141,5 @@ void GameScene::GenerateBlocks() {
 			}
 		}
 	}
-
 }
+

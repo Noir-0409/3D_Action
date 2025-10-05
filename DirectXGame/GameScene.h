@@ -2,6 +2,9 @@
 #include "KamataEngine.h"
 #include "Player.h"
 #include "MapChipField.h"
+#include "CameraController.h"
+#include "Enemy.h"
+#include "Skydome.h"
 
 using namespace KamataEngine;
 
@@ -23,6 +26,8 @@ public:
 
 	void GenerateBlocks();
 
+	bool IsFinished() { return isFinished_; }
+
 private:
 	// カメラ
 	Camera camera_;
@@ -40,5 +45,17 @@ private:
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
 	MapChipField* mapChipField_;
+
+	CameraController* cameraController_;
+
+	Enemy* enemy_ = nullptr;
+
+	Model* modelEnemy_ = nullptr;
+
+	Skydome* skydome_ = nullptr;
+
+	Model* modelSkydome_ = nullptr;
+
+	bool isFinished_ = false;
 
 };
