@@ -30,4 +30,16 @@ private:
 	TitleSkydome* titleSkydome_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 
+	uint32_t titleTextureHandle_ = 0;
+	Sprite* titleSprite_ = nullptr;
+
+	uint32_t startTextureHandle_ = 0;
+	Sprite* startSprite_ = nullptr;
+
+	Vector2 spritePos_ = {0, 0};
+	Vector2 startPos_ = {0, 0};
+
+	float startAlpha_ = 1.0f; // 透明度
+	float alphaDir_ = -0.02f;
+
 };
