@@ -157,6 +157,7 @@
     <ClCompile Include="Affin.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Fade.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Affin.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Fade.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="MapChipField.h" />
     <ClInclude Include="MathUtillity.h" />
