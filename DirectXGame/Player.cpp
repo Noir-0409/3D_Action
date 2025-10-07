@@ -12,7 +12,7 @@ Player::~Player() {}
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
-	assert(model);
+	//assert(model);
 
 	model_ = model;
 
