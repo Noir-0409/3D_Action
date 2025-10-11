@@ -1,8 +1,11 @@
 #pragma once
 #include "KamataEngine.h"
 #include "MapChipField.h"
+#include "AABB.h"
 
 using namespace KamataEngine;
+
+class Player;
 
 class Enemy {
 
@@ -15,6 +18,12 @@ void Update();
 void Draw();
 
 void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+Vector3 GetWorldPosition();
+
+AABB GetAABB();
+
+void OnCollision(const Player* player);
 
 private:
 
@@ -37,5 +46,8 @@ static inline const float kWalkMotionAngleEnd = 0.3f;
 static inline const float kWalkMotionTime = 1.0f;
 
 float walkTimer_ = 0.0f;
+
+static inline const float kWidth = 0.8f;
+static inline const float kHeight = 0.8f;
 
 };

@@ -1,9 +1,11 @@
 #pragma once
 #include "KamataEngine.h"
+#include "AABB.h"
 
 using namespace KamataEngine;
 
 class MapChipField;
+class Enemy;
 
 enum class LRDirection {
 
@@ -72,6 +74,12 @@ public:
 	void UpdateRotationSmooth();
 
 	void UpdateHitWall(const CollisionMapInfo& info);
+
+	Vector3 GetWorldPosition();
+
+	AABB GetAABB();
+
+	void OnCollision(const Enemy* enemy);
 
 private:
 	WorldTransform worldTransform_;

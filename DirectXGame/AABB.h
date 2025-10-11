@@ -1,0 +1,11 @@
+#pragma once
+#include "KamataEngine.h"
+using namespace KamataEngine;
+
+class AABB {
+public:
+	Vector3 min;
+	Vector3 max;
+
+	static bool IsCollision(const AABB& aabb1, const AABB& aabb2);
+};

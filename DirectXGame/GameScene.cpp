@@ -73,6 +73,8 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	CheckAllCollision();
+
 	player_->Update();
 	for (Enemy* enemy : enemies_) {
 		enemy->Update();
@@ -161,4 +163,27 @@ void GameScene::GenerateBlocks() {
 			}
 		}
 	}
+}
+
+void GameScene::CheckAllCollision() {
+
+	AABB aabb1, aabb2;
+
+	aabb1 = player_->GetAABB();
+
+	for (Enemy* enemy : enemies_) {
+	
+		aabb2 = enemy->GetAABB();
+
+		if (AABB::IsCollision(aabb1, aabb2)) {
+
+			// 自キャラの衝突時コールバックを呼び出す
+			player_->OnCollision(enemy);
+
+			// 敵弾の衝突時コールバックを呼び出す
+			enemy->OnCollision(player_);
+		}
+	
+	}
+
 }

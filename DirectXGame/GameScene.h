@@ -29,6 +29,8 @@ public:
 
 	bool IsFinished() { return isFinished_; }
 
+	void CheckAllCollision();
+
 private:
 	// カメラ
 	Camera camera_;
