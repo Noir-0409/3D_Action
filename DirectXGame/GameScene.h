@@ -5,6 +5,7 @@
 #include "CameraController.h"
 #include "Enemy.h"
 #include "Skydome.h"
+#include "MathUtillity.h"
 
 using namespace KamataEngine;
 
@@ -48,7 +49,8 @@ private:
 
 	CameraController* cameraController_;
 
-	Enemy* enemy_ = nullptr;
+	//Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
 	Model* modelEnemy_ = nullptr;
 
