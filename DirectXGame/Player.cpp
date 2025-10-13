@@ -61,6 +61,13 @@ void Player::Update() {
 	UpdateOnGround(collisionMapInfo);    // onGround 更新
 	UpdateHitWall(collisionMapInfo);
 
+	if (isAttacking_) {
+		--attackTimer_;
+		if (attackTimer_ <= 0) {
+			isAttacking_ = false;
+		}
+	}
+
 	worldTransform_.UpdateMatrix();
 	worldTransform_.TransferMatrix();
 }
@@ -429,7 +436,7 @@ void Player::UpdateHitWall(const CollisionMapInfo& info) {
 
 }
 
-Vector3 Player::GetWorldPosition() {
+Vector3 Player::GetWorldPosition() const{
 
 	// ワールド座標を入れる変数
 	Vector3 worldPos;
@@ -465,5 +472,41 @@ void Player::OnCollision(const Enemy* enemy) {
 
 	(void)enemy;
 	velocity_.y += 0.1f;
+
+}
+
+void Player::Attack() {
+
+	 if (!isAttacking_) { // 攻撃中でなければ
+		isAttacking_ = true;
+		attackTimer_ = 10; // 攻撃の持続フレーム（例：10フレーム）
+	}
+	
+}
+
+AABB Player::GetAttackAABB() const { 
+
+	  AABB attackBox;
+
+	// 攻撃範囲のサイズ
+	float attackWidth = 1.0f;  // 横幅
+	float attackHeight = 0.8f; // 高さ
+
+	// プレイヤーの中心座標
+	Vector3 center = GetWorldPosition();
+
+	Vector3 offset = {attackWidth / 2.0f, attackHeight / 2.0f, 0.0f};
+
+	// min
+	attackBox.min.x = center.x + offset.x - attackWidth / 2.0f;
+	attackBox.min.y = center.y + offset.y - attackHeight / 2.0f;
+	attackBox.min.z = center.z + offset.z - 0.0f;
+
+	// max
+	attackBox.max.x = center.x + offset.x + attackWidth / 2.0f;
+	attackBox.max.y = center.y + offset.y + attackHeight / 2.0f;
+	attackBox.max.z = center.z + offset.z + 0.0f;
+
+	return attackBox;
 
 }

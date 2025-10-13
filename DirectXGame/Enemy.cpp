@@ -19,6 +19,7 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 void Enemy::Update() {
 
 	worldTransform_.translation_.x += velocity_.x;
+	worldTransform_.translation_.y += velocity_.y;
 
 	walkTimer_ += 1.0f / 60.0f;
 
@@ -73,5 +74,5 @@ AABB Enemy::GetAABB() {
 void Enemy::OnCollision(const Player* player) {
 
 	(void)player;
-
+	velocity_.y += 0.1f;
 }

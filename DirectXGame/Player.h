@@ -75,11 +75,17 @@ public:
 
 	void UpdateHitWall(const CollisionMapInfo& info);
 
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() const;
 
 	AABB GetAABB();
 
 	void OnCollision(const Enemy* enemy);
+
+	void Attack();
+
+	bool IsAttacking() const { return isAttacking_; }
+
+	AABB GetAttackAABB() const;
 
 private:
 	WorldTransform worldTransform_;
@@ -119,5 +125,8 @@ private:
 	static inline const float kGroundSearchHeight = 0.01f;
 
 	static inline const float kAttenuationWall = 0.00001f;
+
+	bool isAttacking_ = false;
+	int attackTimer_ = 0; 
 
 };
