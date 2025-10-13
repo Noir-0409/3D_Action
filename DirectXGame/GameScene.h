@@ -5,6 +5,7 @@
 #include "CameraController.h"
 #include "Enemy.h"
 #include "Skydome.h"
+#include "MathUtillity.h"
 
 using namespace KamataEngine;
 
@@ -28,6 +29,8 @@ public:
 
 	bool IsFinished() { return isFinished_; }
 
+	void CheckAllCollision();
+
 private:
 	// カメラ
 	Camera camera_;
@@ -48,7 +51,8 @@ private:
 
 	CameraController* cameraController_;
 
-	Enemy* enemy_ = nullptr;
+	//Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
 	Model* modelEnemy_ = nullptr;
 

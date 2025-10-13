@@ -5,7 +5,14 @@ GameScene::~GameScene() {
 	delete modelPlayer_;
 	delete player_;
 	delete mapChipField_;
-	delete enemy_;
+
+	for (Enemy* enemy : enemies_) {
+
+		delete enemy;
+	}
+
+	enemies_.clear();
+
 	delete modelSkydome_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -15,7 +22,6 @@ GameScene::~GameScene() {
 	}
 
 	worldTransformBlocks_.clear();
-
 }
 
 void GameScene::Initialize() {
@@ -35,10 +41,19 @@ void GameScene::Initialize() {
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
 
-	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(5, 18);
-	enemy_ = new Enemy();
-	enemy_->Initialize(modelEnemy_, &camera_, enemyPosition);
-	enemy_->SetMapChipField(mapChipField_);
+	Vector3 basePosition = {25.0f, 1.0f, 0.0f}; // 基準となる位置
+	Vector3 offset = {3.0f, 3.0f, 0.0f};        // 各敵の間隔
+
+	for (int32_t i = 0; i < 3; ++i) {
+		Enemy* newEnemy = new Enemy();
+
+		// 一体ずつ違う座標をセット
+		Vector3 enemyPosition = basePosition + offset * static_cast<float>(i);
+
+		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+
+		enemies_.push_back(newEnemy);
+	}
 
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
@@ -54,16 +69,18 @@ void GameScene::Initialize() {
 	worldTransform_.Initialize();
 
 	GenerateBlocks();
-
-
 }
 
 void GameScene::Update() {
-	
-	player_->Update(); 
-	enemy_->Update();
 
-for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
+	CheckAllCollision();
+
+	player_->Update();
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
+
+	for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlockYoko : worldTransformBlockTate) {
 			if (!worldTransformBlockYoko)
 				continue;
@@ -73,14 +90,13 @@ for (std::vector<WorldTransform*> worldTransformBlockTate : worldTransformBlocks
 		}
 	}
 
-if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE)) {
 
 		isFinished_ = true;
 	}
 
-cameraController_->Update();
+	cameraController_->Update();
 	skydome_->Update();
-
 }
 
 void GameScene::Draw() {
@@ -105,7 +121,9 @@ void GameScene::Draw() {
 	}
 
 	player_->Draw(camera_);
-	enemy_->Draw();
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw();
+	}
 	skydome_->Draw();
 
 	Model::PostDraw();
@@ -117,15 +135,14 @@ void GameScene::Draw() {
 
 void GameScene::GenerateBlocks() {
 
-	//uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
-	//uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+	// uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	// uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
 	worldTransformBlocks_.resize(MapChipField::kNumBlockVirtical);
 
 	for (uint32_t i = 0; i < MapChipField::kNumBlockVirtical; ++i) {
 
 		worldTransformBlocks_[i].resize(MapChipField::kNumBlockHorizontal);
-	
 	}
 
 	for (uint32_t i = 0; i < MapChipField::kNumBlockVirtical; ++i) {
@@ -148,3 +165,25 @@ void GameScene::GenerateBlocks() {
 	}
 }
 
+void GameScene::CheckAllCollision() {
+
+	AABB aabb1, aabb2;
+
+	aabb1 = player_->GetAABB();
+
+	for (Enemy* enemy : enemies_) {
+	
+		aabb2 = enemy->GetAABB();
+
+		if (AABB::IsCollision(aabb1, aabb2)) {
+
+			// 自キャラの衝突時コールバックを呼び出す
+			player_->OnCollision(enemy);
+
+			// 敵弾の衝突時コールバックを呼び出す
+			enemy->OnCollision(player_);
+		}
+	
+	}
+
+}
