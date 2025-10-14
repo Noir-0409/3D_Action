@@ -1,7 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
-#include "input/Input.h"
 #include "TitleSkydome.h"
+#include "input/Input.h"
 
 using namespace KamataEngine;
 
@@ -11,9 +11,7 @@ public:
 	~TitleScene();
 
 	void Initialize();
-
-	void Update();
-
+	void Update(float deltaTime);
 	void Draw();
 
 	bool IsFinished() { return isFinished_; }
@@ -39,7 +37,15 @@ private:
 	Vector2 spritePos_ = {0, 0};
 	Vector2 startPos_ = {0, 0};
 
-	float startAlpha_ = 1.0f; // 透明度
+	float startAlpha_ = 1.0f; // スタートスプライト透明度
 	float alphaDir_ = -0.02f;
 
+	// フェード用
+	Sprite* fadeSprite_ = nullptr;
+	float fadeAlpha_ = 1.0f;    // 1.0=黒, 0.0=透明
+	float fadeDuration_ = 1.0f; // フェードにかける時間（秒）
+	float fadeTimer_ = 0.0f;
+
+	enum class FadeState { None, FadeIn, FadeOut };
+	FadeState fadeState_ = FadeState::FadeIn;
 };
