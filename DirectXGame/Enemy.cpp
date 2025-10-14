@@ -74,5 +74,6 @@ AABB Enemy::GetAABB() {
 void Enemy::OnCollision(const Player* player) {
 
 	(void)player;
-	velocity_.y += 0.1f;
+	velocity_.x += 0.01f;
+	velocity_.y += 0.01f;
 }
