@@ -73,6 +73,26 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	 if (input_->TriggerKey(DIK_Z)) {
+		player_->Attack();
+	}
+
+	  if (player_->IsAttacking()) {
+
+		AABB attackBox = player_->GetAttackAABB();
+
+		for (Enemy* enemy : enemies_) {
+
+			AABB enemyBox = enemy->GetAABB();
+
+			if (AABB::IsCollision(attackBox, enemyBox)) {
+				// 敵にダメージなどの処理
+				enemy->OnCollision(player_);
+			}
+		}
+	}
+
+
 	CheckAllCollision();
 
 	player_->Update();
