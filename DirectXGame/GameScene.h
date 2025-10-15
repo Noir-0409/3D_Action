@@ -6,6 +6,7 @@
 #include "Enemy.h"
 #include "Skydome.h"
 #include "MathUtillity.h"
+#include "DeathParticle.h"
 
 using namespace KamataEngine;
 
@@ -61,5 +62,9 @@ private:
 	Model* modelSkydome_ = nullptr;
 
 	bool isFinished_ = false;
+
+	DeathParticle* deathParticles_ = nullptr;
+
+	Model* modelParticle_ = nullptr;
 
 };

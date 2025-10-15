@@ -5,6 +5,7 @@ GameScene::~GameScene() {
 	delete modelPlayer_;
 	delete player_;
 	delete mapChipField_;
+	delete modelParticle_;
 
 	for (Enemy* enemy : enemies_) {
 
@@ -30,6 +31,7 @@ void GameScene::Initialize() {
 	modelBlock_ = Model::CreateFromOBJ("block");
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
+	modelParticle_ = Model::CreateFromOBJ("deathParticle"); 
 
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
@@ -63,6 +65,9 @@ void GameScene::Initialize() {
 
 	skydome_ = new Skydome();
 	skydome_->Initialize(modelSkydome_, &camera_);
+
+	deathParticles_ = new DeathParticle();
+	deathParticles_->Initialize(modelParticle_, &camera_, playerPosition);
 
 	input_ = Input::GetInstance();
 
@@ -115,6 +120,11 @@ void GameScene::Update() {
 		isFinished_ = true;
 	}
 
+	if (deathParticles_) {
+
+		deathParticles_->Update();
+	}
+
 	cameraController_->Update();
 	skydome_->Update();
 }
@@ -144,6 +154,12 @@ void GameScene::Draw() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
+
+	if (deathParticles_) {
+
+		deathParticles_->Draw();
+	}
+
 	skydome_->Draw();
 
 	Model::PostDraw();
