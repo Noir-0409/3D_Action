@@ -13,6 +13,15 @@ using namespace KamataEngine;
 // ゲームシーン
 class GameScene {
 
+	enum class Phase {
+
+		kPlay,
+		kDeath,
+
+	};
+
+	Phase phase_;
+
 public:
 
 	~GameScene();
@@ -31,6 +40,8 @@ public:
 	bool IsFinished() { return isFinished_; }
 
 	void CheckAllCollision();
+
+	void ChangePhase();
 
 private:
 	// カメラ
