@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include <array>
+#include "MathUtillity.h"
 
 using namespace KamataEngine;
 
@@ -27,5 +28,9 @@ static inline const float kDuration = 1.0f;
 static inline const float kSpeed = 0.1f;
 
 static inline const float kAngleUint = 2.0f * 3.14f / 8.0f;
+
+bool isFinished_ = false;
+
+float counter_ = 0.0f;
 
 };
