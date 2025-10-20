@@ -91,6 +91,10 @@ public:
 
 	bool IsDead() const { return isDead_; }
 
+	bool inputEnabled_ = true;
+
+	 void SetInputEnabled(bool enabled) { inputEnabled_ = enabled; }
+
 private:
 	WorldTransform worldTransform_;
 

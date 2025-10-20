@@ -15,6 +15,7 @@ class GameScene {
 
 	enum class Phase {
 
+		kCountDown,
 		kPlay,
 		kDeath,
 
@@ -77,5 +78,8 @@ private:
 	DeathParticle* deathParticles_ = nullptr;
 
 	Model* modelParticle_ = nullptr;
+
+	float countdownTimer_ = 0.0f;
+	int countdownNumber_ = 3;
 
 };

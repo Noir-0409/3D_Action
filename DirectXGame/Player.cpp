@@ -27,31 +27,15 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	input_ = Input::GetInstance();
 }
 
-// void Player::Update() {
-//
-//	// 行列を定数バッファに転送
-//	worldTransform_.TransferMatrix();
-//
-//	InputMove();
-//
-//	CollisionMapInfo collisionMapInfo;
-//
-//	collisionMapInfo.move = velocity_;
-//
-//	CheckMapCollision(collisionMapInfo);
-//
-//	UpdateOnGround(collisionMapInfo);
-//
-//	// 行列計算
-//	worldTransform_.UpdateMatrix();
-//	worldTransform_.TransferMatrix();
-// }
-
 void Player::Update() {
 
 	worldTransform_.TransferMatrix();
 
-	InputMove(); // velocity_ 計算
+	  if (inputEnabled_) {
+		InputMove(); // velocity_ 計算
+	} else {
+		velocity_ = {0.0f, 0.0f, 0.0f}; // 念のため移動速度はゼロに
+	}
 
 	CollisionMapInfo collisionMapInfo;
 	collisionMapInfo.move = velocity_;
@@ -114,46 +98,6 @@ void Player::InputMove() {
 
 	// 移動自体は CollisionMove で行う
 }
-
-
-//void Player::InputMove() {
-//
-//	// 接地状態
-//	if (onGround_) {
-//		Vector3 acceleration{};
-//		if (Input::GetInstance()->PushKey(DIK_D)) {
-//			if (velocity_.x < 0.0f)
-//				velocity_.x *= (1.0f - kAttenuation);
-//			acceleration.x += kAcceleration;
-//			lrDirection_ = LRDirection::kRight;
-//		} else if (Input::GetInstance()->PushKey(DIK_A)) {
-//			if (velocity_.x > 0.0f)
-//				velocity_.x *= (1.0f - kAttenuation);
-//			acceleration.x -= kAcceleration;
-//			lrDirection_ = LRDirection::kLeft;
-//		} else {
-//			velocity_.x *= (1.0f - kAttenuation);
-//		}
-//
-//		velocity_ += acceleration;
-//		velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-//
-//		// ジャンプ
-//		if (Input::GetInstance()->PushKey(DIK_W)) {
-//			velocity_.y = kJumpAcceleration;
-//			onGround_ = false;
-//		}
-//
-//	} else {
-//		// 空中では重力加算
-//		velocity_.y -= kGravityAcceleration;
-//		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
-//	}
-//
-//	UpdateRotation();
-//
-//	// 移動は CollisionMove で行う
-//}
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
 
@@ -281,8 +225,6 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		info.landing = false;
 	}
 }
-
-//void Player::CheckMapCollisionLeft(CollisionMapInfo& info) { info; }
 
 void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	if (info.move.x >= 0.0f)

@@ -29,7 +29,9 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
-	phase_ = Phase::kPlay;
+	phase_ = Phase::kCountDown;
+	countdownTimer_ = 1.0f;
+	countdownNumber_ = 3;
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
@@ -77,14 +79,163 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 }
 
+//void GameScene::Update() {
+//
+//	// 先にフェーズ切替をチェック
+//	ChangePhase();
+//
+//	switch (phase_) {
+//
+//	case Phase::kCountDown:
+//		// カウントダウンタイマー更新
+//		countdownTimer_ -= 1.0f / 60.0f; // 60FPS想定
+//		if (countdownTimer_ <= 0.0f) {
+//			countdownNumber_--;
+//			countdownTimer_ = 1.0f;
+//
+//			if (countdownNumber_ <= 0) {
+//				// カウントダウン終了 → ゲーム開始
+//				phase_ = Phase::kPlay;
+//			}
+//		}
+//
+//		// カウントダウン中も敵やブロックの更新は行う（描画は通常通り）
+//		for (Enemy* enemy : enemies_)
+//			enemy->Update();
+//
+//		for (auto& line : worldTransformBlocks_) {
+//			for (auto* block : line) {
+//				if (block)
+//					block->UpdateMatrix();
+//			}
+//		}
+//
+//		// プレイヤーの Update は呼ぶけど入力無効にする場合は特別な処理が必要
+//		// player_->Update() を呼んでも操作は受け付けないようにする
+//		player_->Update();
+//
+//		// カメラやスカイドームも通常通り更新
+//		cameraController_->Update();
+//		skydome_->Update();
+//
+//		// deathParticles_ があれば更新
+//		if (deathParticles_)
+//			deathParticles_->Update();
+//
+//		break;
+//
+//	case Phase::kPlay:
+//
+//		// 既存の kPlay 更新処理
+//		/*if (input_->TriggerKey(DIK_Z)) {
+//			player_->Attack();
+//		}*/
+//
+//		if (player_->IsAttacking()) {
+//			AABB attackBox = player_->GetAttackAABB();
+//			for (Enemy* enemy : enemies_) {
+//				if (AABB::IsCollision(attackBox, enemy->GetAABB())) {
+//					enemy->OnCollision(player_);
+//				}
+//			}
+//		}
+//
+//		CheckAllCollision();
+//
+//		player_->Update();
+//		for (Enemy* enemy : enemies_)
+//			enemy->Update();
+//
+//		for (auto& line : worldTransformBlocks_) {
+//			for (auto* block : line) {
+//				if (block)
+//					block->UpdateMatrix();
+//			}
+//		}
+//
+//		if (input_->TriggerKey(DIK_SPACE))
+//			isFinished_ = true;
+//
+//		if (deathParticles_)
+//			deathParticles_->Update();
+//
+//		cameraController_->Update();
+//		skydome_->Update();
+//
+//		break;
+//
+//	case Phase::kDeath:
+//
+//		for (Enemy* enemy : enemies_)
+//			enemy->Update();
+//
+//		for (auto& line : worldTransformBlocks_) {
+//			for (auto* block : line) {
+//				if (block)
+//					block->UpdateMatrix();
+//			}
+//		}
+//
+//		if (input_->TriggerKey(DIK_SPACE))
+//			isFinished_ = true;
+//
+//		if (deathParticles_)
+//			deathParticles_->Update();
+//
+//		cameraController_->Update();
+//		skydome_->Update();
+//
+//		break;
+//	}
+//}
+
 void GameScene::Update() {
 
-	// 先にフェーズ切替をチェック
+	// フェーズ切替
 	ChangePhase();
 
 	switch (phase_) {
 
+	case Phase::kCountDown:
+		// カウントダウンタイマー更新
+		countdownTimer_ -= 1.0f / 60.0f; // 60FPS想定
+		if (countdownTimer_ <= 0.0f) {
+			countdownNumber_--;
+			countdownTimer_ = 1.0f;
+
+			if (countdownNumber_ <= 0) {
+				// カウントダウン終了 → ゲーム開始
+				phase_ = Phase::kPlay;
+			}
+		}
+
+		// プレイヤー操作無効
+		player_->SetInputEnabled(false);
+		player_->Update(); // 移動も攻撃も無効
+
+		// 敵やブロックの更新は通常通り
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
+
+		for (auto& line : worldTransformBlocks_) {
+			for (auto* block : line) {
+				if (block)
+					block->UpdateMatrix();
+			}
+		}
+
+		// カメラ・スカイドーム・死亡パーティクルも更新
+		cameraController_->Update();
+		skydome_->Update();
+
+		if (deathParticles_)
+			deathParticles_->Update();
+
+		break;
+
 	case Phase::kPlay:
+		// プレイヤー操作有効
+		player_->SetInputEnabled(true);
 
 		if (input_->TriggerKey(DIK_Z)) {
 			player_->Attack();
@@ -101,7 +252,14 @@ void GameScene::Update() {
 
 		CheckAllCollision();
 
-		player_->Update();
+		if (phase_ == Phase::kCountDown) {
+			player_->SetInputEnabled(false); // カウントダウン中は操作無効
+		} else {
+			player_->SetInputEnabled(true); // 通常プレイ中は操作可能
+		}
+
+		player_->Update(); // 通常Update（操作可能）
+
 		for (Enemy* enemy : enemies_)
 			enemy->Update();
 
@@ -124,8 +282,7 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kDeath:
-
-		// 死亡中も敵・ブロック・パーティクルは更新
+		// 既存処理
 		for (Enemy* enemy : enemies_)
 			enemy->Update();
 
@@ -149,6 +306,7 @@ void GameScene::Update() {
 	}
 }
 
+
 void GameScene::Draw() {
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
@@ -168,6 +326,10 @@ void GameScene::Draw() {
 	}
 
 	// プレイヤー描画
+	if (phase_ == Phase::kCountDown) {
+		player_->Draw(camera_);
+	}
+
 	if (phase_ == Phase::kPlay) {
 		player_->Draw(camera_);
 	}
