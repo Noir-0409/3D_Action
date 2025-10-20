@@ -87,6 +87,10 @@ public:
 
 	AABB GetAttackAABB() const;
 
+	bool isDead_ = false;
+
+	bool IsDead() const { return isDead_; }
+
 private:
 	WorldTransform worldTransform_;
 
