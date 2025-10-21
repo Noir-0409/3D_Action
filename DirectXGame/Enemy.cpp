@@ -18,10 +18,10 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 void Enemy::Update() {
 
-	worldTransform_.translation_.x += velocity_.x;
-	worldTransform_.translation_.y += velocity_.y;
+	//worldTransform_.translation_.x += velocity_.x;
+	//worldTransform_.translation_.y += velocity_.y;
 
-	walkTimer_ += 1.0f / 60.0f;
+	//walkTimer_ += 1.0f / 60.0f;
 
 	float t = std::fmod(walkTimer_, kWalkMotionTime) / kWalkMotionTime;
 	float param = std::sin(t * 2.0f * std::numbers::pi_v<float>);

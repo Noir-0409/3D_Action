@@ -15,6 +15,7 @@ class GameScene {
 
 	enum class Phase {
 
+		kCountDown,
 		kPlay,
 		kDeath,
 
@@ -77,5 +78,26 @@ private:
 	DeathParticle* deathParticles_ = nullptr;
 
 	Model* modelParticle_ = nullptr;
+
+	float countdownTimer_ = 0.0f;
+	int countdownNumber_ = 3;
+
+	uint32_t oneTextureHandle_ = 0;
+	Sprite* oneSprite_ = nullptr;
+
+	uint32_t twoTextureHandle_ = 0;
+	Sprite* twoSprite_ = nullptr;
+
+	uint32_t threeTextureHandle_ = 0;
+	Sprite* threeSprite_ = nullptr;
+
+	uint32_t startTextureHandle_ = 0;
+	Sprite* startSprite_ = nullptr;
+
+	Vector2 numberPos_ = {0, 0};
+	Vector2 startPos_ = {0, 0};
+
+	float countdownScale_ = 1.0f; // スプライトの拡大率
+	float countdownScaleSpeed_ = 0.05f;
 
 };
