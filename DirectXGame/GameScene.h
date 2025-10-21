@@ -97,4 +97,7 @@ private:
 	Vector2 numberPos_ = {0, 0};
 	Vector2 startPos_ = {0, 0};
 
+	float countdownScale_ = 1.0f; // スプライトの拡大率
+	float countdownScaleSpeed_ = 0.05f;
+
 };

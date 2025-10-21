@@ -30,11 +30,11 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 
 	phase_ = Phase::kCountDown;
-	countdownTimer_ = 1.0f;
+	countdownTimer_ = 1.5f;
 	countdownNumber_ = 3;
 
 	numberPos_ = {300, -500};
-	startPos_ = {325, 550};
+	startPos_ = {385, 280};
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
@@ -46,7 +46,7 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
 
 	oneTextureHandle_ = TextureManager::Load("number/1.png");
-	oneSprite_ = Sprite::Create(oneTextureHandle_,numberPos_);
+	oneSprite_ = Sprite::Create(oneTextureHandle_, numberPos_);
 
 	twoTextureHandle_ = TextureManager::Load("number/2.png");
 	twoSprite_ = Sprite::Create(twoTextureHandle_, numberPos_);
@@ -102,23 +102,18 @@ void GameScene::Update() {
 	switch (phase_) {
 
 	case Phase::kCountDown:
-		// カウントダウンタイマー更新
-		countdownTimer_ -= 1.0f / 60.0f; // 60FPS想定
-		if (countdownTimer_ <= 0.0f) {
-			countdownNumber_--;
-			countdownTimer_ = 1.0f;
 
-			if (countdownNumber_ <= 0) {
-				// カウントダウン終了 → ゲーム開始
-				phase_ = Phase::kPlay;
-			}
+		// 1秒だけ start を表示する場合
+		countdownTimer_ -= 1.0f / 60.0f;
+		if (countdownTimer_ <= 0.0f) {
+			phase_ = Phase::kPlay; // すぐにゲーム開始
 		}
 
 		// プレイヤー操作無効
 		player_->SetInputEnabled(false);
-		player_->Update(); // 移動も攻撃も無効
+		player_->Update(); // 移動・攻撃は無効
 
-		// 敵やブロックの更新は通常通り
+		// 敵やブロックの更新
 		for (Enemy* enemy : enemies_)
 			enemy->Update();
 
@@ -129,10 +124,9 @@ void GameScene::Update() {
 			}
 		}
 
-		// カメラ・スカイドーム・死亡パーティクルも更新
+		// カメラ・スカイドーム・死亡パーティクル更新
 		cameraController_->Update();
 		skydome_->Update();
-
 		if (deathParticles_)
 			deathParticles_->Update();
 
@@ -142,28 +136,19 @@ void GameScene::Update() {
 		// プレイヤー操作有効
 		player_->SetInputEnabled(true);
 
-		if (input_->TriggerKey(DIK_Z)) {
+		if (input_->TriggerKey(DIK_Z))
 			player_->Attack();
-		}
 
 		if (player_->IsAttacking()) {
 			AABB attackBox = player_->GetAttackAABB();
 			for (Enemy* enemy : enemies_) {
-				if (AABB::IsCollision(attackBox, enemy->GetAABB())) {
+				if (AABB::IsCollision(attackBox, enemy->GetAABB()))
 					enemy->OnCollision(player_);
-				}
 			}
 		}
 
 		CheckAllCollision();
-
-		if (phase_ == Phase::kCountDown) {
-			player_->SetInputEnabled(false); // カウントダウン中は操作無効
-		} else {
-			player_->SetInputEnabled(true); // 通常プレイ中は操作可能
-		}
-
-		player_->Update(); // 通常Update（操作可能）
+		player_->Update();
 
 		for (Enemy* enemy : enemies_)
 			enemy->Update();
@@ -187,7 +172,7 @@ void GameScene::Update() {
 		break;
 
 	case Phase::kDeath:
-		// 既存処理
+		// 死亡中の更新
 		for (Enemy* enemy : enemies_)
 			enemy->Update();
 
@@ -211,14 +196,16 @@ void GameScene::Update() {
 	}
 }
 
-
 void GameScene::Draw() {
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
+	// スプライト描画開始
 	Sprite::PreDraw(dxCommon->GetCommandList());
+
 	Sprite::PostDraw();
 
+	// 3D描画開始
 	dxCommon->ClearDepthBuffer();
 	Model::PreDraw();
 
@@ -230,12 +217,9 @@ void GameScene::Draw() {
 		}
 	}
 
-	// プレイヤー描画
-	if (phase_ == Phase::kCountDown) {
-		player_->Draw(camera_);
-	}
-
-	if (phase_ == Phase::kPlay) {
+	// プレイヤー描画（カウントダウン中も表示）
+//	player_->Draw(camera_);
+	if (phase_ != Phase::kDeath) {
 		player_->Draw(camera_);
 	}
 
@@ -247,11 +231,20 @@ void GameScene::Draw() {
 	if (deathParticles_)
 		deathParticles_->Draw();
 
+	// スカイドーム描画
 	skydome_->Draw();
 
 	Model::PostDraw();
 
+	// 後処理スプライト描画（UIなど）
 	Sprite::PreDraw(dxCommon->GetCommandList());
+
+	// カウントダウンスプライト描画（拡大縮小なし）
+
+	if (phase_ == Phase::kCountDown && startSprite_) {
+		startSprite_->Draw();
+	}
+
 	Sprite::PostDraw();
 }
 
