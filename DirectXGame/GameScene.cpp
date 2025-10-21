@@ -33,6 +33,9 @@ void GameScene::Initialize() {
 	countdownTimer_ = 1.0f;
 	countdownNumber_ = 3;
 
+	numberPos_ = {300, -500};
+	startPos_ = {325, 550};
+
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
@@ -41,6 +44,18 @@ void GameScene::Initialize() {
 
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
+
+	oneTextureHandle_ = TextureManager::Load("number/1.png");
+	oneSprite_ = Sprite::Create(oneTextureHandle_,numberPos_);
+
+	twoTextureHandle_ = TextureManager::Load("number/2.png");
+	twoSprite_ = Sprite::Create(twoTextureHandle_, numberPos_);
+
+	threeTextureHandle_ = TextureManager::Load("number/3.png");
+	threeSprite_ = Sprite::Create(threeTextureHandle_, numberPos_);
+
+	startTextureHandle_ = TextureManager::Load("number/start.png");
+	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
 
 	camera_.Initialize();
 
@@ -78,116 +93,6 @@ void GameScene::Initialize() {
 
 	GenerateBlocks();
 }
-
-//void GameScene::Update() {
-//
-//	// 先にフェーズ切替をチェック
-//	ChangePhase();
-//
-//	switch (phase_) {
-//
-//	case Phase::kCountDown:
-//		// カウントダウンタイマー更新
-//		countdownTimer_ -= 1.0f / 60.0f; // 60FPS想定
-//		if (countdownTimer_ <= 0.0f) {
-//			countdownNumber_--;
-//			countdownTimer_ = 1.0f;
-//
-//			if (countdownNumber_ <= 0) {
-//				// カウントダウン終了 → ゲーム開始
-//				phase_ = Phase::kPlay;
-//			}
-//		}
-//
-//		// カウントダウン中も敵やブロックの更新は行う（描画は通常通り）
-//		for (Enemy* enemy : enemies_)
-//			enemy->Update();
-//
-//		for (auto& line : worldTransformBlocks_) {
-//			for (auto* block : line) {
-//				if (block)
-//					block->UpdateMatrix();
-//			}
-//		}
-//
-//		// プレイヤーの Update は呼ぶけど入力無効にする場合は特別な処理が必要
-//		// player_->Update() を呼んでも操作は受け付けないようにする
-//		player_->Update();
-//
-//		// カメラやスカイドームも通常通り更新
-//		cameraController_->Update();
-//		skydome_->Update();
-//
-//		// deathParticles_ があれば更新
-//		if (deathParticles_)
-//			deathParticles_->Update();
-//
-//		break;
-//
-//	case Phase::kPlay:
-//
-//		// 既存の kPlay 更新処理
-//		/*if (input_->TriggerKey(DIK_Z)) {
-//			player_->Attack();
-//		}*/
-//
-//		if (player_->IsAttacking()) {
-//			AABB attackBox = player_->GetAttackAABB();
-//			for (Enemy* enemy : enemies_) {
-//				if (AABB::IsCollision(attackBox, enemy->GetAABB())) {
-//					enemy->OnCollision(player_);
-//				}
-//			}
-//		}
-//
-//		CheckAllCollision();
-//
-//		player_->Update();
-//		for (Enemy* enemy : enemies_)
-//			enemy->Update();
-//
-//		for (auto& line : worldTransformBlocks_) {
-//			for (auto* block : line) {
-//				if (block)
-//					block->UpdateMatrix();
-//			}
-//		}
-//
-//		if (input_->TriggerKey(DIK_SPACE))
-//			isFinished_ = true;
-//
-//		if (deathParticles_)
-//			deathParticles_->Update();
-//
-//		cameraController_->Update();
-//		skydome_->Update();
-//
-//		break;
-//
-//	case Phase::kDeath:
-//
-//		for (Enemy* enemy : enemies_)
-//			enemy->Update();
-//
-//		for (auto& line : worldTransformBlocks_) {
-//			for (auto* block : line) {
-//				if (block)
-//					block->UpdateMatrix();
-//			}
-//		}
-//
-//		if (input_->TriggerKey(DIK_SPACE))
-//			isFinished_ = true;
-//
-//		if (deathParticles_)
-//			deathParticles_->Update();
-//
-//		cameraController_->Update();
-//		skydome_->Update();
-//
-//		break;
-//	}
-//}
 
 void GameScene::Update() {
 
