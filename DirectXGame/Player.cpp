@@ -20,7 +20,8 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	worldTransform_.translation_ = position;
 
-	camera;
+	// 修正例
+	camera_ = camera;
 
 	worldTransform_.rotation_.y = 3.14159f / 2.0f;
 
@@ -58,16 +59,57 @@ void Player::Update() {
 
 void Player::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
 
+//void Player::InputMove() {
+//	Vector3 acceleration{};
+//
+//	// 左右移動
+//	if (Input::GetInstance()->PushKey(DIK_D)) {
+//		if (velocity_.x < 0.0f)
+//			velocity_.x *= (1.0f - kAttenuation);
+//		acceleration.x += kAcceleration;
+//		lrDirection_ = LRDirection::kRight;
+//	} else if (Input::GetInstance()->PushKey(DIK_A)) {
+//		if (velocity_.x > 0.0f)
+//			velocity_.x *= (1.0f - kAttenuation);
+//		acceleration.x -= kAcceleration;
+//		lrDirection_ = LRDirection::kLeft;
+//	} else {
+//		velocity_.x *= (1.0f - kAttenuation);
+//	}
+//
+//	velocity_ += acceleration;
+//	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+//
+//	// ジャンプ判定：壁に触れていても接地していれば可能
+//	if (Input::GetInstance()->PushKey(DIK_W)) {
+//		if (onGround_) {
+//			velocity_.y = kJumpAcceleration;
+//			onGround_ = false;
+//		}
+//	}
+//
+//	// 空中重力処理
+//	if (!onGround_) {
+//		velocity_.y -= kGravityAcceleration;
+//		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+//	}
+//
+//	// 回転更新
+//	UpdateRotation();
+//
+//	// 移動自体は CollisionMove で行う
+//}
+
 void Player::InputMove() {
 	Vector3 acceleration{};
 
 	// 左右移動
-	if (Input::GetInstance()->PushKey(DIK_D)) {
+	if (input_->PushKey(DIK_D)) {
 		if (velocity_.x < 0.0f)
 			velocity_.x *= (1.0f - kAttenuation);
 		acceleration.x += kAcceleration;
 		lrDirection_ = LRDirection::kRight;
-	} else if (Input::GetInstance()->PushKey(DIK_A)) {
+	} else if (input_->PushKey(DIK_A)) {
 		if (velocity_.x > 0.0f)
 			velocity_.x *= (1.0f - kAttenuation);
 		acceleration.x -= kAcceleration;
@@ -79,25 +121,35 @@ void Player::InputMove() {
 	velocity_ += acceleration;
 	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 
-	// ジャンプ判定：壁に触れていても接地していれば可能
-	if (Input::GetInstance()->PushKey(DIK_W)) {
+	// ジャンプ処理（フワフワ対応）
+	if (input_->PushKey(DIK_W)) {
 		if (onGround_) {
 			velocity_.y = kJumpAcceleration;
 			onGround_ = false;
+			jumpTime_ = 0.0f;
+		} else if (jumpTime_ < kMaxJumpTime) {
+			// 上昇持続
+			velocity_.y = kJumpAcceleration;
 		}
+		jumpTime_ += 1.0f / 60.0f; // 60FPS想定
+	} else {
+		jumpTime_ = kMaxJumpTime; // 押してないとジャンプ持続終了
 	}
 
 	// 空中重力処理
 	if (!onGround_) {
-		velocity_.y -= kGravityAcceleration;
+		if (velocity_.y > 0.0f) {                       // 上昇中
+			velocity_.y -= kGravityAcceleration * 0.6f; // 上昇中は重力弱め
+		} else {                                        // 下降中
+			velocity_.y -= kGravityAcceleration * 0.8f; // 下降中は重力強め
+		}
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 
 	// 回転更新
 	UpdateRotation();
-
-	// 移動自体は CollisionMove で行う
 }
+
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
 

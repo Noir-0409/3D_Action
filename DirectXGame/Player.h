@@ -104,6 +104,8 @@ private:
 
 	Vector3 velocity_ = {};
 
+	Camera* camera_ = nullptr;
+
 	static inline const float kAcceleration = 0.003f;
 	static inline const float kLimitRunSpeed = 0.5f;
 	static inline const float kAttenuation = 0.1f;
@@ -119,7 +121,7 @@ private:
 
 	static inline const float kGravityAcceleration = 0.05f;
 	static inline const float kLimitFallSpeed = 1.0f;
-	static inline const float kJumpAcceleration = 1.0f;
+	static inline const float kJumpAcceleration = 0.4f;
 
 	MapChipField* mapChipField_ = nullptr;
 
@@ -136,5 +138,8 @@ private:
 
 	bool isAttacking_ = false;
 	int attackTimer_ = 0; 
+
+	float jumpTime_ = 0.0f;
+	static inline const float kMaxJumpTime = 0.25f;
 
 };
