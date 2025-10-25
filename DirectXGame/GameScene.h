@@ -104,4 +104,10 @@ private:
 	float countdownScale_ = 1.0f; // スプライトの拡大率
 	float countdownScaleSpeed_ = 0.05f;
 
+	uint32_t fireTextureHandle1_ = 0;
+	uint32_t fireTextureHandle2_ = 0;
+	float fireSwitchTimer_ = 0.0f;
+	float fireSwitchInterval_ = 1.0f;
+	bool fireToggle_ = false;
+
 };
