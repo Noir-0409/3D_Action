@@ -56,7 +56,11 @@ private:
 
 	Player* player_ = nullptr;
 
+	//1のブロック
 	Model* modelBlock_ = nullptr;
+
+	//2の即死ブロック
+	Model* modelFire_ = nullptr;
 
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
