@@ -186,7 +186,7 @@ void GameScene::Update() {
 					block->UpdateMatrix();
 
 		  if (overAlpha_ < 1.0f) {
-			overAlpha_ += 1.0f / 60.0f;
+			overAlpha_ += 1.0f / 180.0f;
 			if (overAlpha_ > 1.0f) {
 				overAlpha_ = 1.0f;
 			}
