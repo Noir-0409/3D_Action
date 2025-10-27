@@ -10,7 +10,7 @@ TitleScene::~TitleScene() {
 
 void TitleScene::Initialize() {
 
-	spritePos_ = {300, -500};
+	spritePos_ = {65, -500};
 	startPos_ = {325, 550};
 
 	dxCommon_ = DirectXCommon::GetInstance();
@@ -25,7 +25,6 @@ void TitleScene::Initialize() {
 
 	titleTextureHandle_ = TextureManager::Load("titleSprite.png");
 	titleSprite_ = Sprite::Create(titleTextureHandle_, spritePos_);
-	titleSprite_->SetSize({600.0f, 300.0f});
 
 	startTextureHandle_ = TextureManager::Load("startSprite.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
