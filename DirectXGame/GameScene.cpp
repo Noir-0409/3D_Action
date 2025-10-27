@@ -109,6 +109,8 @@ void GameScene::Update() {
 		fireToggle_ = !fireToggle_;
 	}
 
+	
+
 	switch (phase_) {
 
 	case Phase::kCountDown:
