@@ -98,8 +98,12 @@ private:
 	uint32_t startTextureHandle_ = 0;
 	Sprite* startSprite_ = nullptr;
 
+	uint32_t overTextureHandle_ = 0;
+	Sprite* overSprite_ = nullptr;
+
 	Vector2 numberPos_ = {0, 0};
 	Vector2 startPos_ = {0, 0};
+	Vector2 overPos_ = {0, 0};
 
 	float countdownScale_ = 1.0f; // スプライトの拡大率
 	float countdownScaleSpeed_ = 0.05f;
@@ -109,5 +113,7 @@ private:
 	float fireSwitchTimer_ = 0.0f;
 	float fireSwitchInterval_ = 1.0f;
 	bool fireToggle_ = false;
+
+	float overAlpha_ = 0.0f; 
 
 };
