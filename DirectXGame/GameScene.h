@@ -1,12 +1,12 @@
 #pragma once
-#include "KamataEngine.h"
-#include "Player.h"
-#include "MapChipField.h"
 #include "CameraController.h"
-#include "Enemy.h"
-#include "Skydome.h"
-#include "MathUtillity.h"
 #include "DeathParticle.h"
+#include "Enemy.h"
+#include "KamataEngine.h"
+#include "MapChipField.h"
+#include "MathUtillity.h"
+#include "Player.h"
+#include "Skydome.h"
 
 using namespace KamataEngine;
 
@@ -24,7 +24,6 @@ class GameScene {
 	Phase phase_;
 
 public:
-
 	~GameScene();
 
 	// 初期化
@@ -56,10 +55,10 @@ private:
 
 	Player* player_ = nullptr;
 
-	//1のブロック
+	// 1のブロック
 	Model* modelBlock_ = nullptr;
 
-	//2の即死ブロック
+	// 2の即死ブロック
 	Model* modelFire_ = nullptr;
 
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
@@ -68,7 +67,7 @@ private:
 
 	CameraController* cameraController_;
 
-	//Enemy* enemy_ = nullptr;
+	// Enemy* enemy_ = nullptr;
 	std::list<Enemy*> enemies_;
 
 	Model* modelEnemy_ = nullptr;
@@ -114,6 +113,6 @@ private:
 	float fireSwitchInterval_ = 1.0f;
 	bool fireToggle_ = false;
 
-	float overAlpha_ = 0.0f; 
-
+	float startAlpha_ = 0.0f;
+	float overAlpha_ = 0.0f;
 };

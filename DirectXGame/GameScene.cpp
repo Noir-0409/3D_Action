@@ -31,7 +31,7 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 
 	phase_ = Phase::kCountDown;
-	countdownTimer_ = 1.5f;
+	countdownTimer_ = 3.0f;
 	countdownNumber_ = 3;
 
 	numberPos_ = {300, -500};
@@ -98,6 +98,7 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 
 	overAlpha_ = 0.0f;
+	startAlpha_ = 0.0f;
 
 	worldTransform_.Initialize();
 
@@ -123,6 +124,12 @@ void GameScene::Update() {
 		countdownTimer_ -= 1.0f / 60.0f;
 		if (countdownTimer_ <= 0.0f) {
 			phase_ = Phase::kPlay;
+		}
+
+		   if (startAlpha_ < 1.0f) {
+			startAlpha_ += 1.0f / 120.0f; // 2秒でフル表示
+			if (startAlpha_ > 1.0f)
+				startAlpha_ = 1.0f;
 		}
 
 		player_->SetInputEnabled(false);
@@ -255,8 +262,12 @@ void GameScene::Draw() {
 	Model::PostDraw();
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
-	if (phase_ == Phase::kCountDown && startSprite_)
+	
+	if (phase_ == Phase::kCountDown && startSprite_) {
+		float alpha = startAlpha_;                         // 0.0〜1.0
+		startSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白に透明度を乗算
 		startSprite_->Draw();
+	}
 
 	if (phase_ == Phase::kDeath) {
 		float alpha = overAlpha_;                         // 0.0〜1.0の範囲
