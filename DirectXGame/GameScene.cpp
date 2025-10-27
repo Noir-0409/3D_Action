@@ -36,6 +36,7 @@ void GameScene::Initialize() {
 
 	numberPos_ = {300, -500};
 	startPos_ = {385, 280};
+	overPos_ = {140, 250};
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
@@ -61,6 +62,9 @@ void GameScene::Initialize() {
 
 	fireTextureHandle1_ = TextureManager::Load("fire/fire1.png");
 	fireTextureHandle2_ = TextureManager::Load("fire/fire2.png");
+
+	overTextureHandle_ = TextureManager::Load("gameover.png");
+	overSprite_ = Sprite::Create(overTextureHandle_, overPos_);
 
 	camera_.Initialize();
 
@@ -93,6 +97,8 @@ void GameScene::Initialize() {
 
 	input_ = Input::GetInstance();
 
+	overAlpha_ = 0.0f;
+
 	worldTransform_.Initialize();
 
 	GenerateBlocks();
@@ -108,6 +114,8 @@ void GameScene::Update() {
 		fireSwitchTimer_ = 0.0f;
 		fireToggle_ = !fireToggle_;
 	}
+
+	
 
 	switch (phase_) {
 
@@ -177,6 +185,13 @@ void GameScene::Update() {
 				if (block)
 					block->UpdateMatrix();
 
+		  if (overAlpha_ < 1.0f) {
+			overAlpha_ += 1.0f / 180.0f;
+			if (overAlpha_ > 1.0f) {
+				overAlpha_ = 1.0f;
+			}
+		}
+
 		if (input_->TriggerKey(DIK_SPACE))
 			isFinished_ = true;
 
@@ -242,6 +257,13 @@ void GameScene::Draw() {
 	Sprite::PreDraw(dxCommon->GetCommandList());
 	if (phase_ == Phase::kCountDown && startSprite_)
 		startSprite_->Draw();
+
+	if (phase_ == Phase::kDeath) {
+		float alpha = overAlpha_;                         // 0.0〜1.0の範囲
+		overSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白を乗算
+		overSprite_->Draw();
+	}
+
 	Sprite::PostDraw();
 }
 

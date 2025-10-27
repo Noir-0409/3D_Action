@@ -21,4 +21,6 @@ Model* model_ = nullptr;
 
 Camera* camera_ = nullptr;
 
+float rotationY_ = 0.0f;
+
 };
