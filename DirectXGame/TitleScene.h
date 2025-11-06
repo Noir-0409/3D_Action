@@ -48,4 +48,6 @@ private:
 
 	enum class FadeState { None, FadeIn, FadeOut };
 	FadeState fadeState_ = FadeState::FadeIn;
+
+	 float totalTime_ = 0.0f;
 };

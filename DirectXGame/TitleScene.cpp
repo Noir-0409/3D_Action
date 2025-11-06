@@ -10,8 +10,9 @@ TitleScene::~TitleScene() {
 
 void TitleScene::Initialize() {
 
-	spritePos_ = {300, -500};
-	startPos_ = {325, 550};
+	spritePos_ = {65, -500};
+	startPos_ = {255, 500};
+	totalTime_ = 0.0f;
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -25,7 +26,6 @@ void TitleScene::Initialize() {
 
 	titleTextureHandle_ = TextureManager::Load("titleSprite.png");
 	titleSprite_ = Sprite::Create(titleTextureHandle_, spritePos_);
-	titleSprite_->SetSize({600.0f, 300.0f});
 
 	startTextureHandle_ = TextureManager::Load("startSprite.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
@@ -37,6 +37,9 @@ void TitleScene::Initialize() {
 }
 
 void TitleScene::Update(float deltaTime) {
+
+	// 累積時間を加算（点滅用）
+	totalTime_ += deltaTime;
 
 	// 入力はフェード中は無効
 	if (fadeState_ == FadeState::None) {
@@ -52,34 +55,33 @@ void TitleScene::Update(float deltaTime) {
 		fadeAlpha_ = 1.0f - (fadeTimer_ / fadeDuration_);
 		if (fadeAlpha_ <= 0.0f) {
 			fadeAlpha_ = 0.0f;
-			fadeState_ = FadeState::None; // フェードイン完了
+			fadeState_ = FadeState::None;
 		}
 	} else if (fadeState_ == FadeState::FadeOut) {
 		fadeTimer_ += deltaTime;
 		fadeAlpha_ = fadeTimer_ / fadeDuration_;
 		if (fadeAlpha_ >= 1.0f) {
 			fadeAlpha_ = 1.0f;
-			isFinished_ = true; // フェードアウト完了でシーン切替
+			isFinished_ = true;
 		}
 	}
 
-	// 既存のスプライト処理
-	spritePos_.y += 15.0f;
-	titleSprite_->SetPosition(spritePos_);
-	if (spritePos_.y > 50.0f) {
-		spritePos_.y += (50.0f - spritePos_.y) * 0.1f;
-	}
+	// タイトルスプライトの滑らか移動（減速付き）
+	float targetY = 90.0f; // 止めたい高さ
+	float easing = 0.1f;   // ゴールに近づくほど減速する割合
+	float diff = targetY - spritePos_.y;
 
-	startAlpha_ += alphaDir_;
-	if (startAlpha_ <= 0.0f) {
-		startAlpha_ = 0.0f;
-		alphaDir_ *= -1;
-	} else if (startAlpha_ >= 1.0f) {
-		startAlpha_ = 1.0f;
-		alphaDir_ *= -1;
+	if (fabs(diff) > 0.1f) {
+		spritePos_.y += diff * easing;
 	}
+	titleSprite_->SetPosition(spritePos_);
+
+	// スタートスプライトの滑らか点滅（正弦波で0～1のループ）
+	float blinkSpeed = 0.5f; // 1秒で2回点滅
+	startAlpha_ = (sinf(totalTime_ * blinkSpeed * 3.14159f * 2) + 1.0f) / 2.0f;
 	startSprite_->SetColor({1.0f, 1.0f, 1.0f, startAlpha_});
 
+	// スカイドーム更新
 	titleSkydome_->Update();
 }
 
