@@ -35,7 +35,7 @@ void GameScene::Initialize() {
 	countdownNumber_ = 3;
 
 	numberPos_ = {300, -500};
-	startPos_ = {385, 280};
+	startPos_ = {135, 230};
 	overPos_ = {140, 250};
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
@@ -57,7 +57,7 @@ void GameScene::Initialize() {
 	threeTextureHandle_ = TextureManager::Load("number/3.png");
 	threeSprite_ = Sprite::Create(threeTextureHandle_, numberPos_);
 
-	startTextureHandle_ = TextureManager::Load("number/start.png");
+	startTextureHandle_ = TextureManager::Load("gamestart.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
 
 	fireTextureHandle1_ = TextureManager::Load("fire/fire1.png");
