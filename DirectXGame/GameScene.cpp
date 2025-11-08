@@ -41,6 +41,7 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
 	modelFire_ = Model::CreateFromOBJ("fire"); // 追加：即死ブロックモデル読み込み
+	modelGoal_ = Model::CreateFromOBJ("goal");
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
 	modelParticle_ = Model::CreateFromOBJ("deathParticle");
@@ -244,6 +245,11 @@ void GameScene::Draw() {
 				}
 				break;
 			}
+
+									 case MapChipType::kGoal:
+				modelGoal_->Draw(*wt, camera_);
+				break;
+
 			}
 		}
 	}

@@ -61,6 +61,8 @@ private:
 	// 2の即死ブロック
 	Model* modelFire_ = nullptr;
 
+	Model* modelGoal_ = nullptr;
+
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
 	MapChipField* mapChipField_;
