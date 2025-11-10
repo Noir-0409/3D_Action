@@ -61,6 +61,9 @@ void GameScene::Initialize() {
 	startTextureHandle_ = TextureManager::Load("gamestart.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
 
+	clearTextureHandle_ = TextureManager::Load("clear.png");
+	clearSprite_ = Sprite::Create(clearTextureHandle_, startPos_);
+
 	fireTextureHandle1_ = TextureManager::Load("fire/fire1.png");
 	fireTextureHandle2_ = TextureManager::Load("fire/fire2.png");
 
@@ -100,6 +103,7 @@ void GameScene::Initialize() {
 
 	overAlpha_ = 0.0f;
 	startAlpha_ = 0.0f;
+	clearAlpha_ = 0.0f;
 
 	worldTransform_.Initialize();
 
@@ -197,6 +201,32 @@ void GameScene::Update() {
 		cameraController_->Update();
 		skydome_->Update();
 		break;
+
+		case Phase::kGoal:
+		// ゴール時は操作を無効にする
+		player_->SetInputEnabled(false);
+
+		// 徐々にフェードイン
+		if (clearAlpha_ < 1.0f) {
+			clearAlpha_ += 1.0f / 180.0f; // 3秒でフル表示（60fps）
+			if (clearAlpha_ > 1.0f)
+				clearAlpha_ = 1.0f;
+		}
+
+		player_->Update();
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
+
+		for (auto& line : worldTransformBlocks_)
+			for (auto* block : line)
+				if (block)
+					block->UpdateMatrix();
+
+		cameraController_->Update();
+		skydome_->Update();
+
+		break;
+
 	}
 }
 
@@ -266,6 +296,11 @@ void GameScene::Draw() {
 		float alpha = overAlpha_;                         // 0.0〜1.0の範囲
 		overSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白を乗算
 		overSprite_->Draw();
+	}
+
+	if (phase_ == Phase::kGoal && clearSprite_) {
+		clearSprite_->SetColor({1.0f, 1.0f, 1.0f, clearAlpha_});
+		clearSprite_->Draw();
 	}
 
 	Sprite::PostDraw();

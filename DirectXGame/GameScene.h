@@ -100,6 +100,9 @@ private:
 	uint32_t startTextureHandle_ = 0;
 	Sprite* startSprite_ = nullptr;
 
+	uint32_t clearTextureHandle_ = 0u;
+	Sprite* clearSprite_ = nullptr;
+
 	uint32_t overTextureHandle_ = 0;
 	Sprite* overSprite_ = nullptr;
 
@@ -118,4 +121,6 @@ private:
 
 	float startAlpha_ = 0.0f;
 	float overAlpha_ = 0.0f;
+	float clearAlpha_;
+
 };
