@@ -18,6 +18,7 @@ class GameScene {
 		kCountDown,
 		kPlay,
 		kDeath,
+		kGoal
 
 	};
 

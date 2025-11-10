@@ -81,12 +81,6 @@ public:
 
 	void OnCollision(const Enemy* enemy);
 
-	void Attack();
-
-	bool IsAttacking() const { return isAttacking_; }
-
-	AABB GetAttackAABB() const;
-
 	bool isDead_ = false;
 
 	bool IsDead() const { return isDead_; }
@@ -94,6 +88,8 @@ public:
 	bool inputEnabled_ = true;
 
 	 void SetInputEnabled(bool enabled) { inputEnabled_ = enabled; }
+
+	 bool IsGoal() const { return isGoal_; }
 
 private:
 	WorldTransform worldTransform_;
@@ -141,5 +137,7 @@ private:
 
 	float jumpTime_ = 0.0f;
 	static inline const float kMaxJumpTime = 0.25f;
+
+	bool isGoal_ = false;
 
 };

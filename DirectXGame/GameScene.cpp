@@ -117,8 +117,6 @@ void GameScene::Update() {
 		fireToggle_ = !fireToggle_;
 	}
 
-	
-
 	switch (phase_) {
 
 	case Phase::kCountDown:
@@ -127,7 +125,7 @@ void GameScene::Update() {
 			phase_ = Phase::kPlay;
 		}
 
-		   if (startAlpha_ < 1.0f) {
+		if (startAlpha_ < 1.0f) {
 			startAlpha_ += 1.0f / 120.0f; // 2秒でフル表示
 			if (startAlpha_ > 1.0f)
 				startAlpha_ = 1.0f;
@@ -153,16 +151,6 @@ void GameScene::Update() {
 
 	case Phase::kPlay:
 		player_->SetInputEnabled(true);
-
-		if (input_->TriggerKey(DIK_Z))
-			player_->Attack();
-
-		if (player_->IsAttacking()) {
-			AABB attackBox = player_->GetAttackAABB();
-			for (Enemy* enemy : enemies_)
-				if (AABB::IsCollision(attackBox, enemy->GetAABB()))
-					enemy->OnCollision(player_);
-		}
 
 		// 当たり判定チェック（即死ブロック含む）
 		CheckAllCollision();
@@ -193,7 +181,7 @@ void GameScene::Update() {
 				if (block)
 					block->UpdateMatrix();
 
-		  if (overAlpha_ < 1.0f) {
+		if (overAlpha_ < 1.0f) {
 			overAlpha_ += 1.0f / 180.0f;
 			if (overAlpha_ > 1.0f) {
 				overAlpha_ = 1.0f;
@@ -246,10 +234,9 @@ void GameScene::Draw() {
 				break;
 			}
 
-									 case MapChipType::kGoal:
+			case MapChipType::kGoal:
 				modelGoal_->Draw(*wt, camera_);
 				break;
-
 			}
 		}
 	}
@@ -268,7 +255,7 @@ void GameScene::Draw() {
 	Model::PostDraw();
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
-	
+
 	if (phase_ == Phase::kCountDown && startSprite_) {
 		float alpha = startAlpha_;                         // 0.0〜1.0
 		startSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白に透明度を乗算
@@ -314,7 +301,6 @@ void GameScene::CheckAllCollision() {
 			enemy->OnCollision(player_);
 		}
 	}
-
 }
 
 void GameScene::ChangePhase() {
@@ -332,9 +318,19 @@ void GameScene::ChangePhase() {
 			deathParticles_ = new DeathParticle();
 			deathParticles_->Initialize(modelParticle_, &camera_, deathParticlesPosition);
 		}
+
+		if (player_->IsGoal()) {
+			phase_ = Phase::kGoal; // 新しくゴールフェーズを作る
+		}
+
 		break;
 
 	case Phase::kDeath:
+		break;
+
+	case Phase::kGoal:
+		// ゴールフェーズでの処理（クリア画面表示など）
+
 		break;
 	}
 }
