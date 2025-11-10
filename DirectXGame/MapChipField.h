@@ -13,6 +13,7 @@ enum class MapChipType {
 	kBlank,
 	kBlock,
 	kDamage,
+	kGoal,
 
 };
 

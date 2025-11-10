@@ -41,6 +41,7 @@ void GameScene::Initialize() {
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
 	modelFire_ = Model::CreateFromOBJ("fire"); // 追加：即死ブロックモデル読み込み
+	modelGoal_ = Model::CreateFromOBJ("goal");
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
 	modelParticle_ = Model::CreateFromOBJ("deathParticle");
@@ -59,6 +60,9 @@ void GameScene::Initialize() {
 
 	startTextureHandle_ = TextureManager::Load("gamestart.png");
 	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
+
+	clearTextureHandle_ = TextureManager::Load("clear.png");
+	clearSprite_ = Sprite::Create(clearTextureHandle_, startPos_);
 
 	fireTextureHandle1_ = TextureManager::Load("fire/fire1.png");
 	fireTextureHandle2_ = TextureManager::Load("fire/fire2.png");
@@ -99,6 +103,7 @@ void GameScene::Initialize() {
 
 	overAlpha_ = 0.0f;
 	startAlpha_ = 0.0f;
+	clearAlpha_ = 0.0f;
 
 	worldTransform_.Initialize();
 
@@ -116,8 +121,6 @@ void GameScene::Update() {
 		fireToggle_ = !fireToggle_;
 	}
 
-	
-
 	switch (phase_) {
 
 	case Phase::kCountDown:
@@ -126,7 +129,7 @@ void GameScene::Update() {
 			phase_ = Phase::kPlay;
 		}
 
-		   if (startAlpha_ < 1.0f) {
+		if (startAlpha_ < 1.0f) {
 			startAlpha_ += 1.0f / 120.0f; // 2秒でフル表示
 			if (startAlpha_ > 1.0f)
 				startAlpha_ = 1.0f;
@@ -152,16 +155,6 @@ void GameScene::Update() {
 
 	case Phase::kPlay:
 		player_->SetInputEnabled(true);
-
-		if (input_->TriggerKey(DIK_Z))
-			player_->Attack();
-
-		if (player_->IsAttacking()) {
-			AABB attackBox = player_->GetAttackAABB();
-			for (Enemy* enemy : enemies_)
-				if (AABB::IsCollision(attackBox, enemy->GetAABB()))
-					enemy->OnCollision(player_);
-		}
 
 		// 当たり判定チェック（即死ブロック含む）
 		CheckAllCollision();
@@ -192,7 +185,7 @@ void GameScene::Update() {
 				if (block)
 					block->UpdateMatrix();
 
-		  if (overAlpha_ < 1.0f) {
+		if (overAlpha_ < 1.0f) {
 			overAlpha_ += 1.0f / 180.0f;
 			if (overAlpha_ > 1.0f) {
 				overAlpha_ = 1.0f;
@@ -208,6 +201,32 @@ void GameScene::Update() {
 		cameraController_->Update();
 		skydome_->Update();
 		break;
+
+		case Phase::kGoal:
+		// ゴール時は操作を無効にする
+		player_->SetInputEnabled(false);
+
+		// 徐々にフェードイン
+		if (clearAlpha_ < 1.0f) {
+			clearAlpha_ += 1.0f / 180.0f; // 3秒でフル表示（60fps）
+			if (clearAlpha_ > 1.0f)
+				clearAlpha_ = 1.0f;
+		}
+
+		player_->Update();
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
+
+		for (auto& line : worldTransformBlocks_)
+			for (auto* block : line)
+				if (block)
+					block->UpdateMatrix();
+
+		cameraController_->Update();
+		skydome_->Update();
+
+		break;
+
 	}
 }
 
@@ -244,6 +263,10 @@ void GameScene::Draw() {
 				}
 				break;
 			}
+
+			case MapChipType::kGoal:
+				modelGoal_->Draw(*wt, camera_);
+				break;
 			}
 		}
 	}
@@ -262,7 +285,7 @@ void GameScene::Draw() {
 	Model::PostDraw();
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
-	
+
 	if (phase_ == Phase::kCountDown && startSprite_) {
 		float alpha = startAlpha_;                         // 0.0〜1.0
 		startSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白に透明度を乗算
@@ -273,6 +296,11 @@ void GameScene::Draw() {
 		float alpha = overAlpha_;                         // 0.0〜1.0の範囲
 		overSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白を乗算
 		overSprite_->Draw();
+	}
+
+	if (phase_ == Phase::kGoal && clearSprite_) {
+		clearSprite_->SetColor({1.0f, 1.0f, 1.0f, clearAlpha_});
+		clearSprite_->Draw();
 	}
 
 	Sprite::PostDraw();
@@ -308,7 +336,6 @@ void GameScene::CheckAllCollision() {
 			enemy->OnCollision(player_);
 		}
 	}
-
 }
 
 void GameScene::ChangePhase() {
@@ -326,9 +353,19 @@ void GameScene::ChangePhase() {
 			deathParticles_ = new DeathParticle();
 			deathParticles_->Initialize(modelParticle_, &camera_, deathParticlesPosition);
 		}
+
+		if (player_->IsGoal()) {
+			phase_ = Phase::kGoal; // 新しくゴールフェーズを作る
+		}
+
 		break;
 
 	case Phase::kDeath:
+		break;
+
+	case Phase::kGoal:
+		// ゴールフェーズでの処理（クリア画面表示など）
+
 		break;
 	}
 }
