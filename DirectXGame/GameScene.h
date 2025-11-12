@@ -123,4 +123,9 @@ private:
 	float overAlpha_ = 0.0f;
 	float clearAlpha_;
 
+	uint32_t fadeTextureHandle_ = 0;
+	Sprite* fadeSprite_ = nullptr; // 死亡フェード用スプライト
+	float fadeAlpha_ = 0.0f;       // 0.0 = 透明, 1.0 = 真っ黒
+	float fadeSpeed_ = 1.0f / 120.0f;
+
 };
