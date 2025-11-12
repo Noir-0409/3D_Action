@@ -70,6 +70,9 @@ void GameScene::Initialize() {
 	overTextureHandle_ = TextureManager::Load("gameover.png");
 	overSprite_ = Sprite::Create(overTextureHandle_, overPos_);
 
+	fadeTextureHandle_ = TextureManager::Load("black.png");
+	fadeSprite_ = Sprite::Create(fadeTextureHandle_, {0, 0});
+
 	camera_.Initialize();
 
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
@@ -104,6 +107,7 @@ void GameScene::Initialize() {
 	overAlpha_ = 0.0f;
 	startAlpha_ = 0.0f;
 	clearAlpha_ = 0.0f;
+	fadeAlpha_ = 0.0f;
 
 	worldTransform_.Initialize();
 
@@ -185,6 +189,12 @@ void GameScene::Update() {
 				if (block)
 					block->UpdateMatrix();
 
+		 if (fadeAlpha_ < 1.0f) {
+			fadeAlpha_ += fadeSpeed_;
+			if (fadeAlpha_ > 1.0f)
+				fadeAlpha_ = 1.0f;
+		}
+
 		if (overAlpha_ < 1.0f) {
 			overAlpha_ += 1.0f / 180.0f;
 			if (overAlpha_ > 1.0f) {
@@ -224,6 +234,9 @@ void GameScene::Update() {
 
 		cameraController_->Update();
 		skydome_->Update();
+
+		if (input_->TriggerKey(DIK_SPACE))
+			isFinished_ = true;
 
 		break;
 
@@ -290,6 +303,11 @@ void GameScene::Draw() {
 		float alpha = startAlpha_;                         // 0.0〜1.0
 		startSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha}); // 白に透明度を乗算
 		startSprite_->Draw();
+	}
+
+	 if (fadeSprite_) {
+		fadeSprite_->SetColor({1.0f, 1.0f, 1.0f, fadeAlpha_});
+		fadeSprite_->Draw(); // サイズ指定なし
 	}
 
 	if (phase_ == Phase::kDeath) {
