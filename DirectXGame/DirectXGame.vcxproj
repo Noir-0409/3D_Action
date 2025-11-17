@@ -271,6 +271,7 @@
     <ClInclude Include="AABB.h" />
     <ClInclude Include="Affin.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="ClearScene.h" />
     <ClInclude Include="DeathParticle.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameScene.h" />
