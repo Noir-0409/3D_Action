@@ -23,7 +23,7 @@ void TitleScene::Initialize() {
 
 	titleSkydome_ = new TitleSkydome();
 	titleSkydome_->Initialize(modelSkydome_, &camera_);
-
+	
 	titleTextureHandle_ = TextureManager::Load("titleSprite.png");
 	titleSprite_ = Sprite::Create(titleTextureHandle_, spritePos_);
 

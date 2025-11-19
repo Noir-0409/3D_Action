@@ -106,9 +106,13 @@ private:
 	uint32_t overTextureHandle_ = 0;
 	Sprite* overSprite_ = nullptr;
 
+	uint32_t overTitleTextureHandle_ = 0;
+	Sprite* overTitleSprite_ = nullptr;
+
 	Vector2 numberPos_ = {0, 0};
 	Vector2 startPos_ = {0, 0};
 	Vector2 overPos_ = {0, 0};
+	Vector2 titlePos = {0, 0};
 
 	float countdownScale_ = 1.0f; // スプライトの拡大率
 	float countdownScaleSpeed_ = 0.05f;

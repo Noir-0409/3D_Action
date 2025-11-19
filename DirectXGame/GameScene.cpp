@@ -36,7 +36,8 @@ void GameScene::Initialize() {
 
 	numberPos_ = {300, -500};
 	startPos_ = {135, 230};
-	overPos_ = {140, 250};
+	overPos_ = {140, 200};
+	titlePos = {100, 400};
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
@@ -72,6 +73,9 @@ void GameScene::Initialize() {
 
 	fadeTextureHandle_ = TextureManager::Load("black.png");
 	fadeSprite_ = Sprite::Create(fadeTextureHandle_, {0, 0});
+
+	overTextureHandle_ = TextureManager::Load("overTitle.png");
+	overTitleSprite_ = Sprite::Create(overTitleTextureHandle_, titlePos);
 
 	camera_.Initialize();
 
@@ -213,20 +217,39 @@ void GameScene::Update() {
 		break;
 
 		case Phase::kGoal:
-		// ゴール時は操作を無効にする
+		// プレイヤー操作を無効化
 		player_->SetInputEnabled(false);
 
-		// 徐々にフェードイン
-		if (clearAlpha_ < 1.0f) {
-			clearAlpha_ += 1.0f / 180.0f; // 3秒でフル表示（60fps）
-			if (clearAlpha_ > 1.0f)
-				clearAlpha_ = 1.0f;
+		// ゴールパーティクル生成（最初のフレームだけ）
+		if (!deathParticles_) {
+			deathParticles_ = new DeathParticle();
+			deathParticles_->Initialize(modelParticle_, &camera_, player_->GetWorldPosition());
 		}
 
+		// パーティクル更新
+		if (deathParticles_)
+			deathParticles_->Update();
+
+		// 徐々に暗転
+		if (fadeAlpha_ < 1.0f) {
+			fadeAlpha_ += fadeSpeed_; // fadeSpeed_ は 1/180〜1/120 程度が目安
+			if (fadeAlpha_ > 1.0f)
+				fadeAlpha_ = 1.0f;
+		}
+
+		// 暗転完了後にクリア画面を徐々に表示
+		if (fadeAlpha_ >= 1.0f) {
+			if (clearAlpha_ < 1.0f) {
+				clearAlpha_ += 1.0f / 180.0f; // 3秒でフル表示
+				if (clearAlpha_ > 1.0f)
+					clearAlpha_ = 1.0f;
+			}
+		}
+
+		// プレイヤー・敵・ブロックの更新
 		player_->Update();
 		for (Enemy* enemy : enemies_)
 			enemy->Update();
-
 		for (auto& line : worldTransformBlocks_)
 			for (auto* block : line)
 				if (block)
@@ -235,10 +258,40 @@ void GameScene::Update() {
 		cameraController_->Update();
 		skydome_->Update();
 
+		// スペースキーでシーン終了
 		if (input_->TriggerKey(DIK_SPACE))
 			isFinished_ = true;
 
 		break;
+
+
+		//case Phase::kGoal:
+		//// ゴール時は操作を無効にする
+		//player_->SetInputEnabled(false);
+
+		//// 徐々にフェードイン
+		//if (clearAlpha_ < 1.0f) {
+		//	clearAlpha_ += 1.0f / 180.0f; // 3秒でフル表示（60fps）
+		//	if (clearAlpha_ > 1.0f)
+		//		clearAlpha_ = 1.0f;
+		//}
+
+		//player_->Update();
+		//for (Enemy* enemy : enemies_)
+		//	enemy->Update();
+
+		//for (auto& line : worldTransformBlocks_)
+		//	for (auto* block : line)
+		//		if (block)
+		//			block->UpdateMatrix();
+
+		//cameraController_->Update();
+		//skydome_->Update();
+
+		//if (input_->TriggerKey(DIK_SPACE))
+		//	isFinished_ = true;
+
+		//break;
 
 	}
 }
