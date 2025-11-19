@@ -12,7 +12,7 @@ void Skydome::Initialize(Model* model, Camera* camera) {
 
 void Skydome::Update() {
 
-	 rotationY_ += 0.002f;
+	 rotationY_ -= 0.002f;
 	if (rotationY_ > XM_2PI)
 		rotationY_ -= XM_2PI;
 
