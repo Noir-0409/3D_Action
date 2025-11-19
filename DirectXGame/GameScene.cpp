@@ -36,7 +36,8 @@ void GameScene::Initialize() {
 
 	numberPos_ = {300, -500};
 	startPos_ = {135, 230};
-	overPos_ = {140, 250};
+	overPos_ = {140, 200};
+	titlePos = {100, 400};
 
 	modelPlayer_ = Model::CreateFromOBJ("Player");
 	modelBlock_ = Model::CreateFromOBJ("block");
@@ -72,6 +73,9 @@ void GameScene::Initialize() {
 
 	fadeTextureHandle_ = TextureManager::Load("black.png");
 	fadeSprite_ = Sprite::Create(fadeTextureHandle_, {0, 0});
+
+	overTextureHandle_ = TextureManager::Load("overTitle.png");
+	overTitleSprite_ = Sprite::Create(overTitleTextureHandle_, titlePos);
 
 	camera_.Initialize();
 
