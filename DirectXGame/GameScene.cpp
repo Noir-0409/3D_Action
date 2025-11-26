@@ -15,6 +15,10 @@ GameScene::~GameScene() {
 	if (deathParticles_)
 		delete deathParticles_;
 
+	for (auto* fp : fireParticles_)
+		delete fp;
+	fireParticles_.clear();
+
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
@@ -77,6 +81,9 @@ void GameScene::Initialize() {
 	overTextureHandle_ = TextureManager::Load("overTitle.png");
 	overTitleSprite_ = Sprite::Create(overTitleTextureHandle_, titlePos);
 
+	fireParticleTextureHandle_ = TextureManager::Load("fireParticle.png");
+	fireParticleSprite = Sprite::Create(fireParticleTextureHandle_, {0, 0});
+
 	camera_.Initialize();
 
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
@@ -116,6 +123,18 @@ void GameScene::Initialize() {
 	worldTransform_.Initialize();
 
 	GenerateBlocks();
+
+for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
+			if (mapChipField_->GetMapChipTypeByIndex(x, y) == MapChipType::kDamage) {
+				Vector2 origin = {worldTransformBlocks_[y][x]->translation_.x, worldTransformBlocks_[y][x]->translation_.y};
+				FireParticle* fp = new FireParticle();
+				fp->Initialize(fireParticleTextureHandle_, origin, 5);
+				fireParticles_.push_back(fp);
+			}
+		}
+	}
+
 }
 
 void GameScene::Update() {
@@ -127,6 +146,10 @@ void GameScene::Update() {
 	if (fireSwitchTimer_ >= fireSwitchInterval_) {
 		fireSwitchTimer_ = 0.0f;
 		fireToggle_ = !fireToggle_;
+	}
+
+	for (auto* fp : fireParticles_) {
+		fp->Update();
 	}
 
 	switch (phase_) {
@@ -264,35 +287,6 @@ void GameScene::Update() {
 
 		break;
 
-
-		//case Phase::kGoal:
-		//// ゴール時は操作を無効にする
-		//player_->SetInputEnabled(false);
-
-		//// 徐々にフェードイン
-		//if (clearAlpha_ < 1.0f) {
-		//	clearAlpha_ += 1.0f / 180.0f; // 3秒でフル表示（60fps）
-		//	if (clearAlpha_ > 1.0f)
-		//		clearAlpha_ = 1.0f;
-		//}
-
-		//player_->Update();
-		//for (Enemy* enemy : enemies_)
-		//	enemy->Update();
-
-		//for (auto& line : worldTransformBlocks_)
-		//	for (auto* block : line)
-		//		if (block)
-		//			block->UpdateMatrix();
-
-		//cameraController_->Update();
-		//skydome_->Update();
-
-		//if (input_->TriggerKey(DIK_SPACE))
-		//	isFinished_ = true;
-
-		//break;
-
 	}
 }
 
@@ -300,6 +294,11 @@ void GameScene::Draw() {
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
+
+	for (auto* fp : fireParticles_) {
+		fp->Draw();
+	}
+
 	Sprite::PostDraw();
 
 	dxCommon->ClearDepthBuffer();

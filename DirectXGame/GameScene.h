@@ -7,6 +7,7 @@
 #include "MathUtillity.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "FireParticle.h"
 
 using namespace KamataEngine;
 
@@ -131,5 +132,9 @@ private:
 	Sprite* fadeSprite_ = nullptr; // 死亡フェード用スプライト
 	float fadeAlpha_ = 0.0f;       // 0.0 = 透明, 1.0 = 真っ黒
 	float fadeSpeed_ = 1.0f / 120.0f;
+
+	std::vector<FireParticle*> fireParticles_;
+	uint32_t fireParticleTextureHandle_ = 0;
+	Sprite* fireParticleSprite = nullptr;
 
 };
