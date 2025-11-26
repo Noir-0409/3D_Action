@@ -295,9 +295,7 @@ void GameScene::Draw() {
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
-	for (auto* fp : fireParticles_) {
-		fp->Draw();
-	}
+	
 
 	Sprite::PostDraw();
 
@@ -371,6 +369,10 @@ void GameScene::Draw() {
 	if (phase_ == Phase::kGoal && clearSprite_) {
 		clearSprite_->SetColor({1.0f, 1.0f, 1.0f, clearAlpha_});
 		clearSprite_->Draw();
+	}
+
+	for (auto* fp : fireParticles_) {
+		fp->Draw();
 	}
 
 	Sprite::PostDraw();
