@@ -73,6 +73,7 @@ void Player::StartDeathFall() {
 	isFalling_ = true;
 	isDead_ = true;
 	deathVelocityY_ = 0.25f; // 上にはねる初速
+	worldTransform_.translation_.z -= 2.5f;
 }
 
 
