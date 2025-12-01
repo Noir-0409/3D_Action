@@ -91,6 +91,10 @@ public:
 
 	 bool IsGoal() const { return isGoal_; }
 
+	 void StartDeathFall();
+
+	 bool IsFalling() const { return isFalling_; }
+
 private:
 	WorldTransform worldTransform_;
 
@@ -139,5 +143,12 @@ private:
 	static inline const float kMaxJumpTime = 0.25f;
 
 	bool isGoal_ = false;
+
+	bool isFalling_ = false;
+	Vector3 deathFallVelocity_ = {0.0f, -5.0f, 0.0f};
+	float deathRotationSpeed_ = 180.0f; 
+
+	float deathVelocityY_ = 0.0f; // Y方向速度
+	const float gravity_ = -0.01f;
 
 };

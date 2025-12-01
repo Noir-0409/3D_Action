@@ -11,39 +11,48 @@ using namespace KamataEngine;
 Player::~Player() {}
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
-
-	//assert(model);
-
 	model_ = model;
-
 	worldTransform_.Initialize();
-
 	worldTransform_.translation_ = position;
-
-	// 修正例
 	camera_ = camera;
-
 	worldTransform_.rotation_.y = 3.14159f / 2.0f;
-
 	input_ = Input::GetInstance();
 }
 
 void Player::Update() {
-
 	worldTransform_.TransferMatrix();
 
-	  if (inputEnabled_) {
+	// --- 死亡落下中 ---
+	if (isFalling_) {
+		// Y方向の速度に重力を加算
+		deathVelocityY_ += gravity_;
+		worldTransform_.translation_.y += deathVelocityY_;
+
+		// Z軸回転
+		worldTransform_.rotation_.z += deathRotationSpeed_ * (1.0f / 60.0f); // 60FPS想定
+
+		// 画面下まで落ちたら停止
+		if (worldTransform_.translation_.y < -50.0f) {
+			isFalling_ = false;
+		}
+
+		worldTransform_.UpdateMatrix();
+		return; // 通常操作はしない
+	}
+
+	// --- 通常操作 ---
+	if (inputEnabled_) {
 		InputMove(); // velocity_ 計算
 	} else {
-		velocity_ = {0.0f, 0.0f, 0.0f}; // 念のため移動速度はゼロに
+		velocity_ = {0.0f, 0.0f, 0.0f};
 	}
 
 	CollisionMapInfo collisionMapInfo;
 	collisionMapInfo.move = velocity_;
 
-	CheckMapCollision(collisionMapInfo); // move を補正
-	CollisionMove(collisionMapInfo);     // 実際に位置を更新
-	UpdateOnGround(collisionMapInfo);    // onGround 更新
+	CheckMapCollision(collisionMapInfo);
+	CollisionMove(collisionMapInfo);
+	UpdateOnGround(collisionMapInfo);
 	UpdateHitWall(collisionMapInfo);
 
 	if (isAttacking_) {
@@ -58,6 +67,14 @@ void Player::Update() {
 }
 
 void Player::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
+
+// --- 死亡落下開始 ---
+void Player::StartDeathFall() {
+	isFalling_ = true;
+	isDead_ = true;
+	deathVelocityY_ = 0.25f; // 上にはねる初速
+}
+
 
 void Player::InputMove() {
 	Vector3 acceleration{};
@@ -108,7 +125,6 @@ void Player::InputMove() {
 	// 回転更新
 	UpdateRotation();
 }
-
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
 
