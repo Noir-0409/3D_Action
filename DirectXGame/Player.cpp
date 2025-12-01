@@ -28,22 +28,73 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	input_ = Input::GetInstance();
 }
 
+//void Player::Update() {
+//
+//	worldTransform_.TransferMatrix();
+//
+//	  if (inputEnabled_) {
+//		InputMove(); // velocity_ 計算
+//	} else {
+//		velocity_ = {0.0f, 0.0f, 0.0f}; // 念のため移動速度はゼロに
+//	}
+//
+//	CollisionMapInfo collisionMapInfo;
+//	collisionMapInfo.move = velocity_;
+//
+//	CheckMapCollision(collisionMapInfo); // move を補正
+//	CollisionMove(collisionMapInfo);     // 実際に位置を更新
+//	UpdateOnGround(collisionMapInfo);    // onGround 更新
+//	UpdateHitWall(collisionMapInfo);
+//
+//	if (isAttacking_) {
+//		--attackTimer_;
+//		if (attackTimer_ <= 0) {
+//			isAttacking_ = false;
+//		}
+//	}
+//
+//	worldTransform_.UpdateMatrix();
+//	worldTransform_.TransferMatrix();
+//}
+//
+
 void Player::Update() {
 
 	worldTransform_.TransferMatrix();
 
-	  if (inputEnabled_) {
+	// --- 死亡落下中 ---
+	if (isFalling_) {
+		// 下方向に移動
+		static Vector3 deathFallVelocity = Vector3(0.0f, -0.05f, 0.0f);
+
+		worldTransform_.translation_ += deathFallVelocity;
+
+		// 回転させる場合（Z軸回転で少し回す）
+		// worldTransform_.rotation_.z += 0.1f;
+
+		// 画面下まで落ちたら停止（例: y < -50）
+		if (worldTransform_.translation_.y < -50.0f) {
+			isFalling_ = false;
+		}
+
+		// 描画だけはする
+		worldTransform_.UpdateMatrix();
+		return; // 通常の操作はしない
+	}
+
+	// --- 通常操作 ---
+	if (inputEnabled_) {
 		InputMove(); // velocity_ 計算
 	} else {
-		velocity_ = {0.0f, 0.0f, 0.0f}; // 念のため移動速度はゼロに
+		velocity_ = {0.0f, 0.0f, 0.0f};
 	}
 
 	CollisionMapInfo collisionMapInfo;
 	collisionMapInfo.move = velocity_;
 
-	CheckMapCollision(collisionMapInfo); // move を補正
-	CollisionMove(collisionMapInfo);     // 実際に位置を更新
-	UpdateOnGround(collisionMapInfo);    // onGround 更新
+	CheckMapCollision(collisionMapInfo);
+	CollisionMove(collisionMapInfo);
+	UpdateOnGround(collisionMapInfo);
 	UpdateHitWall(collisionMapInfo);
 
 	if (isAttacking_) {
@@ -108,7 +159,6 @@ void Player::InputMove() {
 	// 回転更新
 	UpdateRotation();
 }
-
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
 
