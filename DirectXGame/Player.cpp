@@ -11,75 +11,33 @@ using namespace KamataEngine;
 Player::~Player() {}
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
-
-	//assert(model);
-
 	model_ = model;
-
 	worldTransform_.Initialize();
-
 	worldTransform_.translation_ = position;
-
-	// 修正例
 	camera_ = camera;
-
 	worldTransform_.rotation_.y = 3.14159f / 2.0f;
-
 	input_ = Input::GetInstance();
 }
 
-//void Player::Update() {
-//
-//	worldTransform_.TransferMatrix();
-//
-//	  if (inputEnabled_) {
-//		InputMove(); // velocity_ 計算
-//	} else {
-//		velocity_ = {0.0f, 0.0f, 0.0f}; // 念のため移動速度はゼロに
-//	}
-//
-//	CollisionMapInfo collisionMapInfo;
-//	collisionMapInfo.move = velocity_;
-//
-//	CheckMapCollision(collisionMapInfo); // move を補正
-//	CollisionMove(collisionMapInfo);     // 実際に位置を更新
-//	UpdateOnGround(collisionMapInfo);    // onGround 更新
-//	UpdateHitWall(collisionMapInfo);
-//
-//	if (isAttacking_) {
-//		--attackTimer_;
-//		if (attackTimer_ <= 0) {
-//			isAttacking_ = false;
-//		}
-//	}
-//
-//	worldTransform_.UpdateMatrix();
-//	worldTransform_.TransferMatrix();
-//}
-//
-
 void Player::Update() {
-
 	worldTransform_.TransferMatrix();
 
 	// --- 死亡落下中 ---
 	if (isFalling_) {
-		// 下方向に移動
-		static Vector3 deathFallVelocity = Vector3(0.0f, -0.05f, 0.0f);
+		// Y方向の速度に重力を加算
+		deathVelocityY_ += gravity_;
+		worldTransform_.translation_.y += deathVelocityY_;
 
-		worldTransform_.translation_ += deathFallVelocity;
+		// Z軸回転
+		worldTransform_.rotation_.z += deathRotationSpeed_ * (1.0f / 60.0f); // 60FPS想定
 
-		// 回転させる場合（Z軸回転で少し回す）
-		// worldTransform_.rotation_.z += 0.1f;
-
-		// 画面下まで落ちたら停止（例: y < -50）
+		// 画面下まで落ちたら停止
 		if (worldTransform_.translation_.y < -50.0f) {
 			isFalling_ = false;
 		}
 
-		// 描画だけはする
 		worldTransform_.UpdateMatrix();
-		return; // 通常の操作はしない
+		return; // 通常操作はしない
 	}
 
 	// --- 通常操作 ---
@@ -109,6 +67,14 @@ void Player::Update() {
 }
 
 void Player::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
+
+// --- 死亡落下開始 ---
+void Player::StartDeathFall() {
+	isFalling_ = true;
+	isDead_ = true;
+	deathVelocityY_ = 0.25f; // 上にはねる初速
+}
+
 
 void Player::InputMove() {
 	Vector3 acceleration{};
