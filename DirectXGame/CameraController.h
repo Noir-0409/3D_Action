@@ -14,6 +14,9 @@ struct Rect {
 
 };
 
+/// <summary>
+/// 追従カメラを管理するクラス
+/// </summary>
 class CameraController {
 
 public:

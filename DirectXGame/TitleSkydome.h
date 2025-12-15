@@ -2,6 +2,9 @@
 #include <KamataEngine.h>
 using namespace KamataEngine;
 
+/// <summary>
+/// タイトルシーンの天球を管理するクラス
+/// </summary>
 class TitleSkydome {
 
 public:

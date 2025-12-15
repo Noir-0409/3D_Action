@@ -5,6 +5,9 @@
 
 using namespace KamataEngine;
 
+/// <summary>
+/// タイトルシーンを管理するクラス
+/// </summary>
 class TitleScene {
 
 public:

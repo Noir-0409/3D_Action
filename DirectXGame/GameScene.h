@@ -10,7 +10,9 @@
 
 using namespace KamataEngine;
 
-// ゲームシーン
+/// <summary>
+/// ゲームシーンを管理するクラス
+/// </summary>
 class GameScene {
 
 	enum class Phase {

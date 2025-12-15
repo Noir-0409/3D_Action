@@ -7,6 +7,9 @@ using namespace KamataEngine;
 
 class Player;
 
+/// <summary>
+/// enemyを管理するクラス
+/// </summary>
 class Enemy {
 
 public:

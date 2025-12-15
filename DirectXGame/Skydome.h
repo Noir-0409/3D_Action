@@ -3,6 +3,9 @@
 
 using namespace KamataEngine;
 
+/// <summary>
+/// 天球を管理するクラス
+/// </summary>
 class Skydome {
 
 public:

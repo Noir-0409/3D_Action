@@ -4,6 +4,9 @@
 
 using namespace KamataEngine;
 
+/// <summary>
+///クリアシーンを管理するクラス 
+/// </summary>
 class ClearScene {
 
 public:

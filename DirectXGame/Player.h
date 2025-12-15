@@ -14,6 +14,9 @@ enum class LRDirection {
 
 };
 
+/// <summary>
+/// playerを管理するクラス
+/// </summary>
 class Player {
 
 public:

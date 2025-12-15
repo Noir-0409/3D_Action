@@ -17,6 +17,9 @@ enum class MapChipType {
 
 };
 
+/// <summary>
+/// マップチップを管理するクラス
+/// </summary>
 class MapChipField {
 
 public:

@@ -5,6 +5,9 @@
 
 using namespace KamataEngine;
 
+/// <summary>
+///playerが死んだときに発生するパーティクルを管理するクラス 
+/// </summary>
 class DeathParticle {
 
 public:
