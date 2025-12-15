@@ -84,7 +84,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\田村京月\Desktop\就職作品\DirectXGame\DirectXGame.sln;C:\Users\田村京月\Desktop\就職作品\DirectXGame\anothers;"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Enemy";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Player";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Scene";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Skydome";%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\田村京月\Desktop\就職作品\DirectXGame\DirectXGame.sln;C:\Users\田村京月\Desktop\就職作品\DirectXGame\anothers;"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Enemy";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Player";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Scene";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Skydome";%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;USE_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\田村京月\Desktop\就職作品\DirectXGame\DirectXGame.sln;C:\Users\田村京月\Desktop\就職作品\DirectXGame\anothers;"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Enemy";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Player";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Scene";"C:\Users\田村京月\Desktop\就職作品\DirectXGame\Skydome";%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -155,20 +155,20 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AABB.cpp" />
-    <ClCompile Include="Affin.cpp" />
-    <ClCompile Include="CameraController.cpp" />
-    <ClCompile Include="DeathParticle.cpp" />
-    <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="GameScene.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MapChipField.cpp" />
-    <ClCompile Include="MathUtillity.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Skydome.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
-    <ClCompile Include="TitleSkydome.cpp" />
-    <ClCompile Include="WorldTransformEX.cpp" />
+    <ClCompile Include="anothers\AABB.cpp" />
+    <ClCompile Include="anothers\Affin.cpp" />
+    <ClCompile Include="anothers\CameraController.cpp" />
+    <ClCompile Include="Player\DeathParticle.cpp" />
+    <ClCompile Include="Enemy\Enemy.cpp" />
+    <ClCompile Include="Scene\GameScene.cpp" />
+    <ClCompile Include="anothers\main.cpp" />
+    <ClCompile Include="anothers\MapChipField.cpp" />
+    <ClCompile Include="anothers\MathUtillity.cpp" />
+    <ClCompile Include="Player\Player.cpp" />
+    <ClCompile Include="Skydome\Skydome.cpp" />
+    <ClCompile Include="Scene\TitleScene.cpp" />
+    <ClCompile Include="Skydome\TitleSkydome.cpp" />
+    <ClCompile Include="anothers\WorldTransformEX.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
@@ -268,19 +268,19 @@
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AABB.h" />
-    <ClInclude Include="Affin.h" />
-    <ClInclude Include="CameraController.h" />
-    <ClInclude Include="ClearScene.h" />
-    <ClInclude Include="DeathParticle.h" />
-    <ClInclude Include="Enemy.h" />
-    <ClInclude Include="GameScene.h" />
-    <ClInclude Include="MapChipField.h" />
-    <ClInclude Include="MathUtillity.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Skydome.h" />
-    <ClInclude Include="TitleScene.h" />
-    <ClInclude Include="TitleSkydome.h" />
+    <ClInclude Include="anothers\AABB.h" />
+    <ClInclude Include="anothers\Affin.h" />
+    <ClInclude Include="anothers\CameraController.h" />
+    <ClInclude Include="anothers\ClearScene.h" />
+    <ClInclude Include="Player\DeathParticle.h" />
+    <ClInclude Include="Enemy\Enemy.h" />
+    <ClInclude Include="Scene\GameScene.h" />
+    <ClInclude Include="anothers\MapChipField.h" />
+    <ClInclude Include="anothers\MathUtillity.h" />
+    <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Skydome\Skydome.h" />
+    <ClInclude Include="Scene\TitleScene.h" />
+    <ClInclude Include="Skydome\TitleSkydome.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
