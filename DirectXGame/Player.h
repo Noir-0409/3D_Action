@@ -48,54 +48,77 @@ public:
 
 	void Draw(Camera& camera);
 
+	//座標を取得
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
+	//移動速度を取得
 	const Vector3& GetVelocity() const { return velocity_; }
 
+	//初期位置を指定
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
+	//移動処理
 	void InputMove();
 
+	//移動速度を加算
 	void CollisionMove(const CollisionMapInfo& info);
 
+	//各方向の当たり判定
 	void CheckMapCollision(CollisionMapInfo& info);
 
+	//上方向の当たり判定
 	void CheckMapCollisionUp(CollisionMapInfo& info);
 
+	//下方向の当たり判定
 	void CheckMapCollisionDown(CollisionMapInfo& info);
 
+	//左方向の当たり判定
 	void CheckMapCollisionLeft(CollisionMapInfo& info);
 
+	//右方向の当たり判定
 	void CheckMapCollisionRight(CollisionMapInfo& info);
 
+	//プレイヤーの4頂点
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
 
+	//プレイヤーが地面に接触しているかどうか
 	void UpdateOnGround(const CollisionMapInfo& info);
 
+	//方向転換時の回転
 	void UpdateRotation();
 
+	//回転をスムーズに行う
 	void UpdateRotationSmooth();
 
+	//壁に当たっているか
 	void UpdateHitWall(const CollisionMapInfo& info);
 
+	//プレイヤーの位置情報
 	Vector3 GetWorldPosition() const;
 
+	//立方体の当たり判定
 	AABB GetAABB();
 
+	//敵との当たり判定
 	void OnCollision(const Enemy* enemy);
 
 	bool isDead_ = false;
 
+	//プレイヤーが死んだかどうか
 	bool IsDead() const { return isDead_; }
 
 	bool inputEnabled_ = true;
 
+	//シーン毎にキー入力の有効/無効を切り替える
 	 void SetInputEnabled(bool enabled) { inputEnabled_ = enabled; }
 
+	 //ゴールしたかどうか
 	 bool IsGoal() const { return isGoal_; }
 
+	 //ミス時の落下演出開始
 	 void StartDeathFall();
 
+	 //実際に落下させる
 	 bool IsFalling() const { return isFalling_; }
 
 private:

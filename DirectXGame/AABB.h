@@ -10,5 +10,6 @@ public:
 	Vector3 min;
 	Vector3 max;
 
+	//立方体の当たり判定
 	static bool IsCollision(const AABB& aabb1, const AABB& aabb2);
 };
