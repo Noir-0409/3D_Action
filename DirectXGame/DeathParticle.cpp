@@ -7,6 +7,7 @@ void DeathParticle::Initialize(Model* model, Camera* camera, const Vector3& posi
 	particleModel_ = model;
 	camera_ = camera;
 
+	 // 生成位置はすべて同じ位置からスタート
 	for (auto& worldTransform : worldTransforms_) {
 
 		worldTransform.Initialize();
