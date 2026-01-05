@@ -124,6 +124,8 @@ public:
 	 //氷ブロックの上にいるか
 	 bool IsOnIce() const;
 
+	 bool wasMovingInput_ = false; // 前フレームで左右入力があったか
+
 private:
 	WorldTransform worldTransform_;
 

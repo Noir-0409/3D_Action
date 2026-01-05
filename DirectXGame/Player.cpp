@@ -95,6 +95,10 @@ void Player::InputMove() {
 
 	Vector3 acceleration{};
 
+	bool inputRight = input_->PushKey(DIK_D);
+	bool inputLeft = input_->PushKey(DIK_A);
+	bool isMovingInput = inputRight || inputLeft;
+
 	bool onIce = IsOnIce();
 
 	float accel = onIce ? kIceAcceleration : kAcceleration;
@@ -116,16 +120,22 @@ void Player::InputMove() {
 		acceleration.x -= accel;
 		lrDirection_ = LRDirection::kLeft;
 	}
-	// 入力なし
-	/*else {
-		velocity_.x *= (1.0f - attenuation);
-	}*/
-
 	else {
 		if (!onIce) {
 			velocity_.x *= (1.0f - attenuation);
+		} else {
+			// Ice の上
+			if (wasMovingInput_) {
+				// 離した直後 → 完全慣性
+				// 何もしない
+			} else {
+				// しばらく経ったら微減速
+				// 超ツルツル
+				velocity_.x *= 0.9999f;
+			}
 		}
 	}
+
 
 	velocity_ += acceleration;
 	//velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
@@ -158,6 +168,7 @@ void Player::InputMove() {
 	}
 
 	UpdateRotation();
+	wasMovingInput_ = isMovingInput;
 }
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
