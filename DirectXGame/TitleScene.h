@@ -17,6 +17,7 @@ public:
 	void Update(float deltaTime);
 	void Draw();
 
+	//シーンの終了
 	bool IsFinished() { return isFinished_; }
 
 private:

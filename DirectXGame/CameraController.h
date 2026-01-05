@@ -25,12 +25,16 @@ void Initialize();
 
 void Update();
 
+//追従対象を追う
 void SetTarget(Player* target) { target_ = target; }
 
+//カメラをセットする
 void SetCamera(Camera* camera) { camera_ = camera; }
 
+//リセット
 void Reset();
 
+//範囲を指定する
 void SetMovableArea(Rect area) { movableArea_ = area; }
 
 private:

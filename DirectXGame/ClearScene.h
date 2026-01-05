@@ -16,6 +16,7 @@ public:
 
 	void Draw();
 
+	//シーンを終了
 	bool IsFinished() { return isFinished_; }
 
 private:

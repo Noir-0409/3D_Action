@@ -38,12 +38,16 @@ public:
 	// 描画
 	void Draw();
 
+	//ブロックの配置
 	void GenerateBlocks();
 
+	//シーンの終了
 	bool IsFinished() { return isFinished_; }
 
+	//全ての当たり判定
 	void CheckAllCollision();
 
+	//フェーズの変化
 	void ChangePhase();
 
 private:

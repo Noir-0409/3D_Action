@@ -20,12 +20,16 @@ void Update();
 
 void Draw();
 
+//マップチップの特定の座標に配置する
 void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
+//座標を受け取る
 Vector3 GetWorldPosition();
 
+//立方体の当たり判定
 AABB GetAABB();
 
+//当たっているかどうか
 void OnCollision(const Player* player);
 
 private:
