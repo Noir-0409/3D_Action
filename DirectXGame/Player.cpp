@@ -123,14 +123,15 @@ void Player::InputMove() {
 
 	else {
 		if (!onIce) {
-			// 通常床だけ減速
 			velocity_.x *= (1.0f - attenuation);
 		}
-		// Ice のときは何もしない（慣性で滑り続ける）
 	}
 
 	velocity_ += acceleration;
-	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+	//velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+
+	float maxSpeed = onIce ? kIceMaxSpeed : kLimitRunSpeed;
+	velocity_.x = std::clamp(velocity_.x, -maxSpeed, maxSpeed);
 
 	// --- ジャンプ処理（そのまま） ---
 	if (input_->PushKey(DIK_W)) {

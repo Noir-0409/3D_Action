@@ -181,9 +181,9 @@ private:
 	const float gravity_ = -0.01f;
 
 	// Ice 用
-	static inline const float kIceAcceleration = 0.006f; // 通常の2倍くらい
-	static inline const float kIceAttenuation = 0.001f;  // ほぼ減速しない
-	static inline const float kIceMaxSpeed = 0.8f;       // 最高速を上げる
+	static inline const float kIceAcceleration = 0.006f;
+	static inline const float kIceAttenuation = 0.001f;
+	static inline const float kIceMaxSpeed = 0.8f;
 
 
 
