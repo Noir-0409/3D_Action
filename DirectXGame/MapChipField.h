@@ -14,6 +14,7 @@ enum class MapChipType {
 	kBlock,
 	kDamage,
 	kGoal,
+	kIce,
 
 };
 

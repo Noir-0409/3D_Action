@@ -70,6 +70,8 @@ private:
 
 	Model* modelGoal_ = nullptr;
 
+	Model* modelIce_ = nullptr;
+
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
 	MapChipField* mapChipField_;

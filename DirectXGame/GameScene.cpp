@@ -52,6 +52,7 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
 	modelParticle_ = Model::CreateFromOBJ("deathParticle");
+	modelIce_ = Model::CreateFromOBJ("ice"); 
 
     // マップチップ読み込み
 	mapChipField_ = new MapChipField();
@@ -310,6 +311,10 @@ void GameScene::Draw() {
             case MapChipType::kGoal:
                 modelGoal_->Draw(*wt, camera_);
                 break;
+
+                case MapChipType::kIce:
+				modelIce_->Draw(*wt, camera_);
+				break;
             }
         }
     }
