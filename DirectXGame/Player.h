@@ -180,10 +180,11 @@ private:
 	float deathVelocityY_ = 0.0f; // Y方向速度
 	const float gravity_ = -0.01f;
 
-	// Ice用
-	static inline const float kIceAcceleration = 0.0012f;
-	static inline const float kIceAttenuation = 0.02f;
-	static inline const float kIceAttenuationLanding = 0.0f;
+	// Ice 用
+	static inline const float kIceAcceleration = 0.006f; // 通常の2倍くらい
+	static inline const float kIceAttenuation = 0.001f;  // ほぼ減速しない
+	static inline const float kIceMaxSpeed = 0.8f;       // 最高速を上げる
+
 
 
 };

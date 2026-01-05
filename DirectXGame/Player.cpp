@@ -117,8 +117,16 @@ void Player::InputMove() {
 		lrDirection_ = LRDirection::kLeft;
 	}
 	// 入力なし
-	else {
+	/*else {
 		velocity_.x *= (1.0f - attenuation);
+	}*/
+
+	else {
+		if (!onIce) {
+			// 通常床だけ減速
+			velocity_.x *= (1.0f - attenuation);
+		}
+		// Ice のときは何もしない（慣性で滑り続ける）
 	}
 
 	velocity_ += acceleration;
@@ -150,57 +158,6 @@ void Player::InputMove() {
 
 	UpdateRotation();
 }
-
-
-//void Player::InputMove() {
-//	Vector3 acceleration{};
-//
-//	// 左右移動
-//	if (input_->PushKey(DIK_D)) {
-//		if (velocity_.x < 0.0f)
-//			velocity_.x *= (1.0f - kAttenuation);
-//		acceleration.x += kAcceleration;
-//		lrDirection_ = LRDirection::kRight;
-//	} else if (input_->PushKey(DIK_A)) {
-//		if (velocity_.x > 0.0f)
-//			velocity_.x *= (1.0f - kAttenuation);
-//		acceleration.x -= kAcceleration;
-//		lrDirection_ = LRDirection::kLeft;
-//	} else {
-//		velocity_.x *= (1.0f - kAttenuation);
-//	}
-//
-//	velocity_ += acceleration;
-//	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-//
-//	// ジャンプ処理（フワフワ対応）
-//	if (input_->PushKey(DIK_W)) {
-//		if (onGround_) {
-//			velocity_.y = kJumpAcceleration;
-//			onGround_ = false;
-//			jumpTime_ = 0.0f;
-//		} else if (jumpTime_ < kMaxJumpTime) {
-//			// 上昇持続
-//			velocity_.y = kJumpAcceleration;
-//		}
-//		jumpTime_ += 1.0f / 60.0f; // 60FPS想定
-//	} else {
-//		jumpTime_ = kMaxJumpTime; // 押してないとジャンプ持続終了
-//	}
-//
-//	// 空中重力処理
-//	if (!onGround_) {
-//		if (velocity_.y > 0.0f) {                       // 上昇中
-//			velocity_.y -= kGravityAcceleration * 0.6f; // 上昇中は重力弱め
-//		} else {                                        // 下降中
-//			velocity_.y -= kGravityAcceleration * 0.8f; // 下降中は重力強め
-//		}
-//		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
-//	}
-//
-//	// 回転更新
-//	UpdateRotation();
-//}
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
 
@@ -235,8 +192,6 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	/*else if (mapChipType == MapChipType::kBlock)
-		hit = true;*/
 
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce)
 		hit = true;
@@ -252,9 +207,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	/*else if (mapChipType == MapChipType::kBlock)
-		hit = true;*/
-
+	
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce)
 		hit = true;
 
