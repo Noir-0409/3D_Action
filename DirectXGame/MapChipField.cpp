@@ -163,3 +163,12 @@ MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex
 	return rect;
 
 }
+
+MapChipType MapChipField::GetRawMapChipTypeByIndex(uint32_t x, uint32_t y) { 
+
+	 if (x >= kNumBlockHorizontal || y >= kNumBlockVirtical) {
+		return MapChipType::kBlank;
+	}
+	return mapChipData_.data[y][x];
+
+}

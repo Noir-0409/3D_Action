@@ -382,7 +382,9 @@ void GameScene::GenerateBlocks() {
     // マップを走査してブロック生成
 	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
-			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+			//MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+			MapChipType type = mapChipField_->GetRawMapChipTypeByIndex(x, y);
+
 			if (type == MapChipType::kBlank)
 				continue;
 

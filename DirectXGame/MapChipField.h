@@ -79,6 +79,9 @@ public:
 	//4辺の座標
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
+	MapChipType GetRawMapChipTypeByIndex(uint32_t x, uint32_t y);
+
+
 private:
 
 	enum class BlinkPhase {
