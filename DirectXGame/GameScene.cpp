@@ -53,6 +53,8 @@ void GameScene::Initialize() {
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
 	modelParticle_ = Model::CreateFromOBJ("deathParticle");
 	modelIce_ = Model::CreateFromOBJ("ice"); 
+    modelRed_ = Model::CreateFromOBJ("red");
+	modelBlue_ = Model::CreateFromOBJ("blue");
 
     // マップチップ読み込み
 	mapChipField_ = new MapChipField();
@@ -132,6 +134,8 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+
+     mapChipField_->Update();
 
     // フェーズ切替
     ChangePhase();
@@ -315,6 +319,14 @@ void GameScene::Draw() {
                 case MapChipType::kIce:
 				modelIce_->Draw(*wt, camera_);
 				break;
+
+                 case MapChipType::kRed:
+				    modelRed_->Draw(*wt, camera_);
+				    break;
+
+                     case MapChipType::kBlue:
+				     modelBlue_->Draw(*wt, camera_);
+				     break;
             }
         }
     }

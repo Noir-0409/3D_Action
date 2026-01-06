@@ -15,6 +15,8 @@ enum class MapChipType {
 	kDamage,
 	kGoal,
 	kIce,
+	kRed,
+	kBlue,
 
 };
 
@@ -78,8 +80,19 @@ public:
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 private:
+
+	enum class BlinkPhase {
+		Red,
+		Blue,
+	};
+
 	static inline const float kBlockWidth = 1.0f;
 	static inline const float kBlockHeight = 1.0f;
+
+	BlinkPhase blinkPhase_ = BlinkPhase::Red;
+
+	float blinkTimer_ = 0.0f;
+	static inline const float kBlinkInterval = 2.0f;
 
 	MapChipData mapChipData_;
 };

@@ -13,13 +13,29 @@ std::map<std::string, MapChipType> mapChipTable = {
     {"2", MapChipType::kDamage},
     {"3", MapChipType::kGoal},
     {"4", MapChipType::kIce},
+    {"5", MapChipType::kRed },
+    {"6", MapChipType::kBlue},
 };
 
 }
 
 void MapChipField::Initialize() {}
 
-void MapChipField::Update() {}
+void MapChipField::Update() {
+
+ blinkTimer_ += 1.0f / 60.0f;
+
+	if (blinkTimer_ >= kBlinkInterval) {
+		blinkTimer_ = 0.0f;
+
+		if (blinkPhase_ == BlinkPhase::Red) {
+			blinkPhase_ = BlinkPhase::Blue;
+		} else {
+			blinkPhase_ = BlinkPhase::Red;
+		}
+	}
+
+}
 
 void MapChipField::Draw() {}
 
@@ -87,26 +103,33 @@ Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex
     return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0);
 
 }
+MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) {
 
-MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) { 
+	// 範囲外チェック
+	if (xIndex >= kNumBlockHorizontal || yIndex >= kNumBlockVirtical) {
+		return MapChipType::kBlank;
+	}
 
-    // 横方向の範囲外チェック
-    if (xIndex < 0 || kNumBlockHorizontal - 1 < xIndex) {
-	
-    return MapChipType::kBlank;
-    
-    }
+	MapChipType type = mapChipData_.data[yIndex][xIndex];
 
-    // 縦方向の範囲外チェック
-    if (yIndex < 0 || kNumBlockVirtical - 1 < yIndex) {
-	
-    return MapChipType::kBlank;
-    
-    }
+	// --- 赤・青 切り替えブロック制御 ---
+	if (type == MapChipType::kRed) {
+		// 今が赤フェーズじゃなければ存在しない
+		if (blinkPhase_ != BlinkPhase::Red) {
+			return MapChipType::kBlank;
+		}
+	}
 
-    return mapChipData_.data[yIndex][xIndex];
+	if (type == MapChipType::kBlue) {
+		// 今が青フェーズじゃなければ存在しない
+		if (blinkPhase_ != BlinkPhase::Blue) {
+			return MapChipType::kBlank;
+		}
+	}
 
+	return type;
 }
+
 
 uint32_t MapChipField::GetNumBlockVirtical() { return kNumBlockVirtical; }
 

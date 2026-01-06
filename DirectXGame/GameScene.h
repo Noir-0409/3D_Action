@@ -71,6 +71,10 @@ private:
 	Model* modelGoal_ = nullptr;
 
 	Model* modelIce_ = nullptr;
+	
+	Model* modelRed_ = nullptr;
+
+	Model* modelBlue_ = nullptr;
 
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 

@@ -62,6 +62,8 @@ void Player::Update() {
 		}
 	}
 
+	IsOnIce();
+
 	worldTransform_.UpdateMatrix();
 	worldTransform_.TransferMatrix();
 }
@@ -205,7 +207,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
 
-	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce)
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
 		hit = true;
 
 
@@ -220,7 +222,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
 	
-	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce)
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce||mapChipType==MapChipType::kRed||mapChipType==MapChipType::kBlue)
 		hit = true;
 
 
@@ -259,7 +261,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock)
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
 		hit = true;
 
 	// 右上チェック
@@ -269,7 +271,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock)
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
 		hit = true;
 
 	if (hit) {
@@ -308,7 +310,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.right - playerLeft;
 		if (deltaX > maxDeltaX)
@@ -322,7 +324,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.right - playerLeft;
 		if (deltaX > maxDeltaX)
@@ -359,7 +361,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.left - playerRight;
 		if (deltaX < minDeltaX)
@@ -373,7 +375,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.left - playerRight;
 		if (deltaX < minDeltaX)
