@@ -121,6 +121,11 @@ public:
 	 //実際に落下させる
 	 bool IsFalling() const { return isFalling_; }
 
+	 //氷ブロックの上にいるか
+	 bool IsOnIce() const;
+
+	 bool wasMovingInput_ = false; // 前フレームで左右入力があったか
+
 private:
 	WorldTransform worldTransform_;
 
@@ -176,5 +181,12 @@ private:
 
 	float deathVelocityY_ = 0.0f; // Y方向速度
 	const float gravity_ = -0.01f;
+
+	// Ice 用
+	static inline const float kIceAcceleration = 0.006f;
+	static inline const float kIceAttenuation = 0.001f;
+	static inline const float kIceMaxSpeed = 0.8f;
+
+
 
 };

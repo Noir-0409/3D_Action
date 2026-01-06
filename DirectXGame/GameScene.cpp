@@ -52,6 +52,9 @@ void GameScene::Initialize() {
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
 	modelParticle_ = Model::CreateFromOBJ("deathParticle");
+	modelIce_ = Model::CreateFromOBJ("ice"); 
+    modelRed_ = Model::CreateFromOBJ("red");
+	modelBlue_ = Model::CreateFromOBJ("blue");
 
     // マップチップ読み込み
 	mapChipField_ = new MapChipField();
@@ -131,6 +134,8 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+
+     mapChipField_->Update();
 
     // フェーズ切替
     ChangePhase();
@@ -310,6 +315,18 @@ void GameScene::Draw() {
             case MapChipType::kGoal:
                 modelGoal_->Draw(*wt, camera_);
                 break;
+
+                case MapChipType::kIce:
+				modelIce_->Draw(*wt, camera_);
+				break;
+
+                 case MapChipType::kRed:
+				    modelRed_->Draw(*wt, camera_);
+				    break;
+
+                     case MapChipType::kBlue:
+				     modelBlue_->Draw(*wt, camera_);
+				     break;
             }
         }
     }
@@ -365,7 +382,9 @@ void GameScene::GenerateBlocks() {
     // マップを走査してブロック生成
 	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
-			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+			//MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+			MapChipType type = mapChipField_->GetRawMapChipTypeByIndex(x, y);
+
 			if (type == MapChipType::kBlank)
 				continue;
 

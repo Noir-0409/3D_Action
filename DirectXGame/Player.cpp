@@ -62,6 +62,8 @@ void Player::Update() {
 		}
 	}
 
+	IsOnIce();
+
 	worldTransform_.UpdateMatrix();
 	worldTransform_.TransferMatrix();
 }
@@ -76,55 +78,99 @@ void Player::StartDeathFall() {
 	worldTransform_.translation_.z -= 2.5f;
 }
 
+bool Player::IsOnIce() const {
 
-void Player::InputMove() {
-	Vector3 acceleration{};
-
-	// 左右移動
-	if (input_->PushKey(DIK_D)) {
-		if (velocity_.x < 0.0f)
-			velocity_.x *= (1.0f - kAttenuation);
-		acceleration.x += kAcceleration;
-		lrDirection_ = LRDirection::kRight;
-	} else if (input_->PushKey(DIK_A)) {
-		if (velocity_.x > 0.0f)
-			velocity_.x *= (1.0f - kAttenuation);
-		acceleration.x -= kAcceleration;
-		lrDirection_ = LRDirection::kLeft;
-	} else {
-		velocity_.x *= (1.0f - kAttenuation);
+	if (!onGround_ || mapChipField_ == nullptr) {
+		return false;
 	}
 
-	velocity_ += acceleration;
-	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+	Vector3 footPos = worldTransform_.translation_;
+	footPos.y -= kHeight / 2.0f + 0.02f;
 
-	// ジャンプ処理（フワフワ対応）
+	auto index = mapChipField_->GetMapChipIndexSetByPosition(footPos);
+	MapChipType type = mapChipField_->GetMapChipTypeByIndex(index.xIndex, index.yIndex);
+
+	return type == MapChipType::kIce;
+}
+
+void Player::InputMove() {
+
+	Vector3 acceleration{};
+
+	bool inputRight = input_->PushKey(DIK_D);
+	bool inputLeft = input_->PushKey(DIK_A);
+	bool isMovingInput = inputRight || inputLeft;
+
+	bool onIce = IsOnIce();
+
+	float accel = onIce ? kIceAcceleration : kAcceleration;
+	float attenuation = onIce ? kIceAttenuation : kAttenuation;
+
+	// 右移動
+	if (input_->PushKey(DIK_D)) {
+		if (velocity_.x < 0.0f) {
+			velocity_.x *= (1.0f - attenuation);
+		}
+		acceleration.x += accel;
+		lrDirection_ = LRDirection::kRight;
+	}
+	// 左移動
+	else if (input_->PushKey(DIK_A)) {
+		if (velocity_.x > 0.0f) {
+			velocity_.x *= (1.0f - attenuation);
+		}
+		acceleration.x -= accel;
+		lrDirection_ = LRDirection::kLeft;
+	}
+	else {
+		if (!onIce) {
+			velocity_.x *= (1.0f - attenuation);
+		} else {
+			// Ice の上
+			if (wasMovingInput_) {
+				// 離した直後 → 完全慣性
+				// 何もしない
+			} else {
+				// しばらく経ったら微減速
+				// 超ツルツル
+				velocity_.x *= 0.9999f;
+			}
+		}
+	}
+
+
+	velocity_ += acceleration;
+	//velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+
+	float maxSpeed = onIce ? kIceMaxSpeed : kLimitRunSpeed;
+	velocity_.x = std::clamp(velocity_.x, -maxSpeed, maxSpeed);
+
+	// --- ジャンプ処理（そのまま） ---
 	if (input_->PushKey(DIK_W)) {
 		if (onGround_) {
 			velocity_.y = kJumpAcceleration;
 			onGround_ = false;
 			jumpTime_ = 0.0f;
 		} else if (jumpTime_ < kMaxJumpTime) {
-			// 上昇持続
 			velocity_.y = kJumpAcceleration;
 		}
-		jumpTime_ += 1.0f / 60.0f; // 60FPS想定
+		jumpTime_ += 1.0f / 60.0f;
 	} else {
-		jumpTime_ = kMaxJumpTime; // 押してないとジャンプ持続終了
+		jumpTime_ = kMaxJumpTime;
 	}
 
-	// 空中重力処理
+	// --- 重力 ---
 	if (!onGround_) {
-		if (velocity_.y > 0.0f) {                       // 上昇中
-			velocity_.y -= kGravityAcceleration * 0.6f; // 上昇中は重力弱め
-		} else {                                        // 下降中
-			velocity_.y -= kGravityAcceleration * 0.8f; // 下降中は重力強め
+		if (velocity_.y > 0.0f) {
+			velocity_.y -= kGravityAcceleration * 0.6f;
+		} else {
+			velocity_.y -= kGravityAcceleration * 0.8f;
 		}
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 
-	// 回転更新
 	UpdateRotation();
+	wasMovingInput_ = isMovingInput;
 }
 
 void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.translation_ += info.move; }
@@ -160,8 +206,10 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock)
+
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
 		hit = true;
+
 
 	// 右下チェック
 	Vector3 checkPosR = positionsNew[kRightBottom];
@@ -173,8 +221,10 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock)
+	
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce||mapChipType==MapChipType::kRed||mapChipType==MapChipType::kBlue)
 		hit = true;
+
 
 	if (hit) {
 		Vector3 bottomPos = worldTransform_.translation_;
@@ -211,7 +261,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock)
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
 		hit = true;
 
 	// 右上チェック
@@ -221,7 +271,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock)
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
 		hit = true;
 
 	if (hit) {
@@ -260,7 +310,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.right - playerLeft;
 		if (deltaX > maxDeltaX)
@@ -274,7 +324,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.right - playerLeft;
 		if (deltaX > maxDeltaX)
@@ -311,7 +361,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.left - playerRight;
 		if (deltaX < minDeltaX)
@@ -325,7 +375,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isDead_ = true;
 	else if (mapChipType == MapChipType::kGoal)
 		isGoal_ = true;
-	else if (mapChipType == MapChipType::kBlock) {
+	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 		float deltaX = rect.left - playerRight;
 		if (deltaX < minDeltaX)
@@ -359,7 +409,13 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 	if (info.landing) {
 		onGround_ = true;
 		velocity_.y = 0.0f;
-		velocity_.x *= (1.0f - kAttenuationLanding);
+		//velocity_.x *= (1.0f - kAttenuationLanding);
+
+		if (!IsOnIce()) {
+			velocity_.x *= (1.0f - kAttenuationLanding);
+		}
+
+
 	} else if (velocity_.y > 0.0f) {
 		// 上昇中は接地解除
 		onGround_ = false;
@@ -369,7 +425,9 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 		bottomPos.y -= kHeight / 2.0f + 0.01f; // 少し下に補正
 		MapChipField::IndexSet indexSet = mapChipField_->GetMapChipIndexSetByPosition(bottomPos);
 		MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-		onGround_ = (mapChipType == MapChipType::kBlock);
+		//onGround_ = (mapChipType == MapChipType::kBlock);
+		onGround_ = (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce);
+
 	}
 }
 
