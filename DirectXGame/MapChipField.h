@@ -95,7 +95,7 @@ private:
 	BlinkPhase blinkPhase_ = BlinkPhase::Red;
 
 	float blinkTimer_ = 0.0f;
-	static inline const float kBlinkInterval = 2.0f;
+	static inline const float kBlinkInterval = 1.0f;
 
 	MapChipData mapChipData_;
 };
