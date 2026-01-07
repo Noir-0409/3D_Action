@@ -76,6 +76,10 @@ private:
 
 	Model* modelBlue_ = nullptr;
 
+	Model* modelRed2_ = nullptr;
+
+	Model* modelBlue2_ = nullptr;
+
 	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
 
 	MapChipField* mapChipField_;

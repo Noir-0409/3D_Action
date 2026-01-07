@@ -55,6 +55,8 @@ void GameScene::Initialize() {
 	modelIce_ = Model::CreateFromOBJ("ice"); 
     modelRed_ = Model::CreateFromOBJ("red");
 	modelBlue_ = Model::CreateFromOBJ("blue");
+	modelRed2_ = Model::CreateFromOBJ("red2");
+	modelBlue2_ = Model::CreateFromOBJ("blue2");
 
     // マップチップ読み込み
 	mapChipField_ = new MapChipField();
@@ -290,46 +292,114 @@ void GameScene::Draw() {
     dxCommon->ClearDepthBuffer();
     Model::PreDraw();
 
-    // ブロック描画
+    //// ブロック描画
+    //for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
+    //    for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
+    //        MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+    //        if (type == MapChipType::kBlank)
+    //            continue;
+
+    //        WorldTransform* wt = worldTransformBlocks_[y][x];
+    //        if (!wt)
+    //            continue;
+
+    //        switch (type) {
+    //        case MapChipType::kBlock:
+    //            modelBlock_->Draw(*wt, camera_);
+    //            break;
+    //        case MapChipType::kDamage:
+    //            if (fireToggle_) {
+    //                modelFire_->Draw(*wt, camera_, fireTextureHandle1_);
+    //            } else {
+    //                modelFire_->Draw(*wt, camera_, fireTextureHandle2_);
+    //            }
+    //            break;
+    //        case MapChipType::kGoal:
+    //            modelGoal_->Draw(*wt, camera_);
+    //            break;
+
+    //            case MapChipType::kIce:
+				//modelIce_->Draw(*wt, camera_);
+				//break;
+
+    //             case MapChipType::kRed:
+				//    modelRed_->Draw(*wt, camera_);
+				//    break;
+
+    //                 case MapChipType::kBlue:
+				//     modelBlue_->Draw(*wt, camera_);
+				//     break;
+    //        }
+    //    }
+    //}
+
     for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
-        for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
-            MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
-            if (type == MapChipType::kBlank)
-                continue;
+		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
 
-            WorldTransform* wt = worldTransformBlocks_[y][x];
-            if (!wt)
-                continue;
+			WorldTransform* wt = worldTransformBlocks_[y][x];
+			if (!wt)
+				continue;
 
-            switch (type) {
-            case MapChipType::kBlock:
-                modelBlock_->Draw(*wt, camera_);
-                break;
-            case MapChipType::kDamage:
-                if (fireToggle_) {
-                    modelFire_->Draw(*wt, camera_, fireTextureHandle1_);
-                } else {
-                    modelFire_->Draw(*wt, camera_, fireTextureHandle2_);
-                }
-                break;
-            case MapChipType::kGoal:
-                modelGoal_->Draw(*wt, camera_);
-                break;
+			// 表示用（フェーズ反映）
+			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
 
-                case MapChipType::kIce:
-				modelIce_->Draw(*wt, camera_);
-				break;
+			// 元のマップデータ（赤・青判定用）
+			MapChipType rawType = mapChipField_->GetRawMapChipTypeByIndex(x, y);
 
-                 case MapChipType::kRed:
-				    modelRed_->Draw(*wt, camera_);
-				    break;
+			// ==========================
+			// 通常（存在している）
+			// ==========================
+			if (type != MapChipType::kBlank) {
 
-                     case MapChipType::kBlue:
-				     modelBlue_->Draw(*wt, camera_);
-				     break;
-            }
-        }
-    }
+				switch (type) {
+				case MapChipType::kBlock:
+					modelBlock_->Draw(*wt, camera_);
+					break;
+
+				case MapChipType::kDamage:
+					if (fireToggle_) {
+						modelFire_->Draw(*wt, camera_, fireTextureHandle1_);
+					} else {
+						modelFire_->Draw(*wt, camera_, fireTextureHandle2_);
+					}
+					break;
+
+				case MapChipType::kGoal:
+					modelGoal_->Draw(*wt, camera_);
+					break;
+
+				case MapChipType::kIce:
+					modelIce_->Draw(*wt, camera_);
+					break;
+
+				case MapChipType::kRed:
+					modelRed_->Draw(*wt, camera_);
+					break;
+
+				case MapChipType::kBlue:
+					modelBlue_->Draw(*wt, camera_);
+					break;
+				}
+			}
+			// ==========================
+			// 消滅中（半透明）
+			// ==========================
+			else if (rawType == MapChipType::kRed || rawType == MapChipType::kBlue) {
+
+				// 半透明
+				if (rawType == MapChipType::kRed) {
+					
+					modelRed2_->Draw(*wt, camera_);
+					
+				} else {
+				
+					modelBlue2_->Draw(*wt, camera_);
+					
+				}
+			}
+		}
+	}
+
 
     // プレイヤー描画：死亡中も落下中なら描画
     if (!player_->IsDead() || player_->IsFalling()) {
