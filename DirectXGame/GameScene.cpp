@@ -43,6 +43,7 @@ void GameScene::Initialize() {
 	startPos_ = {135, 230};
 	overPos_ = {140, 200};
 	titlePos = {100, 400};
+	guidePos_ = {0, 400};
 
     // モデル読み込み
 	modelPlayer_ = Model::CreateFromOBJ("Player");
@@ -89,6 +90,9 @@ void GameScene::Initialize() {
 
 	overTextureHandle_ = TextureManager::Load("overTitle.png");
 	overTitleSprite_ = Sprite::Create(overTitleTextureHandle_, titlePos);
+
+	guideTextureHandle_ = TextureManager::Load("keyGuide.png");
+	guideSprite_ = Sprite::Create(guideTextureHandle_, guidePos_);
 
 	camera_.Initialize();
 
@@ -427,6 +431,11 @@ void GameScene::Draw() {
         fadeSprite_->SetColor({1.0f, 1.0f, 1.0f, fadeAlpha_});
         fadeSprite_->Draw();
     }
+
+	if (phase_ == Phase::kPlay ) {
+
+		guideSprite_->Draw();
+	}
 
     if (phase_ == Phase::kDeath) {
         float alpha = overAlpha_;
