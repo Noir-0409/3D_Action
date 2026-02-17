@@ -150,9 +150,9 @@ private:
 
 	bool onGround_ = true;
 
-	static inline const float kGravityAcceleration = 0.05f;
+	static inline const float kGravityAcceleration = 0.03f;
 	static inline const float kLimitFallSpeed = 1.0f;
-	static inline const float kJumpAcceleration = 0.4f;
+	static inline const float kJumpAcceleration = 0.3f;
 
 	MapChipField* mapChipField_ = nullptr;
 
