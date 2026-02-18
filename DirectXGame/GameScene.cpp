@@ -97,7 +97,7 @@ void GameScene::Initialize() {
 	camera_.Initialize();
 
     // プレイヤー生成
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 20);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 24);
 	player_ = new Player();
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);

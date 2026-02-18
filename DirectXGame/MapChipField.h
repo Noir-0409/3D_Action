@@ -70,7 +70,7 @@ public:
 	//横の数
 	uint32_t GetNumBlockHorizontal();
 
-	static inline const uint32_t kNumBlockVirtical = 30;
+	static inline const uint32_t kNumBlockVirtical = 50;
 	static inline const uint32_t kNumBlockHorizontal = 200;
 
 	//マップチップの座標
