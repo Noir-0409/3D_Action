@@ -110,6 +110,7 @@ void Player::InputMove() {
 	if (input_->PushKey(DIK_D)) {
 		if (velocity_.x < 0.0f) {
 			velocity_.x *= (1.0f - attenuation);
+			worldTransform_.rotation_.x += 1;
 		}
 		acceleration.x += accel;
 		lrDirection_ = LRDirection::kRight;
@@ -140,7 +141,6 @@ void Player::InputMove() {
 
 
 	velocity_ += acceleration;
-	//velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
 
 	float maxSpeed = onIce ? kIceMaxSpeed : kLimitRunSpeed;
 	velocity_.x = std::clamp(velocity_.x, -maxSpeed, maxSpeed);
