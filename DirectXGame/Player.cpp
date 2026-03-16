@@ -169,6 +169,19 @@ void Player::InputMove() {
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 
+	float radius = 0.7f; // プレイヤーの半径（調整）
+
+	if (input_->PushKey(DIK_D)) {
+
+		worldTransform_.rotation_.x += velocity_.x / radius;
+
+	}
+
+	if (input_->PushKey(DIK_A)) {
+
+		worldTransform_.rotation_.x -= velocity_.x / radius;
+	}
+
 	UpdateRotation();
 	wasMovingInput_ = isMovingInput;
 }
