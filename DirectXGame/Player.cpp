@@ -299,17 +299,19 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	}
 }
 
-// 左右方向チェック（ゴール判定追加済み）
 void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	if (info.move.x >= 0.0f)
 		return;
+
+	const float kEpsilon = 0.001f;
 
 	std::array<Vector3, kNumCorner> positionsNew;
 	Vector3 center = worldTransform_.translation_ + info.move;
 	for (uint32_t i = 0; i < positionsNew.size(); ++i)
 		positionsNew[i] = CornerPosition(center, static_cast<Corner>(i));
 
-	float playerLeft = worldTransform_.translation_.x - kWidth / 2.0f;
+	// ★ center基準に修正
+	float playerLeft = center.x - kWidth / 2.0f;
 	float maxDeltaX = info.move.x;
 
 	MapChipField::IndexSet indexSet;
@@ -325,7 +327,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = rect.right - playerLeft;
+		float deltaX = (rect.right - playerLeft) + kEpsilon; // ★ ε追加
 		if (deltaX > maxDeltaX)
 			maxDeltaX = deltaX;
 	}
@@ -339,7 +341,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = rect.right - playerLeft;
+		float deltaX = (rect.right - playerLeft) + kEpsilon; // ★ ε追加
 		if (deltaX > maxDeltaX)
 			maxDeltaX = deltaX;
 	}
@@ -355,12 +357,15 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	if (info.move.x <= 0.0f)
 		return;
 
+	const float kEpsilon = 0.001f;
+
 	std::array<Vector3, kNumCorner> positionsNew;
 	Vector3 center = worldTransform_.translation_ + info.move;
 	for (uint32_t i = 0; i < positionsNew.size(); ++i)
 		positionsNew[i] = CornerPosition(center, static_cast<Corner>(i));
 
-	float playerRight = worldTransform_.translation_.x + kWidth / 2.0f;
+	// ★ center基準に修正
+	float playerRight = center.x + kWidth / 2.0f;
 	float minDeltaX = info.move.x;
 
 	MapChipField::IndexSet indexSet;
@@ -376,7 +381,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = rect.left - playerRight;
+		float deltaX = (rect.left - playerRight) - kEpsilon; // ★ ε追加
 		if (deltaX < minDeltaX)
 			minDeltaX = deltaX;
 	}
@@ -390,7 +395,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = rect.left - playerRight;
+		float deltaX = (rect.left - playerRight) - kEpsilon; // ★ ε追加
 		if (deltaX < minDeltaX)
 			minDeltaX = deltaX;
 	}
@@ -401,7 +406,6 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		info.hitwall = true;
 	}
 }
-
 
 Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 
