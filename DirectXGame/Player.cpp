@@ -490,14 +490,26 @@ void Player::UpdateRotation() {
 	worldTransform_.rotation_.y += delta * rotationSpeed;
 }
 
+//void Player::UpdateHitWall(const CollisionMapInfo& info) {
+//
+//	if (info.hitwall) {
+//	
+//	velocity_.x *= 0.98f;
+//	
+//	}
+//
+//}
+
 void Player::UpdateHitWall(const CollisionMapInfo& info) {
 
 	if (info.hitwall) {
-	
-	velocity_.x *= 0.98f;
-	
-	}
 
+		// ★壁に向かってる時だけ減速
+		if ((velocity_.x > 0.0f && info.move.x == 0.0f) || (velocity_.x < 0.0f && info.move.x == 0.0f)) {
+
+			velocity_.x *= 0.98f;
+		}
+	}
 }
 
 Vector3 Player::GetWorldPosition() const{
