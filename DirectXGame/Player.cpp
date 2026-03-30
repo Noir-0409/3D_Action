@@ -191,11 +191,8 @@ void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.trans
 void Player::CheckMapCollision(CollisionMapInfo& info) {
 	CheckMapCollisionUp(info);
 	CheckMapCollisionDown(info);
-
-	if (!info.landing) {
-		CheckMapCollisionRight(info);
-		CheckMapCollisionLeft(info);
-	}
+	CheckMapCollisionRight(info);
+	CheckMapCollisionLeft(info);
 
 }
 
@@ -379,13 +376,12 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 
 	if (maxDeltaX > info.move.x) {
 
-		// ★本当にめり込んでる時だけ
 		if (maxDeltaX - info.move.x > 0.0001f) {
 
 			info.move.x = maxDeltaX;
 
-			// ★壁に向かってる時だけ止める
-			if (velocity_.x < 0.0f) {
+			// ★ここが本体
+			if (!onGround_ && velocity_.x < 0.0f) {
 				velocity_.x = 0.0f;
 			}
 
@@ -443,9 +439,18 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	}
 
 	if (minDeltaX < info.move.x) {
-		info.move.x = minDeltaX;
-		velocity_.x = 0.0f;
-		info.hitwall = true;
+
+		if (info.move.x - minDeltaX > 0.0001f) {
+
+			info.move.x = minDeltaX;
+
+			// ★ここが本体
+			if (!onGround_ && velocity_.x > 0.0f) {
+				velocity_.x = 0.0f;
+			}
+
+			info.hitwall = true;
+		}
 	}
 }
 
@@ -463,46 +468,6 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 }
 
 void Player::UpdateOnGround(const CollisionMapInfo& info) {
-
-	//// 接地フラグを更新
-	//if (info.landing) {
-	//	onGround_ = true;
-	//	velocity_.y = 0.0f;
-
-	//	 velocity_.x *= 0.9f;
-
-	//	//velocity_.x *= (1.0f - kAttenuationLanding);
-
-	//	if (!IsOnIce()) {
-	//		velocity_.x *= (1.0f - kAttenuationLanding);
-	//	}
-
-
-	//} else if (velocity_.y > 0.0f) {
-	//	// 上昇中は接地解除
-	//	onGround_ = false;
-	//} else {
-	//	// ★追加：壁に当たってる時は接地させない
-	//	if (info.hitwall) {
-	//		onGround_ = false;
-	//		return;
-	//	}
-
-	//	Vector3 bottomPos = worldTransform_.translation_;
-	//	bottomPos.y -= kHeight / 2.0f + 0.01f;
-
-	//	MapChipField::IndexSet indexSet = mapChipField_->GetMapChipIndexSetByPosition(bottomPos);
-	//	MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-
-	//	onGround_ = (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce);
-	//} 
-	//
-	//if (info.landing) {
-	//	onGround_ = true;
-
-	//	// ★これ追加（超重要）
-	//	velocity_.y = 0.0f;
-	//}
 
 	 if (info.landing) {
 		onGround_ = true;
@@ -530,7 +495,7 @@ void Player::UpdateHitWall(const CollisionMapInfo& info) {
 
 	if (info.hitwall) {
 	
-	velocity_.x *= (1.0f - kAttenuationWall);
+	velocity_.x *= 0.98f;
 	
 	}
 
