@@ -191,8 +191,14 @@ void Player::CollisionMove(const CollisionMapInfo& info) { worldTransform_.trans
 void Player::CheckMapCollision(CollisionMapInfo& info) {
 	CheckMapCollisionUp(info);
 	CheckMapCollisionDown(info);
-	CheckMapCollisionRight(info);
-	CheckMapCollisionLeft(info);
+
+	if (!info.landing) {
+		CheckMapCollisionRight(info);
+		CheckMapCollisionLeft(info);
+	}
+
+	/*CheckMapCollisionRight(info);
+	CheckMapCollisionLeft(info);*/
 }
 
 //void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
@@ -545,6 +551,9 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 	if (info.landing) {
 		onGround_ = true;
 		velocity_.y = 0.0f;
+
+		 velocity_.x *= 0.9f;
+
 		//velocity_.x *= (1.0f - kAttenuationLanding);
 
 		if (!IsOnIce()) {
