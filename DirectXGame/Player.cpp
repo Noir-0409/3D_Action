@@ -469,13 +469,12 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 
 void Player::UpdateOnGround(const CollisionMapInfo& info) {
 
-	 if (info.landing) {
+	if (info.landing && !info.hitwall) {
 		onGround_ = true;
 		velocity_.y = 0.0f;
 	} else {
 		onGround_ = false;
 	}
-
 }
 
 void Player::UpdateRotation() {
