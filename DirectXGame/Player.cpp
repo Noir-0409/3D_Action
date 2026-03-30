@@ -197,85 +197,7 @@ void Player::CheckMapCollision(CollisionMapInfo& info) {
 		CheckMapCollisionLeft(info);
 	}
 
-	/*CheckMapCollisionRight(info);
-	CheckMapCollisionLeft(info);*/
 }
-
-//void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
-//	if (info.move.y >= 0.0f)
-//		return;
-//
-//	std::array<Vector3, kNumCorner> positionsNew;
-//	Vector3 center = worldTransform_.translation_ + info.move;
-//
-//	for (uint32_t i = 0; i < positionsNew.size(); ++i)
-//		positionsNew[i] = CornerPosition(center, static_cast<Corner>(i));
-//
-//	MapChipField::IndexSet indexSet;
-//	MapChipType mapChipType;
-//	bool hit = false;
-//
-//	// 左下チェック
-//	Vector3 checkPosL = positionsNew[kLeftBottom];
-//	checkPosL.y -= kGroundSearchHeight;
-//	indexSet = mapChipField_->GetMapChipIndexSetByPosition(checkPosL);
-//	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-//
-//	if (mapChipType == MapChipType::kDamage)
-//		isDead_ = true;
-//	else if (mapChipType == MapChipType::kGoal)
-//		isGoal_ = true;
-//
-//	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue)
-//		hit = true;
-//
-//
-//	// 右下チェック
-//	Vector3 checkPosR = positionsNew[kRightBottom];
-//	checkPosR.y -= kGroundSearchHeight;
-//	indexSet = mapChipField_->GetMapChipIndexSetByPosition(checkPosR);
-//	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-//
-//	if (mapChipType == MapChipType::kDamage)
-//		isDead_ = true;
-//	else if (mapChipType == MapChipType::kGoal)
-//		isGoal_ = true;
-//	
-//	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce||mapChipType==MapChipType::kRed||mapChipType==MapChipType::kBlue)
-//		hit = true;
-//
-//
-//	/*if (hit) {
-//		Vector3 bottomPos = worldTransform_.translation_;
-//		bottomPos.y -= kHeight / 2.0f;
-//		indexSet = mapChipField_->GetMapChipIndexSetByPosition(bottomPos);
-//		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-//
-//		info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + kHeight / 2.0f + kBlank);
-//		info.landing = true;
-//	}*/ 
-//	
-//	if (hit) {
-//		Vector3 bottomPos = worldTransform_.translation_;
-//		bottomPos.y -= kHeight / 2.0f;
-//
-//		indexSet = mapChipField_->GetMapChipIndexSetByPosition(bottomPos);
-//		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-//
-//		// ★前フレームと次フレームの位置
-//		float prevBottom = worldTransform_.translation_.y - kHeight / 2.0f;
-//		float nextBottom = (worldTransform_.translation_.y + info.move.y) - kHeight / 2.0f;
-//
-//		// ★上から通過したときだけ
-//		if (info.move.y < 0.0f && prevBottom >= rect.top && nextBottom <= rect.top) {
-//
-//			info.move.y = rect.top - worldTransform_.translation_.y + kHeight / 2.0f + kBlank;
-//			info.landing = true;
-//		}
-//	} else {
-//		info.landing = false;
-//	}
-//}
 
 void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	if (info.move.y >= 0.0f)
@@ -311,7 +233,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 
 			if (prevBottom >= rect.top && nextBottom <= rect.top) {
 
-				float deltaY = rect.top - worldTransform_.translation_.y + kHeight / 2.0f + kBlank;
+				float deltaY = rect.top - worldTransform_.translation_.y + kHeight / 2.0f ;
 
 				if (deltaY > maxY) {
 					maxY = deltaY;
@@ -471,11 +393,6 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		}
 	}
 
-	/*if (maxDeltaX > info.move.x) {
-		info.move.x = maxDeltaX;
-		velocity_.x = 0.0f;
-		info.hitwall = true;
-	}*/
 }
 
 void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
@@ -547,56 +464,53 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 
 void Player::UpdateOnGround(const CollisionMapInfo& info) {
 
-	// 接地フラグを更新
-	if (info.landing) {
-		onGround_ = true;
-		velocity_.y = 0.0f;
+	//// 接地フラグを更新
+	//if (info.landing) {
+	//	onGround_ = true;
+	//	velocity_.y = 0.0f;
 
-		 velocity_.x *= 0.9f;
+	//	 velocity_.x *= 0.9f;
 
-		//velocity_.x *= (1.0f - kAttenuationLanding);
+	//	//velocity_.x *= (1.0f - kAttenuationLanding);
 
-		if (!IsOnIce()) {
-			velocity_.x *= (1.0f - kAttenuationLanding);
-		}
+	//	if (!IsOnIce()) {
+	//		velocity_.x *= (1.0f - kAttenuationLanding);
+	//	}
 
 
-	} else if (velocity_.y > 0.0f) {
-		// 上昇中は接地解除
-		onGround_ = false;
-	} else {
-		// ★追加：壁に当たってる時は接地させない
-		if (info.hitwall) {
-			onGround_ = false;
-			return;
-		}
+	//} else if (velocity_.y > 0.0f) {
+	//	// 上昇中は接地解除
+	//	onGround_ = false;
+	//} else {
+	//	// ★追加：壁に当たってる時は接地させない
+	//	if (info.hitwall) {
+	//		onGround_ = false;
+	//		return;
+	//	}
 
-		Vector3 bottomPos = worldTransform_.translation_;
-		bottomPos.y -= kHeight / 2.0f + 0.01f;
-
-		MapChipField::IndexSet indexSet = mapChipField_->GetMapChipIndexSetByPosition(bottomPos);
-		MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-
-		onGround_ = (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce);
-	} 
-	
-	if (info.landing) {
-		onGround_ = true;
-
-		// ★これ追加（超重要）
-		velocity_.y = 0.0f;
-	}
-
-	//else {
-	//	// 下端の下にブロックがあるか確認して接地
 	//	Vector3 bottomPos = worldTransform_.translation_;
-	//	bottomPos.y -= kHeight / 2.0f + 0.01f; // 少し下に補正
+	//	bottomPos.y -= kHeight / 2.0f + 0.01f;
+
 	//	MapChipField::IndexSet indexSet = mapChipField_->GetMapChipIndexSetByPosition(bottomPos);
 	//	MapChipType mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-	//	//onGround_ = (mapChipType == MapChipType::kBlock);
-	//	onGround_ = (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce);
 
+	//	onGround_ = (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce);
+	//} 
+	//
+	//if (info.landing) {
+	//	onGround_ = true;
+
+	//	// ★これ追加（超重要）
+	//	velocity_.y = 0.0f;
 	//}
+
+	 if (info.landing) {
+		onGround_ = true;
+		velocity_.y = 0.0f;
+	} else {
+		onGround_ = false;
+	}
+
 }
 
 void Player::UpdateRotation() {
