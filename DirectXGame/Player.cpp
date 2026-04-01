@@ -159,6 +159,15 @@ void Player::InputMove() {
 		jumpTime_ = kMaxJumpTime;
 	}
 
+	if (!onGround_ && input_->PushKey(DIK_S)) {
+
+		// すでに落ちててもさらに加速
+		velocity_.y -= kGravityAcceleration * 2.5f;
+
+		// 落下速度の上限（重要）
+		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed * 1.5f);
+	}
+
 	// --- 重力 ---
 	if (!onGround_) {
 		if (velocity_.y > 0.0f) {
