@@ -46,7 +46,7 @@ void GameScene::Initialize() {
 	guidePos_ = {0, 400};
 
     // モデル読み込み
-	modelPlayer_ = Model::CreateFromOBJ("Player");
+	modelPlayer_ = Model::CreateFromOBJ("Player2");
 	modelBlock_ = Model::CreateFromOBJ("block");
 	modelFire_ = Model::CreateFromOBJ("fire");
 	modelGoal_ = Model::CreateFromOBJ("goal");

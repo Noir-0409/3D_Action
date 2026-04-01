@@ -146,7 +146,7 @@ void Player::InputMove() {
 	velocity_.x = std::clamp(velocity_.x, -maxSpeed, maxSpeed);
 
 	// --- ジャンプ処理（そのまま） ---
-	if (input_->PushKey(DIK_W)) {
+	if (input_->PushKey(DIK_W)||input_->PushKey(DIK_SPACE)) {
 		if (onGround_) {
 			velocity_.y = kJumpAcceleration;
 			onGround_ = false;
@@ -489,16 +489,6 @@ void Player::UpdateRotation() {
 	float rotationSpeed = 0.2f; // 回転スピード
 	worldTransform_.rotation_.y += delta * rotationSpeed;
 }
-
-//void Player::UpdateHitWall(const CollisionMapInfo& info) {
-//
-//	if (info.hitwall) {
-//	
-//	velocity_.x *= 0.98f;
-//	
-//	}
-//
-//}
 
 void Player::UpdateHitWall(const CollisionMapInfo& info) {
 
