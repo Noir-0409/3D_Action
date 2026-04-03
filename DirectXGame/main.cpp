@@ -19,7 +19,7 @@ void DrawScene();
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
-	KamataEngine::Initialize(L"LE3C_11_タムラ_アツキ");
+	KamataEngine::Initialize(L"Action_Run");
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	titleScene = new TitleScene();
