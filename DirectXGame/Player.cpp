@@ -22,7 +22,7 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 void Player::Update() {
 	worldTransform_.TransferMatrix();
 
-	// --- 死亡落下中 ---
+	// 死亡落下中
 	if (isFalling_) {
 		// Y方向の速度に重力を加算
 		deathVelocityY_ += gravity_;
@@ -40,7 +40,7 @@ void Player::Update() {
 		return; // 通常操作はしない
 	}
 
-	// --- 通常操作 ---
+	// 通常操作
 	if (inputEnabled_) {
 		InputMove(); // velocity_ 計算
 	} else {
@@ -70,7 +70,7 @@ void Player::Update() {
 
 void Player::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
 
-// --- 死亡落下開始 ---
+// 死亡落下開始
 void Player::StartDeathFall() {
 	isFalling_ = true;
 	isDead_ = true;
@@ -145,7 +145,7 @@ void Player::InputMove() {
 	float maxSpeed = onIce ? kIceMaxSpeed : kLimitRunSpeed;
 	velocity_.x = std::clamp(velocity_.x, -maxSpeed, maxSpeed);
 
-	// --- ジャンプ処理（そのまま） ---
+	// ジャンプ処理
 	if (input_->PushKey(DIK_W)||input_->PushKey(DIK_SPACE)) {
 		if (onGround_) {
 			velocity_.y = kJumpAcceleration;
@@ -164,11 +164,11 @@ void Player::InputMove() {
 		// すでに落ちててもさらに加速
 		velocity_.y -= kGravityAcceleration * 2.5f;
 
-		// 落下速度の上限（重要）
+		// 落下速度の上限
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed * 1.5f);
 	}
 
-	// --- 重力 ---
+	// 重力
 	if (!onGround_) {
 		if (velocity_.y > 0.0f) {
 			velocity_.y -= kGravityAcceleration * 0.6f;
@@ -178,7 +178,7 @@ void Player::InputMove() {
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
 
-	float radius = 0.7f; // プレイヤーの半径（調整）
+	float radius = 0.7f; // プレイヤーの半径
 
 	if (input_->PushKey(DIK_D)) {
 
@@ -218,7 +218,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	float maxY = info.move.y;
 	bool landed = false;
 
-	// ===== 左下 =====
+	// 左下
 	{
 		Vector3 checkPos = positionsNew[kLeftBottom];
 		checkPos.y -= kGroundSearchHeight;
@@ -249,7 +249,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		}
 	}
 
-	// ===== 右下 =====
+	// 右下
 	{
 		Vector3 checkPos = positionsNew[kRightBottom];
 		checkPos.y -= kGroundSearchHeight;
@@ -280,7 +280,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		}
 	}
 
-	// ===== 最終反映 =====
+	// 最終反映
 	if (landed) {
 		info.move.y = maxY;
 		info.landing = true;
@@ -289,7 +289,6 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	}
 }
 
-// 上方向チェック
 void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	if (info.move.y <= 0.0f)
 		return;
@@ -347,7 +346,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	for (uint32_t i = 0; i < positionsNew.size(); ++i)
 		positionsNew[i] = CornerPosition(center, static_cast<Corner>(i));
 
-	// ★ center基準に修正
+	// center基準に修正
 	float playerLeft = center.x - kWidth / 2.0f;
 	float maxDeltaX = info.move.x;
 
@@ -389,7 +388,6 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 
 			info.move.x = maxDeltaX;
 
-			// ★ここが本体
 			if (!onGround_ && velocity_.x < 0.0f) {
 				velocity_.x = 0.0f;
 			}
@@ -411,7 +409,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	for (uint32_t i = 0; i < positionsNew.size(); ++i)
 		positionsNew[i] = CornerPosition(center, static_cast<Corner>(i));
 
-	// ★ center基準に修正
+	// center基準に修正
 	float playerRight = center.x + kWidth / 2.0f;
 	float minDeltaX = info.move.x;
 
@@ -453,7 +451,6 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 
 			info.move.x = minDeltaX;
 
-			// ★ここが本体
 			if (!onGround_ && velocity_.x > 0.0f) {
 				velocity_.x = 0.0f;
 			}
@@ -503,7 +500,7 @@ void Player::UpdateHitWall(const CollisionMapInfo& info) {
 
 	if (info.hitwall) {
 
-		// ★壁に向かってる時だけ減速
+		// 壁に向かってる時だけ減速
 		if ((velocity_.x > 0.0f && info.move.x == 0.0f) || (velocity_.x < 0.0f && info.move.x == 0.0f)) {
 
 			velocity_.x *= 0.98f;

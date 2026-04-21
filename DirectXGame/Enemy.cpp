@@ -21,11 +21,6 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 void Enemy::Update() {
 
-	//worldTransform_.translation_.x += velocity_.x;
-	//worldTransform_.translation_.y += velocity_.y;
-
-	//walkTimer_ += 1.0f / 60.0f;
-
 	// 歩行モーション
 	// sin波を使って滑らかな周期運動を作る
 	float t = std::fmod(walkTimer_, kWalkMotionTime) / kWalkMotionTime;
@@ -44,8 +39,6 @@ void Enemy::Update() {
 }
 
 void Enemy::Draw() {
-
-	//model_->Draw(worldTransform_, *camera_);
 
 }
 
