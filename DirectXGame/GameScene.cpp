@@ -296,9 +296,7 @@ void GameScene::Draw() {
 	dxCommon->ClearDepthBuffer();
 	Model::PreDraw();
 
-	// ==========================
-	// ① 不透明ブロック描画
-	// ==========================
+	// 不透明ブロック描画
 	for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
 		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
 
@@ -343,16 +341,12 @@ void GameScene::Draw() {
 		}
 	}
 
-	// ==========================
-	// ② プレイヤー（ここで描く！）
-	// ==========================
+	// プレイヤー
 	if (!player_->IsDead() || player_->IsFalling()) {
 		player_->Draw(camera_);
 	}
 
-	// ==========================
-	// ③ 半透明ブロック（最後に描画）
-	// ==========================
+	// 半透明ブロック
 	for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
 		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
 
@@ -375,9 +369,7 @@ void GameScene::Draw() {
 		}
 	}
 
-	// ==========================
 	// その他
-	// ==========================
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
@@ -390,9 +382,7 @@ void GameScene::Draw() {
 
 	Model::PostDraw();
 
-	// ==========================
 	// スプライト
-	// ==========================
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	if (phase_ == Phase::kCountDown && startSprite_) {
@@ -422,129 +412,6 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 }
 
-//void GameScene::Draw() {
-//    DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-//
-//    Sprite::PreDraw(dxCommon->GetCommandList());
-//    Sprite::PostDraw();
-//
-//    dxCommon->ClearDepthBuffer();
-//    Model::PreDraw();
-//
-//    for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
-//		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
-//
-//			WorldTransform* wt = worldTransformBlocks_[y][x];
-//			if (!wt)
-//				continue;
-//
-//			// 表示用（フェーズ反映）
-//			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
-//
-//			// 元のマップデータ（赤・青判定用）
-//			MapChipType rawType = mapChipField_->GetRawMapChipTypeByIndex(x, y);
-//
-//			// ==========================
-//			// 通常（存在している）
-//			// ==========================
-//			if (type != MapChipType::kBlank) {
-//
-//				switch (type) {
-//				case MapChipType::kBlock:
-//					modelBlock_->Draw(*wt, camera_);
-//					break;
-//
-//				case MapChipType::kDamage:
-//					if (fireToggle_) {
-//						modelFire_->Draw(*wt, camera_, fireTextureHandle1_);
-//					} else {
-//						modelFire_->Draw(*wt, camera_, fireTextureHandle2_);
-//					}
-//					break;
-//
-//				case MapChipType::kGoal:
-//					modelGoal_->Draw(*wt, camera_);
-//					break;
-//
-//				case MapChipType::kIce:
-//					modelIce_->Draw(*wt, camera_);
-//					break;
-//
-//				case MapChipType::kRed:
-//					modelRed_->Draw(*wt, camera_);
-//					break;
-//
-//				case MapChipType::kBlue:
-//					modelBlue_->Draw(*wt, camera_);
-//					break;
-//				}
-//			}
-//			// ==========================
-//			// 消滅中（半透明）
-//			// ==========================
-//			else if (rawType == MapChipType::kRed || rawType == MapChipType::kBlue) {
-//
-//				// 半透明
-//				if (rawType == MapChipType::kRed) {
-//					
-//					modelRed2_->Draw(*wt, camera_);
-//					
-//				} else {
-//				
-//					modelBlue2_->Draw(*wt, camera_);
-//					
-//				}
-//			}
-//		}
-//	}
-//
-//
-//    // プレイヤー描画：死亡中も落下中なら描画
-//    if (!player_->IsDead() || player_->IsFalling()) {
-//        player_->Draw(camera_);
-//    }
-//
-//    for (Enemy* enemy : enemies_)
-//        enemy->Draw();
-//
-//    if (deathParticles_)
-//        deathParticles_->Draw();
-//
-//    skydome_->Draw();
-//    Model::PostDraw();
-//
-//    Sprite::PreDraw(dxCommon->GetCommandList());
-//
-//    if (phase_ == Phase::kCountDown && startSprite_) {
-//        float alpha = startAlpha_;
-//        startSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
-//        startSprite_->Draw();
-//    }
-//
-//    if (fadeSprite_) {
-//        fadeSprite_->SetColor({1.0f, 1.0f, 1.0f, fadeAlpha_});
-//        fadeSprite_->Draw();
-//    }
-//
-//	if (phase_ == Phase::kPlay ) {
-//
-//		guideSprite_->Draw();
-//	}
-//
-//    if (phase_ == Phase::kDeath) {
-//        float alpha = overAlpha_;
-//        overSprite_->SetColor({1.0f, 1.0f, 1.0f, alpha});
-//        overSprite_->Draw();
-//    }
-//
-//    if (phase_ == Phase::kGoal && clearSprite_) {
-//        clearSprite_->SetColor({1.0f, 1.0f, 1.0f, clearAlpha_});
-//        clearSprite_->Draw();
-//    }
-//
-//    Sprite::PostDraw();
-//}
-
 void GameScene::GenerateBlocks() {
 
     // 2次元配列サイズをマップに合わせて確保
@@ -555,7 +422,7 @@ void GameScene::GenerateBlocks() {
     // マップを走査してブロック生成
 	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
-			//MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+			
 			MapChipType type = mapChipField_->GetRawMapChipTypeByIndex(x, y);
 
 			if (type == MapChipType::kBlank)
@@ -589,7 +456,7 @@ void GameScene::ChangePhase() {
 
     case Phase::kPlay:
 
-        // プレイヤー死亡 → デスフェーズへ
+        // プレイヤー死亡 → デスフェーズ
 		if (player_->IsDead()) {
 			phase_ = Phase::kDeath;
 
@@ -603,7 +470,7 @@ void GameScene::ChangePhase() {
 			deathParticles_->Initialize(modelParticle_, &camera_, deathParticlesPosition);
 		}
 
-        // ゴール到達 → ゴールフェーズへ
+        // ゴール到達 → ゴールフェーズ
 
 		if (player_->IsGoal()) {
 			phase_ = Phase::kGoal;
@@ -612,10 +479,10 @@ void GameScene::ChangePhase() {
 		break;
 
 	case Phase::kDeath:
+		
 		break;
 
 	case Phase::kGoal:
-		
 
 		break;
 	}

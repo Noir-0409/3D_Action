@@ -66,7 +66,7 @@ void TitleScene::Update(float deltaTime) {
 		}
 	}
 
-	// タイトルスプライトの滑らか移動（減速付き）
+	// タイトルスプライトの滑らか移動
 	float targetY = 90.0f; // 止めたい高さ
 	float easing = 0.1f;   // ゴールに近づくほど減速する割合
 	float diff = targetY - spritePos_.y;
@@ -76,7 +76,7 @@ void TitleScene::Update(float deltaTime) {
 	}
 	titleSprite_->SetPosition(spritePos_);
 
-	// スタートスプライトの滑らか点滅（正弦波で0～1のループ）
+	// スタートスプライトの滑らか点滅
 	float blinkSpeed = 0.5f; // 1秒で2回点滅
 	startAlpha_ = (sinf(totalTime_ * blinkSpeed * 3.14159f * 2) + 1.0f) / 2.0f;
 	startSprite_->SetColor({1.0f, 1.0f, 1.0f, startAlpha_});
