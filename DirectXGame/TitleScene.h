@@ -2,23 +2,24 @@
 #include "KamataEngine.h"
 #include "TitleSkydome.h"
 #include "input/Input.h"
+#include "IScene.h"
 
 using namespace KamataEngine;
 
 /// <summary>
 /// タイトルシーンを管理するクラス
 /// </summary>
-class TitleScene {
+class TitleScene : public IScene {
 
 public:
 	~TitleScene();
 
-	void Initialize();
-	void Update(float deltaTime);
-	void Draw();
+	void Initialize() override;
+	void Update(float deltaTime) override;
+	void Draw() override;
 
-	//シーンの終了
-	bool IsFinished() { return isFinished_; }
+	// シーンの終了
+	bool IsFinished() const override { return isFinished_; }
 
 private:
 	DirectXCommon* dxCommon_ = nullptr;
