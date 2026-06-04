@@ -1,4 +1,6 @@
 #include "GameScene.h"
+#include <iostream>
+#include <Windows.h>
 
 GameScene::~GameScene() {
 
@@ -33,6 +35,8 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
+	OutputDebugStringA("GAME SCENE INIT\n");
+
     // フェーズ初期化
 	phase_ = Phase::kCountDown;
 	countdownTimer_ = 3.0f;
@@ -59,9 +63,13 @@ void GameScene::Initialize() {
 	modelBlue2_ = Model::CreateFromOBJ("blue2");
 	modelPlayer_ = Model::CreateFromOBJ("Player2");
 
+	OutputDebugStringA("B: before CSV\n");
+
     // マップチップ読み込み
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
+
+	OutputDebugStringA("C: after CSV\n");
 
     // スプライト読み込み
 	oneTextureHandle_ = TextureManager::Load("number/1.png");
@@ -136,6 +144,12 @@ void GameScene::Initialize() {
 
 	worldTransform_.Initialize();
 
+	worldTransformBlocks_.resize(MapChipField::kNumBlockVirtical);
+
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		worldTransformBlocks_[y].resize(MapChipField::kNumBlockHorizontal);
+	}
+
 	GenerateBlocks();
 }
 
@@ -156,6 +170,21 @@ void GameScene::Update(float deltaTime) {
     }
 
     player_->Update();
+
+	// DamageChipへ同期
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
+
+			MapChip* chip = mapChips_[y][x];
+			if (!chip)
+				continue;
+
+			DamageChip* damage = dynamic_cast<DamageChip*>(chip);
+			if (damage) {
+				damage->SetFireToggle(fireToggle_);
+			}
+		}
+	}
 
     // 死亡判定で落下開始
     if (player_->IsDead() && !player_->IsFalling()) {
@@ -298,68 +327,38 @@ void GameScene::Draw() {
 	dxCommon->ClearDepthBuffer();
 	Model::PreDraw();
 
-	// 不透明ブロック描画
-	for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
-		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
+	// ===== 不透明ブロック（完全ポリモーフィズム）=====
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
 
 			WorldTransform* wt = worldTransformBlocks_[y][x];
 			if (!wt)
 				continue;
 
-			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
-
-			if (type == MapChipType::kBlank)
+			MapChip* chip = mapChips_[y][x];
+			if (!chip)
 				continue;
 
-			switch (type) {
-			case MapChipType::kBlock:
-				modelBlock_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kDamage:
-				if (fireToggle_) {
-					modelFire_->Draw(*wt, camera_, fireTextureHandle1_);
-				} else {
-					modelFire_->Draw(*wt, camera_, fireTextureHandle2_);
-				}
-				break;
-
-			case MapChipType::kGoal:
-				modelGoal_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kIce:
-				modelIce_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kRed:
-				modelRed_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kBlue:
-				modelBlue_->Draw(*wt, camera_);
-				break;
-			}
+			chip->Draw(*wt, camera_);
 		}
 	}
 
-	// プレイヤー
+	// ===== プレイヤー =====
 	if (!player_->IsDead() || player_->IsFalling()) {
 		player_->Draw(camera_);
 	}
 
-	// 半透明ブロック
-	for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
-		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
+	// ===== 半透明ブロック（演出系だけ残す）=====
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
 
 			WorldTransform* wt = worldTransformBlocks_[y][x];
 			if (!wt)
 				continue;
 
-			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
 			MapChipType rawType = mapChipField_->GetRawMapChipTypeByIndex(x, y);
+			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
 
-			// 消滅中だけ描画
 			if (type == MapChipType::kBlank) {
 
 				if (rawType == MapChipType::kRed) {
@@ -371,11 +370,12 @@ void GameScene::Draw() {
 		}
 	}
 
-	// その他
+	// ===== 敵 =====
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
 
+	// ===== その他 =====
 	if (deathParticles_) {
 		deathParticles_->Draw();
 	}
@@ -384,7 +384,7 @@ void GameScene::Draw() {
 
 	Model::PostDraw();
 
-	// スプライト
+	// ===== UI =====
 	Sprite::PreDraw(dxCommon->GetCommandList());
 
 	if (phase_ == Phase::kCountDown && startSprite_) {
@@ -416,35 +416,73 @@ void GameScene::Draw() {
 
 void GameScene::GenerateBlocks() {
 
-    // 2次元配列サイズをマップに合わせて確保
-	worldTransformBlocks_.resize(MapChipField::kNumBlockVirtical);
-	for (uint32_t i = 0; i < MapChipField::kNumBlockVirtical; ++i)
-		worldTransformBlocks_[i].resize(MapChipField::kNumBlockHorizontal);
+	OutputDebugStringA("D: before Generate\n");
 
-    // マップを走査してブロック生成
+	mapChips_.resize(MapChipField::kNumBlockVirtical);
+
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		mapChips_[y].resize(MapChipField::kNumBlockHorizontal);
+	}
+
+	int count = 0;
+
 	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
-			
+
 			MapChipType type = mapChipField_->GetRawMapChipTypeByIndex(x, y);
 
-			if (type == MapChipType::kBlank)
-				continue;
+			MapChip* chip = nullptr;
 
-			WorldTransform* wt = new WorldTransform();
-			wt->Initialize();
-			wt->translation_ = mapChipField_->GetMapChipPositionByIndex(x, y);
-			worldTransformBlocks_[y][x] = wt;
+			switch (type) {
+
+			case MapChipType::kBlock:
+				chip = new BlockChip(modelBlock_);
+				break;
+
+			case MapChipType::kDamage:
+				chip = new DamageChip(modelFire_, fireTextureHandle1_, fireTextureHandle2_);
+				break;
+
+			case MapChipType::kGoal:
+				chip = new GoalChip(modelGoal_);
+				break;
+
+			case MapChipType::kIce:
+				chip = new IceChip(modelIce_);
+				break;
+
+			case MapChipType::kRed:
+				chip = new RedChip(modelRed_);
+				break;
+
+			case MapChipType::kBlue:
+				chip = new BlueChip(modelBlue_);
+				break;
+
+			default:
+				chip = nullptr;
+				break;
+			}
+
+			if (chip)
+				count++;
+
+			mapChips_[y][x] = chip;
 		}
 	}
+
+	OutputDebugStringA("E: Generate START\n");
+
+	std::string msg = "chip count = " + std::to_string(count) + "\n";
+	OutputDebugStringA(msg.c_str());
 }
 
 void GameScene::CheckAllCollision() {
 
-    // プレイヤーのAABB取得
 	AABB playerAABB = player_->GetAABB();
 
-	// 敵との当たり判定
 	for (Enemy* enemy : enemies_) {
+
 		if (AABB::IsCollision(playerAABB, enemy->GetAABB())) {
 			player_->OnCollision(enemy);
 			enemy->OnCollision(player_);

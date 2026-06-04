@@ -8,6 +8,14 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "IScene.h"
+#include "MapChip.h"
+#include "BlockChip.h"
+#include "DamageChip.h"
+#include "GoalChip.h"
+#include "IceChip.h"
+#include "RedChip.h"
+#include "BlueChip.h"
+#include "EnptyChip.h"
 
 using namespace KamataEngine;
 
@@ -56,6 +64,8 @@ private:
 	Camera camera_;
 
 	WorldTransform worldTransform_;
+
+	std::vector<std::vector<MapChip*>> mapChips_;
 
 	Input* input_ = nullptr;
 

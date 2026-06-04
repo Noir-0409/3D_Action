@@ -270,15 +270,23 @@
   <ItemGroup>
     <ClInclude Include="AABB.h" />
     <ClInclude Include="Affin.h" />
+    <ClInclude Include="BlockChip.h" />
+    <ClInclude Include="BlueChip.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="ClearScene.h" />
+    <ClInclude Include="DamageChip.h" />
     <ClInclude Include="DeathParticle.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnptyChip.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="GoalChip.h" />
+    <ClInclude Include="IceChip.h" />
     <ClInclude Include="IScene.h" />
+    <ClInclude Include="MapChip.h" />
     <ClInclude Include="MapChipField.h" />
     <ClInclude Include="MathUtillity.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="RedChip.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="TitleSkydome.h" />
