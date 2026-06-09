@@ -1,22 +1,20 @@
 #define NOMINMAX
 
 #include "CameraController.h"
-#include "Player.h"
 #include "MathUtillity.h"
+#include "Player.h"
 using namespace KamataEngine::MathUtility;
 
-void CameraController::Initialize() {
-
-	camera_->Initialize();
-
-}
+void CameraController::Initialize() { camera_->Initialize(); }
 
 void CameraController::Update() {
+	if (target_ == nullptr)
+		return; // 安全のための防衛コード
 
-	 // ターゲットのワールド変換情報を取得
+	// ターゲットのワールド変換情報を取得（GameObjectから継承した関数を安全に呼び出します）
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 
-	  // ターゲットの移動速度を取得
+	// ターゲットの移動速度を取得
 	const Vector3 targetVelocity_ = target_->GetVelocity();
 
 	// カメラが目標とする位置を計算
@@ -43,10 +41,11 @@ void CameraController::Update() {
 	camera_->translation_.y = std::min(camera_->translation_.y, targetWorldTransform.translation_.y + margin_.top);
 
 	camera_->UpdateMatrix();
-
 }
 
 void CameraController::Reset() {
+	if (target_ == nullptr)
+		return; // 安全のための防衛コード
 
 	// ターゲットの現在位置を取得
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
@@ -55,5 +54,4 @@ void CameraController::Reset() {
 	camera_->translation_.x = targetWorldTransform.translation_.x + targetOffset_.x;
 	camera_->translation_.y = targetWorldTransform.translation_.y + targetOffset_.y;
 	camera_->translation_.z = targetWorldTransform.translation_.z + targetOffset_.z;
-
 }

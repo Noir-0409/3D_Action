@@ -10,7 +10,7 @@ using namespace KamataEngine;
 
 Player::~Player() {}
 
-void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
+void Player::Initialize(Model* model, const Camera* camera, const Vector3& position) {
 	model_ = model;
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
@@ -68,7 +68,11 @@ void Player::Update() {
 	worldTransform_.TransferMatrix();
 }
 
-void Player::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
+void Player::Draw() {
+	if (model_ && camera_) {
+		model_->Draw(worldTransform_, *camera_);
+	}
+}
 
 // 死亡落下開始
 void Player::StartDeathFall() {
@@ -506,24 +510,6 @@ void Player::UpdateHitWall(const CollisionMapInfo& info) {
 			velocity_.x *= 0.98f;
 		}
 	}
-}
-
-Vector3 Player::GetWorldPosition() const{
-
-	// ワールド座標を入れる変数
-	Vector3 worldPos;
-
-	// ワールド行列の平行移動成分を取得
-	// ワールド行列のTx
-	worldPos.x = worldTransform_.translation_.x;
-
-	// ワールド行列のTy
-	worldPos.y = worldTransform_.translation_.y;
-
-	// ワールド行列のTz
-	worldPos.z = worldTransform_.translation_.z;
-
-	return worldPos;
 }
 
 AABB Player::GetAABB() { 

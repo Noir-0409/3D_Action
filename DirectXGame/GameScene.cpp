@@ -338,7 +338,7 @@ void GameScene::Draw() {
 
 	// プレイヤー
 	if (!player_->IsDead() || player_->IsFalling()) {
-		player_->Draw(camera_);
+		player_->Draw();
 	}
 
 	// その他
