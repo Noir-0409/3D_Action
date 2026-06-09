@@ -1,14 +1,16 @@
 #pragma once
+#include "BaseBlock.h"
 #include "CameraController.h"
 #include "DeathParticle.h"
 #include "Enemy.h"
+#include "GameObject.h" // ★共通の基底クラスをインクルード
+#include "IScene.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "MathUtillity.h"
 #include "Player.h"
 #include "Skydome.h"
-#include "IScene.h"
-#include "BaseBlock.h"
+#include <vector> // ★vectorを使用するため追加
 
 using namespace KamataEngine;
 
@@ -17,14 +19,7 @@ using namespace KamataEngine;
 /// </summary>
 class GameScene : public IScene {
 
-	enum class Phase {
-
-		kCountDown,
-		kPlay,
-		kDeath,
-		kGoal
-
-	};
+	enum class Phase { kCountDown, kPlay, kDeath, kGoal };
 
 	Phase phase_;
 
@@ -40,16 +35,16 @@ public:
 	// 描画
 	void Draw() override;
 
-	//ブロックの配置
+	// ブロックの配置
 	void GenerateBlocks();
 
-	//シーンの終了
+	// シーンの終了
 	bool IsFinished() const override { return isFinished_; }
 
-	//全ての当たり判定
+	// 全ての当たり判定
 	void CheckAllCollision();
 
-	//フェーズの変化
+	// フェーズの変化
 	void ChangePhase();
 
 private:
@@ -73,7 +68,7 @@ private:
 	Model* modelGoal_ = nullptr;
 
 	Model* modelIce_ = nullptr;
-	
+
 	Model* modelRed_ = nullptr;
 
 	Model* modelBlue_ = nullptr;
@@ -88,7 +83,9 @@ private:
 
 	CameraController* cameraController_;
 
-	// Enemy* enemy_ = nullptr;
+	// ★先生の指摘：Player, Enemy, Skydomeを一括で管理するための「基底クラスのポインタ配列」
+	std::vector<GameObject*> gameObjects_;
+
 	std::list<Enemy*> enemies_;
 
 	Model* modelEnemy_ = nullptr;
@@ -153,5 +150,4 @@ private:
 	Sprite* fadeSprite_ = nullptr; // 死亡フェード用スプライト
 	float fadeAlpha_ = 0.0f;       // 0.0 = 透明, 1.0 = 真っ黒
 	float fadeSpeed_ = 1.0f / 120.0f;
-
 };

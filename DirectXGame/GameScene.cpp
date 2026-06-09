@@ -11,17 +11,24 @@ GameScene::~GameScene() {
 	delete modelSkydome_;
 	delete modelParticle_;
 
-	// ゲームオブジェクトの解放
-	delete player_;
+	// ★【ポリモーフィズム化】gameObjects_ 配列の中身を安全に解放
+	// 配列内の実体（player_, skydome_など）はここで一括解放されるため、
+	// delete player_ や delete skydome_ を個別に行う必要がなくなります。
+	for (GameObject* obj : gameObjects_) {
+		if (obj) {
+			delete obj;
+		}
+	}
+	gameObjects_.clear();
+
+	// ゲームオブジェクトの解放（gameObjects_に含まれないもの）
 	delete mapChipField_;
 	delete cameraController_;
-	delete skydome_;
 	if (deathParticles_)
 		delete deathParticles_;
 
-	for (Enemy* enemy : enemies_) {
-		delete enemy;
-	}
+	// ※ enemies_ の要素のメモリは gameObjects_ 側で解放されるため、
+	// ここではリストのクリアのみを行います（二重解放エラーを防ぐため）
 	enemies_.clear();
 
 	// 新しい管理配列 blocks_ を安全に解放
@@ -100,13 +107,22 @@ void GameScene::Initialize() {
 
 	camera_.Initialize();
 
-	// プレイヤー生成
+	// 確保用の配列を一応クリア
+	gameObjects_.clear();
+
+	// 1. スカイドーム生成＆登録
+	skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_, &camera_);
+	gameObjects_.push_back(skydome_); // ★基底クラス配列に登録
+
+	// 2. プレイヤー生成＆登録
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 24);
 	player_ = new Player();
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
 	player_->SetMapChipField(mapChipField_);
+	gameObjects_.push_back(player_); // ★基底クラス配列に登録
 
-	// 敵生成
+	// 3. 敵生成＆登録
 	Vector3 basePosition = {25.0f, 1.0f, 0.0f};
 	Vector3 offset = {3.0f, 3.0f, 0.0f};
 
@@ -114,19 +130,17 @@ void GameScene::Initialize() {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = basePosition + offset * static_cast<float>(i);
 		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
-		enemies_.push_back(newEnemy);
+
+		enemies_.push_back(newEnemy);     // 既存の当たり判定ロジック用
+		gameObjects_.push_back(newEnemy); // ★基底クラス配列に登録
 	}
 
-	// カメラコントローラ設定
+	// カメラコントローラ設定（プレイヤー生成の後に実行）
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
 	cameraController_->SetTarget(player_);
 	cameraController_->Initialize();
 	cameraController_->Reset();
-
-	// スカイドーム生成
-	skydome_ = new Skydome();
-	skydome_->Initialize(modelSkydome_, &camera_);
 
 	// その他初期化
 	deathParticles_ = nullptr;
@@ -159,7 +173,13 @@ void GameScene::Update(float deltaTime) {
 		fireToggle_ = !fireToggle_;
 	}
 
-	player_->Update();
+	// ★【ポリモーフィズム化】すべてのゲームオブジェクトを一括更新！
+	// これにより個別の player_->Update() などの記述を一本化します。
+	for (GameObject* obj : gameObjects_) {
+		if (obj) {
+			obj->Update();
+		}
+	}
 
 	// 死亡判定で落下開始
 	if (player_->IsDead() && !player_->IsFalling()) {
@@ -181,9 +201,6 @@ void GameScene::Update(float deltaTime) {
 
 		player_->SetInputEnabled(false);
 
-		for (Enemy* enemy : enemies_)
-			enemy->Update();
-
 		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
 		for (auto& line : blocks_) {
 			for (auto* block : line) {
@@ -196,7 +213,6 @@ void GameScene::Update(float deltaTime) {
 		}
 
 		cameraController_->Update();
-		skydome_->Update();
 		if (deathParticles_)
 			deathParticles_->Update();
 
@@ -208,9 +224,6 @@ void GameScene::Update(float deltaTime) {
 		// 当たり判定チェック（即死ブロック含む）
 		CheckAllCollision();
 
-		for (Enemy* enemy : enemies_)
-			enemy->Update();
-
 		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
 		for (auto& line : blocks_) {
 			for (auto* block : line) {
@@ -226,15 +239,10 @@ void GameScene::Update(float deltaTime) {
 			deathParticles_->Update();
 
 		cameraController_->Update();
-		skydome_->Update();
 
 		break;
 
 	case Phase::kDeath:
-		// 落下中も描画・更新
-		for (Enemy* enemy : enemies_)
-			enemy->Update();
-
 		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
 		for (auto& line : blocks_) {
 			for (auto* block : line) {
@@ -265,7 +273,6 @@ void GameScene::Update(float deltaTime) {
 			deathParticles_->Update();
 
 		cameraController_->Update();
-		skydome_->Update();
 		break;
 
 	case Phase::kGoal:
@@ -293,9 +300,6 @@ void GameScene::Update(float deltaTime) {
 			}
 		}
 
-		for (Enemy* enemy : enemies_)
-			enemy->Update();
-
 		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
 		for (auto& line : blocks_) {
 			for (auto* block : line) {
@@ -308,7 +312,6 @@ void GameScene::Update(float deltaTime) {
 		}
 
 		cameraController_->Update();
-		skydome_->Update();
 
 		if (input_->TriggerKey(DIK_SPACE))
 			isFinished_ = true;
@@ -326,8 +329,7 @@ void GameScene::Draw() {
 	dxCommon->ClearDepthBuffer();
 	Model::PreDraw();
 
-	// ★【修正箇所】すべてのブロックをポリモーフィズムで一括描画！
-	// SwitchBlock の内部で「通常状態」と「消滅中の半透明状態」の描き分けも自動で行われます。
+	// 1. マップブロックの描画
 	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
 			if (blocks_[y][x]) {
@@ -336,21 +338,27 @@ void GameScene::Draw() {
 		}
 	}
 
-	// プレイヤー
-	if (!player_->IsDead() || player_->IsFalling()) {
-		player_->Draw();
+	// 2. ★【ポリモーフィズム化】すべてのゲームオブジェクトを一括描画！
+	// 登録した順番（Skydome → Player → Enemy）で自動的に安全に描画されます。
+	// ※プレイヤーの死亡時のみ、少し条件判定をかけて呼び分けます。
+	for (GameObject* obj : gameObjects_) {
+		if (obj) {
+			// プレイヤーのみ、死亡演出時（かつ落下も終わった完全死亡時）は描画をスキップする処理
+			if (obj == player_) {
+				if (!player_->IsDead() || player_->IsFalling()) {
+					obj->Draw();
+				}
+			} else {
+				// スカイドームや敵は常に一括描画
+				obj->Draw();
+			}
+		}
 	}
 
-	// その他
-	for (Enemy* enemy : enemies_) {
-		enemy->Draw();
-	}
-
+	// 3. 特殊演出（パーティクル）の描画
 	if (deathParticles_) {
 		deathParticles_->Draw();
 	}
-
-	skydome_->Draw();
 
 	Model::PostDraw();
 
@@ -407,15 +415,15 @@ void GameScene::GenerateBlocks() {
 			wt->Initialize();
 			wt->translation_ = mapChipField_->GetMapChipPositionByIndex(x, y);
 
-			// ★【ここがポリモーフィズム】ブロックの種類（Type）に合わせて、生成する子クラスを切り替える
+			// ★ブロックの種類（Type）に合わせて、生成する子クラスを切り替える
 			if (type == MapChipType::kBlock) {
 				// 通常ブロック
 				blocks_[y][x] = new NormalBlock(modelBlock_, wt);
 			} else if (type == MapChipType::kDamage) {
-				// 炎ブロック（アニメーション用のトグルフラグと、2つのテクスチャを渡す）
+				// 炎ブロック
 				blocks_[y][x] = new FireBlock(modelFire_, wt, fireToggle_, fireTextureHandle1_, fireTextureHandle2_);
 			} else if (type == MapChipType::kRed || type == MapChipType::kBlue) {
-				// スイッチブロック（現在の状態を取得する関数と、自分が赤か青かの情報を渡す）
+				// スイッチブロック
 				auto getMapState = [this]() { return mapChipField_->GetMapChipType(); };
 
 				Model* normalModel = (type == MapChipType::kRed) ? modelRed_ : modelBlue_;
