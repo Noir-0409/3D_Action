@@ -7,13 +7,14 @@
 #include "MathUtillity.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "IScene.h"
 
 using namespace KamataEngine;
 
 /// <summary>
 /// ゲームシーンを管理するクラス
 /// </summary>
-class GameScene {
+class GameScene : public IScene {
 
 	enum class Phase {
 
@@ -27,22 +28,22 @@ class GameScene {
 	Phase phase_;
 
 public:
-	~GameScene();
+	~GameScene() override;
 
 	// 初期化
-	void Initialize();
+	void Initialize() override;
 
 	// 更新
-	void Update();
+	void Update(float deltaTime) override;
 
 	// 描画
-	void Draw();
+	void Draw() override;
 
 	//ブロックの配置
 	void GenerateBlocks();
 
 	//シーンの終了
-	bool IsFinished() { return isFinished_; }
+	bool IsFinished() const override { return isFinished_; }
 
 	//全ての当たり判定
 	void CheckAllCollision();

@@ -139,7 +139,9 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 }
 
-void GameScene::Update() {
+void GameScene::Update(float deltaTime) {
+
+	deltaTime;
 
      mapChipField_->Update();
 

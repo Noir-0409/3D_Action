@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "IScene.h"
 #include "KamataEngine.h"
 #include "TitleScene.h"
 #include <Windows.h>
@@ -6,28 +7,24 @@
 
 using namespace KamataEngine;
 
-GameScene* gameScene = nullptr;
-TitleScene* titleScene = nullptr;
+// ★【ここがポリモーフィズム】現在アクティブなシーンを指す、共通のポインタ
+IScene* currentScene = nullptr;
 
-enum class Scene { kUnknown = 0, kTitle, kGame, kClear };
-
-Scene scene = Scene::kUnknown;
+// 次にどのシーンを作るかを判定するための状態管理
+enum class SceneType { kTitle, kGame };
+SceneType currentSceneType = SceneType::kTitle;
 
 void ChangeScene();
-void UpdateScene(float deltaTime);
-void DrawScene();
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	KamataEngine::Initialize(L"Action_Run");
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	titleScene = new TitleScene();
-	titleScene->Initialize();
-	scene = Scene::kTitle;
-
-	gameScene = new GameScene();
-	gameScene->Initialize();
+	// 最初のシーン（タイトル）を生成して初期化
+	currentScene = new TitleScene();
+	currentScene->Initialize();
+	currentSceneType = SceneType::kTitle;
 
 	auto previousTime = std::chrono::high_resolution_clock::now();
 
@@ -41,69 +38,52 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		previousTime = currentTime;
 		float deltaTime = elapsed.count();
 
-		UpdateScene(deltaTime);
+		// ★【switch文が消滅！】今が何のシーンかに関わらず、現在のシーンを更新
+		if (currentScene) {
+			currentScene->Update(deltaTime);
+		}
+
+		// シーン切り替えチェック
 		ChangeScene();
 
 		dxCommon->PreDraw();
-		DrawScene();
+
+		// ★【switch文が消滅！】今が何のシーンかに関わらず、現在のシーンを描画
+		if (currentScene) {
+			currentScene->Draw();
+		}
+
 		dxCommon->PostDraw();
 	}
 
-	delete titleScene;
-	delete gameScene;
-	titleScene = nullptr;
-	gameScene = nullptr;
+	// 最後に残ったシーンを安全に解放（virtualデストラクタなので適切に消えます）
+	delete currentScene;
+	currentScene = nullptr;
 
 	KamataEngine::Finalize();
 	return 0;
 }
 
-
+// シーン切り替えのロジック
 void ChangeScene() {
-	switch (scene) {
-	case Scene::kTitle:
-		if (titleScene && titleScene->IsFinished()) {
-			scene = Scene::kGame;
-			delete titleScene;
-			titleScene = nullptr;
-			gameScene = new GameScene();
-			gameScene->Initialize();
-		}
-		break;
-	case Scene::kGame:
-		if (gameScene && gameScene->IsFinished()) {
-			scene = Scene::kTitle;
-			delete gameScene;
-			gameScene = nullptr;
-			titleScene = new TitleScene();
-			titleScene->Initialize();
-		}
-		break;
-	}
-}
+	if (currentScene && currentScene->IsFinished()) {
 
-void UpdateScene(float deltaTime) {
-	switch (scene) {
-	case Scene::kTitle:
-		if (titleScene)
-			titleScene->Update(deltaTime);
-		break;
-	case Scene::kGame:
-		if (gameScene)
-			gameScene->Update();
-		break;
-	}
-}
+		switch (currentSceneType) {
+		case SceneType::kTitle:
+			// タイトルが終わったら、ゲームシーンへ切り替え
+			delete currentScene; // 古いシーンを破棄
+			currentScene = new GameScene();
+			currentScene->Initialize();
+			currentSceneType = SceneType::kGame;
+			break;
 
-void DrawScene() {
-	switch (scene) {
-	case Scene::kTitle:
-		if (titleScene)
-			titleScene->Draw();
-		break;
-	case Scene::kGame:
-		if (gameScene)
-			gameScene->Draw();
-		break;
+		case SceneType::kGame:
+			// ゲームシーンが終わったら、タイトルシーンへ戻る
+			delete currentScene; // 古いシーンを破棄
+			currentScene = new TitleScene();
+			currentScene->Initialize();
+			currentSceneType = SceneType::kTitle;
+			break;
+		}
 	}
 }
