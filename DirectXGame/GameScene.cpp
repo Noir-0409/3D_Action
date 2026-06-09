@@ -1,8 +1,9 @@
 #include "GameScene.h"
+#include "BlockTypes.h"
 
 GameScene::~GameScene() {
 
-    // モデルの解放
+	// モデルの解放
 	delete modelPlayer_;
 	delete modelBlock_;
 	delete modelFire_;
@@ -10,7 +11,7 @@ GameScene::~GameScene() {
 	delete modelSkydome_;
 	delete modelParticle_;
 
-    // ゲームオブジェクトの解放
+	// ゲームオブジェクトの解放
 	delete player_;
 	delete mapChipField_;
 	delete cameraController_;
@@ -23,47 +24,50 @@ GameScene::~GameScene() {
 	}
 	enemies_.clear();
 
-	for (auto& worldTransformLine : worldTransformBlocks_) {
-		for (WorldTransform* block : worldTransformLine) {
-			delete block;
+	// 新しい管理配列 blocks_ を安全に解放
+	for (auto& blockLine : blocks_) {
+		for (BaseBlock* block : blockLine) {
+			if (block) {
+				delete block;
+			}
 		}
 	}
-	worldTransformBlocks_.clear();
+	blocks_.clear();
 }
 
 void GameScene::Initialize() {
 
-    // フェーズ初期化
+	// フェーズ初期化
 	phase_ = Phase::kCountDown;
 	countdownTimer_ = 3.0f;
 	countdownNumber_ = 3;
 
-    // UI表示位置
+	// UI表示位置
 	numberPos_ = {300, -500};
 	startPos_ = {135, 230};
 	overPos_ = {140, 200};
 	titlePos = {100, 400};
 	guidePos_ = {0, 400};
 
-    // モデル読み込み
+	// モデル読み込み
 	modelBlock_ = Model::CreateFromOBJ("block");
 	modelFire_ = Model::CreateFromOBJ("fire");
 	modelGoal_ = Model::CreateFromOBJ("goal");
 	modelEnemy_ = Model::CreateFromOBJ("enemy");
 	modelSkydome_ = Model::CreateFromOBJ("skydome");
 	modelParticle_ = Model::CreateFromOBJ("deathParticle");
-	modelIce_ = Model::CreateFromOBJ("ice"); 
-    modelRed_ = Model::CreateFromOBJ("red");
+	modelIce_ = Model::CreateFromOBJ("ice");
+	modelRed_ = Model::CreateFromOBJ("red");
 	modelBlue_ = Model::CreateFromOBJ("blue");
 	modelRed2_ = Model::CreateFromOBJ("red2");
 	modelBlue2_ = Model::CreateFromOBJ("blue2");
 	modelPlayer_ = Model::CreateFromOBJ("Player2");
 
-    // マップチップ読み込み
+	// マップチップ読み込み
 	mapChipField_ = new MapChipField();
 	mapChipField_->LoadMapChipCSV("Resources/map.csv");
 
-    // スプライト読み込み
+	// スプライト読み込み
 	oneTextureHandle_ = TextureManager::Load("number/1.png");
 	oneSprite_ = Sprite::Create(oneTextureHandle_, numberPos_);
 
@@ -96,7 +100,7 @@ void GameScene::Initialize() {
 
 	camera_.Initialize();
 
-    // プレイヤー生成
+	// プレイヤー生成
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 24);
 	player_ = new Player();
 	player_->Initialize(modelPlayer_, &camera_, playerPosition);
@@ -113,18 +117,18 @@ void GameScene::Initialize() {
 		enemies_.push_back(newEnemy);
 	}
 
-    // カメラコントローラ設定
+	// カメラコントローラ設定
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
 	cameraController_->SetTarget(player_);
 	cameraController_->Initialize();
 	cameraController_->Reset();
 
-    // スカイドーム生成
+	// スカイドーム生成
 	skydome_ = new Skydome();
 	skydome_->Initialize(modelSkydome_, &camera_);
 
-    // その他初期化
+	// その他初期化
 	deathParticles_ = nullptr;
 
 	input_ = Input::GetInstance();
@@ -143,150 +147,174 @@ void GameScene::Update(float deltaTime) {
 
 	deltaTime;
 
-     mapChipField_->Update();
+	mapChipField_->Update();
 
-    // フェーズ切替
-    ChangePhase();
+	// フェーズ切替
+	ChangePhase();
 
-    // 即死ブロックの炎アニメ切替
-    fireSwitchTimer_ += 1.0f / 60.0f;
-    if (fireSwitchTimer_ >= fireSwitchInterval_) {
-        fireSwitchTimer_ = 0.0f;
-        fireToggle_ = !fireToggle_;
-    }
+	// 即死ブロックの炎アニメ切替
+	fireSwitchTimer_ += 1.0f / 60.0f;
+	if (fireSwitchTimer_ >= fireSwitchInterval_) {
+		fireSwitchTimer_ = 0.0f;
+		fireToggle_ = !fireToggle_;
+	}
 
-    player_->Update();
+	player_->Update();
 
-    // 死亡判定で落下開始
-    if (player_->IsDead() && !player_->IsFalling()) {
-        player_->StartDeathFall(); // 落下演出開始
-    }
+	// 死亡判定で落下開始
+	if (player_->IsDead() && !player_->IsFalling()) {
+		player_->StartDeathFall(); // 落下演出開始
+	}
 
-    switch (phase_) {
-    case Phase::kCountDown:
-        countdownTimer_ -= 1.0f / 60.0f;
-        if (countdownTimer_ <= 0.0f) {
-            phase_ = Phase::kPlay;
-        }
+	switch (phase_) {
+	case Phase::kCountDown:
+		countdownTimer_ -= 1.0f / 60.0f;
+		if (countdownTimer_ <= 0.0f) {
+			phase_ = Phase::kPlay;
+		}
 
-        if (startAlpha_ < 1.0f) {
-            startAlpha_ += 1.0f / 120.0f; // 2秒でフル表示
-            if (startAlpha_ > 1.0f)
-                startAlpha_ = 1.0f;
-        }
+		if (startAlpha_ < 1.0f) {
+			startAlpha_ += 1.0f / 120.0f; // 2秒でフル表示
+			if (startAlpha_ > 1.0f)
+				startAlpha_ = 1.0f;
+		}
 
-        player_->SetInputEnabled(false);
+		player_->SetInputEnabled(false);
 
-        for (Enemy* enemy : enemies_)
-            enemy->Update();
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
 
-        for (auto& line : worldTransformBlocks_)
-            for (auto* block : line)
-                if (block)
-                    block->UpdateMatrix();
+		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
+		for (auto& line : blocks_) {
+			for (auto* block : line) {
+				if (block) {
+					WorldTransform* wt = block->GetWorldTransform();
+					if (wt)
+						wt->UpdateMatrix();
+				}
+			}
+		}
 
-        cameraController_->Update();
-        skydome_->Update();
-        if (deathParticles_)
-            deathParticles_->Update();
+		cameraController_->Update();
+		skydome_->Update();
+		if (deathParticles_)
+			deathParticles_->Update();
 
-        break;
+		break;
 
-    case Phase::kPlay:
-        player_->SetInputEnabled(true);
+	case Phase::kPlay:
+		player_->SetInputEnabled(true);
 
-        // 当たり判定チェック（即死ブロック含む）
-        CheckAllCollision();
+		// 当たり判定チェック（即死ブロック含む）
+		CheckAllCollision();
 
-        for (Enemy* enemy : enemies_)
-            enemy->Update();
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
 
-        for (auto& line : worldTransformBlocks_)
-            for (auto* block : line)
-                if (block)
-                    block->UpdateMatrix();
+		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
+		for (auto& line : blocks_) {
+			for (auto* block : line) {
+				if (block) {
+					WorldTransform* wt = block->GetWorldTransform();
+					if (wt)
+						wt->UpdateMatrix();
+				}
+			}
+		}
 
-        if (deathParticles_)
-            deathParticles_->Update();
+		if (deathParticles_)
+			deathParticles_->Update();
 
-        cameraController_->Update();
-        skydome_->Update();
+		cameraController_->Update();
+		skydome_->Update();
 
-        break;
+		break;
 
-    case Phase::kDeath:
-        // 落下中も描画・更新
-        for (Enemy* enemy : enemies_)
-            enemy->Update();
+	case Phase::kDeath:
+		// 落下中も描画・更新
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
 
-        for (auto& line : worldTransformBlocks_)
-            for (auto* block : line)
-                if (block)
-                    block->UpdateMatrix();
+		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
+		for (auto& line : blocks_) {
+			for (auto* block : line) {
+				if (block) {
+					WorldTransform* wt = block->GetWorldTransform();
+					if (wt)
+						wt->UpdateMatrix();
+				}
+			}
+		}
 
-        if (fadeAlpha_ < 1.0f) {
-            fadeAlpha_ += fadeSpeed_;
-            if (fadeAlpha_ > 1.0f)
-                fadeAlpha_ = 1.0f;
-        }
+		if (fadeAlpha_ < 1.0f) {
+			fadeAlpha_ += fadeSpeed_;
+			if (fadeAlpha_ > 1.0f)
+				fadeAlpha_ = 1.0f;
+		}
 
-        if (overAlpha_ < 1.0f) {
-            overAlpha_ += 1.0f / 180.0f;
-            if (overAlpha_ > 1.0f)
-                overAlpha_ = 1.0f;
-        }
+		if (overAlpha_ < 1.0f) {
+			overAlpha_ += 1.0f / 180.0f;
+			if (overAlpha_ > 1.0f)
+				overAlpha_ = 1.0f;
+		}
 
-        if (input_->TriggerKey(DIK_SPACE))
-            isFinished_ = true;
+		if (input_->TriggerKey(DIK_SPACE))
+			isFinished_ = true;
 
-        if (deathParticles_)
-            deathParticles_->Update();
+		if (deathParticles_)
+			deathParticles_->Update();
 
-        cameraController_->Update();
-        skydome_->Update();
-        break;
+		cameraController_->Update();
+		skydome_->Update();
+		break;
 
-    case Phase::kGoal:
-        player_->SetInputEnabled(false);
+	case Phase::kGoal:
+		player_->SetInputEnabled(false);
 
-        if (!deathParticles_) {
-            deathParticles_ = new DeathParticle();
-            deathParticles_->Initialize(modelParticle_, &camera_, player_->GetWorldPosition());
-        }
+		if (!deathParticles_) {
+			deathParticles_ = new DeathParticle();
+			deathParticles_->Initialize(modelParticle_, &camera_, player_->GetWorldPosition());
+		}
 
-        if (deathParticles_)
-            deathParticles_->Update();
+		if (deathParticles_)
+			deathParticles_->Update();
 
-        if (fadeAlpha_ < 1.0f) {
-            fadeAlpha_ += fadeSpeed_;
-            if (fadeAlpha_ > 1.0f)
-                fadeAlpha_ = 1.0f;
-        }
+		if (fadeAlpha_ < 1.0f) {
+			fadeAlpha_ += fadeSpeed_;
+			if (fadeAlpha_ > 1.0f)
+				fadeAlpha_ = 1.0f;
+		}
 
-        if (fadeAlpha_ >= 1.0f) {
-            if (clearAlpha_ < 1.0f) {
-                clearAlpha_ += 1.0f / 180.0f;
-                if (clearAlpha_ > 1.0f)
-                    clearAlpha_ = 1.0f;
-            }
-        }
+		if (fadeAlpha_ >= 1.0f) {
+			if (clearAlpha_ < 1.0f) {
+				clearAlpha_ += 1.0f / 180.0f;
+				if (clearAlpha_ > 1.0f)
+					clearAlpha_ = 1.0f;
+			}
+		}
 
-        for (Enemy* enemy : enemies_)
-            enemy->Update();
+		for (Enemy* enemy : enemies_)
+			enemy->Update();
 
-        for (auto& line : worldTransformBlocks_)
-            for (auto* block : line)
-                if (block)
-                    block->UpdateMatrix();
+		// ★【修正箇所】blocks_ 経由で各ブロックを行列更新
+		for (auto& line : blocks_) {
+			for (auto* block : line) {
+				if (block) {
+					WorldTransform* wt = block->GetWorldTransform();
+					if (wt)
+						wt->UpdateMatrix();
+				}
+			}
+		}
 
-        cameraController_->Update();
-        skydome_->Update();
+		cameraController_->Update();
+		skydome_->Update();
 
-        if (input_->TriggerKey(DIK_SPACE))
-            isFinished_ = true;
+		if (input_->TriggerKey(DIK_SPACE))
+			isFinished_ = true;
 
-        break;
-    }
+		break;
+	}
 }
 
 void GameScene::Draw() {
@@ -298,47 +326,12 @@ void GameScene::Draw() {
 	dxCommon->ClearDepthBuffer();
 	Model::PreDraw();
 
-	// 不透明ブロック描画
-	for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
-		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
-
-			WorldTransform* wt = worldTransformBlocks_[y][x];
-			if (!wt)
-				continue;
-
-			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
-
-			if (type == MapChipType::kBlank)
-				continue;
-
-			switch (type) {
-			case MapChipType::kBlock:
-				modelBlock_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kDamage:
-				if (fireToggle_) {
-					modelFire_->Draw(*wt, camera_, fireTextureHandle1_);
-				} else {
-					modelFire_->Draw(*wt, camera_, fireTextureHandle2_);
-				}
-				break;
-
-			case MapChipType::kGoal:
-				modelGoal_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kIce:
-				modelIce_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kRed:
-				modelRed_->Draw(*wt, camera_);
-				break;
-
-			case MapChipType::kBlue:
-				modelBlue_->Draw(*wt, camera_);
-				break;
+	// ★【修正箇所】すべてのブロックをポリモーフィズムで一括描画！
+	// SwitchBlock の内部で「通常状態」と「消滅中の半透明状態」の描き分けも自動で行われます。
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
+			if (blocks_[y][x]) {
+				blocks_[y][x]->Draw(camera_);
 			}
 		}
 	}
@@ -346,29 +339,6 @@ void GameScene::Draw() {
 	// プレイヤー
 	if (!player_->IsDead() || player_->IsFalling()) {
 		player_->Draw(camera_);
-	}
-
-	// 半透明ブロック
-	for (uint32_t y = 0; y < mapChipField_->GetNumBlockVirtical(); ++y) {
-		for (uint32_t x = 0; x < mapChipField_->GetNumBlockHorizontal(); ++x) {
-
-			WorldTransform* wt = worldTransformBlocks_[y][x];
-			if (!wt)
-				continue;
-
-			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
-			MapChipType rawType = mapChipField_->GetRawMapChipTypeByIndex(x, y);
-
-			// 消滅中だけ描画
-			if (type == MapChipType::kBlank) {
-
-				if (rawType == MapChipType::kRed) {
-					modelRed2_->Draw(*wt, camera_);
-				} else if (rawType == MapChipType::kBlue) {
-					modelBlue2_->Draw(*wt, camera_);
-				}
-			}
-		}
 	}
 
 	// その他
@@ -416,31 +386,59 @@ void GameScene::Draw() {
 
 void GameScene::GenerateBlocks() {
 
-    // 2次元配列サイズをマップに合わせて確保
-	worldTransformBlocks_.resize(MapChipField::kNumBlockVirtical);
-	for (uint32_t i = 0; i < MapChipField::kNumBlockVirtical; ++i)
-		worldTransformBlocks_[i].resize(MapChipField::kNumBlockHorizontal);
+	// 配列のサイズをマップチップの大きさに合わせて確保
+	blocks_.resize(MapChipField::kNumBlockVirtical);
+	for (uint32_t i = 0; i < MapChipField::kNumBlockVirtical; ++i) {
+		blocks_[i].resize(MapChipField::kNumBlockHorizontal, nullptr);
+	}
 
-    // マップを走査してブロック生成
+	// マップを1マスずつ走査してブロックを生成
 	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
-			
+
 			MapChipType type = mapChipField_->GetRawMapChipTypeByIndex(x, y);
 
+			// 空白のマスは何もしない
 			if (type == MapChipType::kBlank)
 				continue;
 
+			// ブロックの位置情報（WorldTransform）を新しく作成
 			WorldTransform* wt = new WorldTransform();
 			wt->Initialize();
 			wt->translation_ = mapChipField_->GetMapChipPositionByIndex(x, y);
-			worldTransformBlocks_[y][x] = wt;
+
+			// ★【ここがポリモーフィズム】ブロックの種類（Type）に合わせて、生成する子クラスを切り替える
+			if (type == MapChipType::kBlock) {
+				// 通常ブロック
+				blocks_[y][x] = new NormalBlock(modelBlock_, wt);
+			} else if (type == MapChipType::kDamage) {
+				// 炎ブロック（アニメーション用のトグルフラグと、2つのテクスチャを渡す）
+				blocks_[y][x] = new FireBlock(modelFire_, wt, fireToggle_, fireTextureHandle1_, fireTextureHandle2_);
+			} else if (type == MapChipType::kRed || type == MapChipType::kBlue) {
+				// スイッチブロック（現在の状態を取得する関数と、自分が赤か青かの情報を渡す）
+				auto getMapState = [this]() { return mapChipField_->GetMapChipType(); };
+
+				Model* normalModel = (type == MapChipType::kRed) ? modelRed_ : modelBlue_;
+				Model* vanishedModel = (type == MapChipType::kRed) ? modelRed2_ : modelBlue2_;
+
+				blocks_[y][x] = new SwitchBlock(normalModel, vanishedModel, wt, getMapState, type);
+			} else {
+				// 氷ブロックやゴールブロックなど、その他の通常描画ブロック
+				Model* targetModel = modelBlock_;
+				if (type == MapChipType::kIce)
+					targetModel = modelIce_;
+				if (type == MapChipType::kGoal)
+					targetModel = modelGoal_;
+
+				blocks_[y][x] = new NormalBlock(targetModel, wt);
+			}
 		}
 	}
 }
 
 void GameScene::CheckAllCollision() {
 
-    // プレイヤーのAABB取得
+	// プレイヤーのAABB取得
 	AABB playerAABB = player_->GetAABB();
 
 	// 敵との当たり判定
@@ -456,9 +454,9 @@ void GameScene::ChangePhase() {
 
 	switch (phase_) {
 
-    case Phase::kPlay:
+	case Phase::kPlay:
 
-        // プレイヤー死亡 → デスフェーズ
+		// プレイヤー死亡 → デスフェーズ
 		if (player_->IsDead()) {
 			phase_ = Phase::kDeath;
 
@@ -472,8 +470,7 @@ void GameScene::ChangePhase() {
 			deathParticles_->Initialize(modelParticle_, &camera_, deathParticlesPosition);
 		}
 
-        // ゴール到達 → ゴールフェーズ
-
+		// ゴール到達 → ゴールフェーズ
 		if (player_->IsGoal()) {
 			phase_ = Phase::kGoal;
 		}
@@ -481,7 +478,7 @@ void GameScene::ChangePhase() {
 		break;
 
 	case Phase::kDeath:
-		
+
 		break;
 
 	case Phase::kGoal:

@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "IScene.h"
+#include "BaseBlock.h"
 
 using namespace KamataEngine;
 
@@ -81,7 +82,7 @@ private:
 
 	Model* modelBlue2_ = nullptr;
 
-	std::vector<std::vector<WorldTransform*>> worldTransformBlocks_;
+	std::vector<std::vector<BaseBlock*>> blocks_;
 
 	MapChipField* mapChipField_;
 

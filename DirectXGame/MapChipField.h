@@ -81,6 +81,7 @@ public:
 
 	MapChipType GetRawMapChipTypeByIndex(uint32_t x, uint32_t y);
 
+	MapChipType GetMapChipType() { return (blinkPhase_ == BlinkPhase::Red) ? MapChipType::kRed : MapChipType::kBlue; }
 
 private:
 
