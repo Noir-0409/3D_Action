@@ -160,6 +160,7 @@
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="DeathParticle.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyFactory.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapChipField.cpp" />
@@ -272,8 +273,10 @@
     <ClInclude Include="Affin.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="ClearScene.h" />
+    <ClInclude Include="CollisionObserver.h" />
     <ClInclude Include="DeathParticle.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyFactory.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="MapChipField.h" />
     <ClInclude Include="MathUtillity.h" />

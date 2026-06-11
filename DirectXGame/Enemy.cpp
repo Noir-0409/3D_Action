@@ -82,3 +82,10 @@ void Enemy::OnCollision(const Player* player) {
 	(void)player;
 
 }
+
+void Enemy::OnPlayerEnemyCollision(Player* player, Enemy* enemy) {
+	// 通知された敵が自分自身だったら衝突処理を行う
+	if (this == enemy) {
+		this->OnCollision(player);
+	}
+}

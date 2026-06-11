@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "EnemyFactory.h"
 
 GameScene::~GameScene() {
 
@@ -107,9 +108,10 @@ void GameScene::Initialize() {
 	Vector3 offset = {3.0f, 3.0f, 0.0f};
 
 	for (int i = 0; i < 3; ++i) {
-		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = basePosition + offset * static_cast<float>(i);
-		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+
+		Enemy* newEnemy = EnemyFactory::CreateEnemy(modelEnemy_, &camera_, enemyPosition);
+
 		enemies_.push_back(newEnemy);
 	}
 
@@ -438,14 +440,16 @@ void GameScene::GenerateBlocks() {
 
 void GameScene::CheckAllCollision() {
 
-    // プレイヤーのAABB取得
+	// プレイヤーのAABB取得
 	AABB playerAABB = player_->GetAABB();
 
 	// 敵との当たり判定
 	for (Enemy* enemy : enemies_) {
 		if (AABB::IsCollision(playerAABB, enemy->GetAABB())) {
-			player_->OnCollision(enemy);
-			enemy->OnCollision(player_);
+
+			// Observerパターンを適用し、直接関数を叩くのではなくイベントを通知する
+			player_->OnPlayerEnemyCollision(player_, enemy);
+			enemy->OnPlayerEnemyCollision(player_, enemy);
 		}
 	}
 }

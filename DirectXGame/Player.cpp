@@ -70,6 +70,13 @@ void Player::Update() {
 
 void Player::Draw(Camera& camera) { model_->Draw(worldTransform_, camera); }
 
+void Player::OnPlayerEnemyCollision(Player* player, Enemy* enemy) {
+	// 通知されたプレイヤーが「自分自身」だったら衝突処理を行う
+	if (this == player) {
+		this->OnCollision(enemy);
+	}
+}
+
 // 死亡落下開始
 void Player::StartDeathFall() {
 	isFalling_ = true;
