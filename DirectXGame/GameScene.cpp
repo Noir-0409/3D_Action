@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include "BlockTypes.h"
-#include "ConcreteGamePhases.h" // ★ 追加
+#include "CollisionObserver.h" // Observerパターン用
+#include "ConcreteGamePhases.h"
+#include "GameObjectFactory.h" // Factory Methodパターン用
 
 GameScene::~GameScene() {
 	delete modelPlayer_;
@@ -95,26 +97,41 @@ void GameScene::Initialize() {
 	camera_.Initialize();
 	gameObjects_.clear();
 
-	skydome_ = new Skydome();
-	skydome_->Initialize(modelSkydome_, &camera_);
+	// =========================================================================
+	// ✨ 【改善】Factory Methodパターンの適用箇所
+	// GameSceneで直接 new せず、GameObjectFactoryクラスを介して生成と初期化をカプセル化
+	// =========================================================================
+
+	// 1. スカイドームの生成
+	skydome_ = GameObjectFactory::CreateSkydome(modelSkydome_, &camera_);
 	gameObjects_.push_back(skydome_);
 
+	// 2. プレイヤーの生成
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 24);
-	player_ = new Player();
-	player_->Initialize(modelPlayer_, &camera_, playerPosition);
-	player_->SetMapChipField(mapChipField_);
+	player_ = GameObjectFactory::CreatePlayer(modelPlayer_, &camera_, playerPosition, mapChipField_);
 	gameObjects_.push_back(player_);
 
+	// 3. 敵の生成（ループ処理内）
 	Vector3 basePosition = {25.0f, 1.0f, 0.0f};
 	Vector3 offset = {3.0f, 3.0f, 0.0f};
 
 	for (int i = 0; i < 3; ++i) {
-		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = basePosition + offset * static_cast<float>(i);
-		newEnemy->Initialize(modelEnemy_, &camera_, enemyPosition);
+
+		// 工場を使って敵を生成
+		Enemy* newEnemy = GameObjectFactory::CreateEnemy(modelEnemy_, &camera_, enemyPosition);
+
 		enemies_.push_back(newEnemy);
 		gameObjects_.push_back(newEnemy);
 	}
+	// =========================================================================
+
+	// =========================================================================
+	// ✨ 【改善】Observerパターンの初期化箇所
+	// 衝突ハンドラー（オブザーバー）を生成して通知リストへ登録
+	// =========================================================================
+	collisionObservers_.push_back(std::make_unique<PlayerEnemyCollisionHandler>());
+	// =========================================================================
 
 	cameraController_ = new CameraController();
 	cameraController_->SetCamera(&camera_);
@@ -133,7 +150,6 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 
 	phaseState_ = std::make_unique<CountDownPhase>();
-
 }
 
 void GameScene::Update(float deltaTime) {
@@ -154,6 +170,9 @@ void GameScene::Update(float deltaTime) {
 			obj->Update();
 		}
 	}
+
+	// ✨ 【改善】新しく作成したObserverパターンの衝突判定をここで実行
+	NotifyCollisions();
 
 	// 死亡判定で落下開始
 	if (player_->IsDead() && !player_->IsFalling()) {
@@ -224,7 +243,7 @@ void GameScene::Draw() {
 // ★ 状態を切り替える関数（古いswitch文ベースのChangePhaseを完全に置き換え）
 void GameScene::ChangePhase(std::unique_ptr<GamePhaseState> newPhase) { phaseState_ = std::move(newPhase); }
 
-// (GenerateBlocks と CheckAllCollision は変更なしのまま残す)
+// ブロック生成処理
 void GameScene::GenerateBlocks() {
 	// 1. 古いデータを一度完全にクリア
 	for (auto& line : blocks_) {
@@ -258,22 +277,17 @@ void GameScene::GenerateBlocks() {
 			wt->Initialize();
 			wt->translation_ = blockPosition;
 
-			// --- 【完全一致】元のロジックと100%同じ判定とモデル割り当て ---
 			if (type == MapChipType::kRed || type == MapChipType::kBlue) {
 
 				auto getMapState = [this]() { return mapChipField_->GetMapChipType(); };
 
-				// ★ ここがあなたの元のコードのロジックと完全に同じ処理です！
 				Model* normalModel = (type == MapChipType::kRed) ? modelRed_ : modelBlue_;
 				Model* vanishedModel = (type == MapChipType::kRed) ? modelRed2_ : modelBlue2_;
 
-				// 正しいモデルのペアを渡して SwitchBlock を生成
 				blocks_[y][x] = new SwitchBlock(normalModel, vanishedModel, wt, getMapState, type);
 			} else {
-				// 基本は普通のブロック（modelBlock_）
 				Model* targetModel = modelBlock_;
 
-				// タイプに応じて、適切なモデルに上書きしていく
 				if (type == MapChipType::kIce) {
 					targetModel = modelIce_;
 				}
@@ -284,12 +298,25 @@ void GameScene::GenerateBlocks() {
 					targetModel = modelFire_;
 				}
 
-				// 最終的に決定した正しいモデルを使って NormalBlock を new する
 				blocks_[y][x] = new NormalBlock(targetModel, wt);
 			}
 		}
 	}
 }
 
+// ✨ 【改善】Observerパターン用の新しい衝突判定・通知システム
+void GameScene::NotifyCollisions() {
+	// プレイヤーのAABB取得
+	AABB playerAABB = player_->GetAABB();
 
-void GameScene::CheckAllCollision() { /* 省略 */ }
+	// 敵との当たり判定
+	for (Enemy* enemy : enemies_) {
+		if (AABB::IsCollision(playerAABB, enemy->GetAABB())) {
+
+			// 登録されたすべてのオブザーバー（通知先）に衝突イベントを通知する
+			for (const auto& observer : collisionObservers_) {
+				observer->OnPlayerEnemyCollision(player_, enemy);
+			}
+		}
+	}
+}

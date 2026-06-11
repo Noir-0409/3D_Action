@@ -13,6 +13,8 @@
 #include "Skydome.h"
 #include <memory> // ★ 追加
 #include <vector>
+#include "EnemyFactory.h"
+#include "CollisionObserver.h"
 
 using namespace KamataEngine;
 
@@ -24,7 +26,6 @@ public:
 	void Draw() override;
 	void GenerateBlocks();
 	bool IsFinished() const override { return isFinished_; }
-	void CheckAllCollision();
 
 	// ★ Stateパターン用のフェーズ遷移関数 (switch文の代わりにポインタを差し替える)
 	void ChangePhase(std::unique_ptr<GamePhaseState> newPhase);
@@ -88,10 +89,12 @@ public:
 		}
 	}
 
+	void NotifyCollisions();
+
 private:
-	// ★ 不要になった enum と変数は綺麗に削除！
-	// enum class Phase { kCountDown, kPlay, kDeath, kGoal };
-	// Phase phase_;
+	
+	std::vector<std::unique_ptr<CollisionObserver>> collisionObservers_;
+	std::unique_ptr<EnemyFactory> enemyFactory_;
 
 	// ★ 現在のフェーズ状態を管理するスマートポインタ
 	std::unique_ptr<GamePhaseState> phaseState_;
