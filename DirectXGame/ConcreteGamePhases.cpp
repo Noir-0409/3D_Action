@@ -40,7 +40,6 @@ void PlayPhase::Update(GameScene* scene) {
 	scene->GetPlayer()->SetInputEnabled(true);
 
 	// 当たり判定チェック
-	scene->CheckAllCollision();
 	scene->UpdateBlocksMatrix();
 
 	if (scene->GetDeathParticles()) {
