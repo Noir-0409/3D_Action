@@ -17,6 +17,7 @@ GameScene::~GameScene() {
 	delete cameraController_;
 	delete skydome_;
 	
+
 	delete deathParticles_;
 	deathParticles_ = nullptr;
 
