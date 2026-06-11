@@ -36,11 +36,6 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
-	blocks_.resize(MapChipField::kNumBlockVirtical);
-	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
-		blocks_[y].resize(MapChipField::kNumBlockHorizontal, nullptr); // 全て nullptr で初期化
-	}
-
 	// ★ 初期フェーズ状態を「カウントダウン状態」に設定
 	countdownTimer_ = 3.0f;
 	countdownNumber_ = 3;
@@ -230,5 +225,57 @@ void GameScene::Draw() {
 void GameScene::ChangePhase(std::unique_ptr<GamePhaseState> newPhase) { phaseState_ = std::move(newPhase); }
 
 // (GenerateBlocks と CheckAllCollision は変更なしのまま残す)
-void GameScene::GenerateBlocks() { /* 省略 */ }
+void GameScene::GenerateBlocks() {
+	// 1. 古いデータを一度完全にクリア
+	for (auto& line : blocks_) {
+		for (auto* block : line) {
+			if (block)
+				delete block;
+		}
+	}
+	blocks_.clear();
+
+	// 2. マップチップの最大縦幅・横幅に合わせて、安全な 2次元配列の枠（nullptr）を確保する
+	blocks_.resize(MapChipField::kNumBlockVirtical);
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		blocks_[y].resize(MapChipField::kNumBlockHorizontal, nullptr);
+	}
+
+	// 3. マップチップデータを読み込んで、必要な箇所にブロックの実体を生成して割り当てる
+	for (uint32_t y = 0; y < MapChipField::kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < MapChipField::kNumBlockHorizontal; ++x) {
+
+			MapChipType type = mapChipField_->GetMapChipTypeByIndex(x, y);
+
+			// 空白（kBlank）なら何も生成せず nullptr のまま次へ
+			if (type == MapChipType::kBlank) {
+				continue;
+			}
+
+			// ブロックの位置を計算
+			Vector3 blockPosition = mapChipField_->GetMapChipPositionByIndex(x, y);
+			WorldTransform* wt = new WorldTransform();
+			wt->Initialize();
+			wt->translation_ = blockPosition;
+
+			// タイプに合わせて適切なブロックを new する
+			if (type == MapChipType::kBlock) {
+				blocks_[y][x] = new NormalBlock(modelBlock_, wt);
+			} else if (type == MapChipType::kIce) {
+				blocks_[y][x] = new NormalBlock(modelIce_, wt);
+			} else if (type == MapChipType::kGoal) {
+				blocks_[y][x] = new NormalBlock(modelGoal_, wt);
+			} else if (type == MapChipType::kRed || type == MapChipType::kBlue) {
+				// スイッチブロックの生成処理
+				auto getMapState = [this]() { return mapChipField_->GetMapChipType(); };
+				Model* normalModel = (type == MapChipType::kRed) ? modelRed_ : modelBlue_;
+				Model* vanishedModel = (type == MapChipType::kRed) ? modelRed2_ : modelBlue2_;
+
+				blocks_[y][x] = new SwitchBlock(normalModel, vanishedModel, wt, getMapState, type);
+			}
+		}
+	}
+}
+
+
 void GameScene::CheckAllCollision() { /* 省略 */ }
