@@ -1,6 +1,7 @@
 #define NOMINMAX
 
 #include "Player.h"
+#include "ConcretePlayerStates.h" // ★ 追加
 #include "MapChipField.h"
 #include "MathUtillity.h"
 #include <algorithm>
@@ -17,69 +18,41 @@ void Player::Initialize(Model* model, const Camera* camera, const Vector3& posit
 	camera_ = camera;
 	worldTransform_.rotation_.y = 3.14159f / 2.0f;
 	input_ = Input::GetInstance();
+
+	// ★ 初期状態を「通常状態」に設定
+	state_ = std::make_unique<PlayerNormalState>();
 }
 
 void Player::Update() {
 	worldTransform_.TransferMatrix();
 
-	// 死亡落下中
-	if (isFalling_) {
-		// Y方向の速度に重力を加算
-		deathVelocityY_ += gravity_;
-		worldTransform_.translation_.y += deathVelocityY_;
-
-		// Z軸回転
-		worldTransform_.rotation_.z += deathRotationSpeed_ * (1.0f / 60.0f); // 60FPS想定
-
-		// 画面下まで落ちたら停止
-		if (worldTransform_.translation_.y < -50.0f) {
-			isFalling_ = false;
-		}
-
-		worldTransform_.UpdateMatrix();
-		return; // 通常操作はしない
+	// ★ 現在の状態の更新処理を呼び出す（ポリモーフィズム）
+	if (state_) {
+		state_->Update(this);
 	}
-
-	// 通常操作
-	if (inputEnabled_) {
-		InputMove(); // velocity_ 計算
-	} else {
-		velocity_ = {0.0f, 0.0f, 0.0f};
-	}
-
-	CollisionMapInfo collisionMapInfo;
-	collisionMapInfo.move = velocity_;
-
-	CheckMapCollision(collisionMapInfo);
-	CollisionMove(collisionMapInfo);
-	UpdateOnGround(collisionMapInfo);
-	UpdateHitWall(collisionMapInfo);
-
-	if (isAttacking_) {
-		--attackTimer_;
-		if (attackTimer_ <= 0) {
-			isAttacking_ = false;
-		}
-	}
-
-	IsOnIce();
 
 	worldTransform_.UpdateMatrix();
 	worldTransform_.TransferMatrix();
+}
+
+// ★ 状態を切り替える関数
+void Player::ChangeState(std::unique_ptr<PlayerState> newState) { state_ = std::move(newState); }
+
+// 死亡落下開始（ここでStateを切り替える！）
+void Player::StartDeathFall() {
+	isFalling_ = true;
+	isDead_ = true;
+	deathVelocityY_ = 0.25f; // 上にはねる初速
+	worldTransform_.translation_.z -= 2.5f;
+
+	// ★ 状態を「死亡落下状態」に切り替える！
+	ChangeState(std::make_unique<PlayerDeathFallState>());
 }
 
 void Player::Draw() {
 	if (model_ && camera_) {
 		model_->Draw(worldTransform_, *camera_);
 	}
-}
-
-// 死亡落下開始
-void Player::StartDeathFall() {
-	isFalling_ = true;
-	isDead_ = true;
-	deathVelocityY_ = 0.25f; // 上にはねる初速
-	worldTransform_.translation_.z -= 2.5f;
 }
 
 bool Player::IsOnIce() const {

@@ -39,9 +39,7 @@ void Enemy::Update() {
 
 // ★ 親のルールに合わせて引数なしで実装（内部のcamera_を使用）
 void Enemy::Draw() {
-	if (model_ && camera_) {
-		model_->Draw(worldTransform_, *camera_);
-	}
+
 }
 
 // ★「Vector3 Enemy::GetWorldPosition()」の定義は、

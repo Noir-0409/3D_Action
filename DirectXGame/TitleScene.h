@@ -1,32 +1,35 @@
 #pragma once
-#include "IScene.h" // ★親クラス（インターフェース）を必ずインクルード
+#include "IScene.h"
 #include "KamataEngine.h"
+#include "TitleFadeState.h" // ★ 追加
 #include "TitleSkydome.h"
+#include <memory> // ★ 追加
 
 using namespace KamataEngine;
 
-/// <summary>
-/// タイトルシーンを管理するクラス（ISceneをしっかりと継承！）
-/// </summary>
-class TitleScene : public IScene { // ★「: public IScene」でポリモーフィズムの対象にします
-
+class TitleScene : public IScene {
 public:
-	// ★仮想デストラクタとしてオーバーライド（メモリリークを防ぐ設計）
 	~TitleScene() override;
-
-	// ★親クラスの純粋仮想関数を上書きするため、すべて「override」を明示します
 	void Initialize() override;
-
 	void Update(float deltaTime) override;
-
 	void Draw() override;
-
 	bool IsFinished() const override { return isFinished_; }
 
+	// ★ Stateパターン用の状態遷移関数
+	void ChangeState(std::unique_ptr<TitleFadeState> newState);
+
+	// --- 状態クラスからアクセスするためのヘルパー関数群 ★ ---
+	Input* GetInput() const { return input_; }
+	float GetFadeTimer() const { return fadeTimer_; }
+	float GetFadeDuration() const { return fadeDuration_; }
+	void ResetFadeTimer() { fadeTimer_ = 0.0f; }
+	void AdvanceFadeTimer(float deltaTime) { fadeTimer_ += deltaTime; }
+	void SetFadeAlpha(float alpha) { fadeAlpha_ = alpha; }
+	void SetFinished(bool finished) { isFinished_ = finished; }
+
 private:
-	// フェードの状態管理用
-	enum class FadeState { None, FadeIn, FadeOut };
-	FadeState fadeState_ = FadeState::FadeIn; // 初期状態はフェードイン
+	
+	std::unique_ptr<TitleFadeState> fadeState_;
 
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -49,9 +52,9 @@ private:
 
 	float totalTime_ = 0.0f;
 	float fadeTimer_ = 0.0f;
-	float fadeAlpha_ = 1.0f;    // 最初は真っ黒からスタート
-	float fadeDuration_ = 1.0f; // 1秒かけてフェード
+	float fadeAlpha_ = 1.0f;
+	float fadeDuration_ = 1.0f;
 	float startAlpha_ = 1.0f;
 
-	bool isFinished_ = false; // ★ISceneの純粋仮想関数 IsFinished() が返すフラグ
+	bool isFinished_ = false;
 };
