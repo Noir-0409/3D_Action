@@ -16,8 +16,9 @@ GameScene::~GameScene() {
 	delete mapChipField_;
 	delete cameraController_;
 	delete skydome_;
-	if (deathParticles_)
-		delete deathParticles_;
+	
+	delete deathParticles_;
+	deathParticles_ = nullptr;
 
 	for (Enemy* enemy : enemies_) {
 		delete enemy;
@@ -127,7 +128,9 @@ void GameScene::Initialize() {
 	skydome_->Initialize(modelSkydome_, &camera_);
 
     // その他初期化
-	deathParticles_ = nullptr;
+	//deathParticles_ = nullptr;
+	deathParticles_ = new DeathParticle();
+	deathParticles_->Initialize(modelParticle_, &camera_, {0.0f, 0.0f, 0.0f});
 
 	input_ = Input::GetInstance();
 
@@ -249,10 +252,9 @@ void GameScene::Update() {
     case Phase::kGoal:
         player_->SetInputEnabled(false);
 
-        if (!deathParticles_) {
-            deathParticles_ = new DeathParticle();
-            deathParticles_->Initialize(modelParticle_, &camera_, player_->GetWorldPosition());
-        }
+       if (deathParticles_) {
+			deathParticles_->Initialize(modelParticle_, &camera_, player_->GetWorldPosition());
+		}
 
         if (deathParticles_)
             deathParticles_->Update();
@@ -461,16 +463,9 @@ void GameScene::ChangePhase() {
     case Phase::kPlay:
 
         // プレイヤー死亡 → デスフェーズ
-		if (player_->IsDead()) {
-			phase_ = Phase::kDeath;
-
-			if (deathParticles_) {
-				delete deathParticles_;
-				deathParticles_ = nullptr;
-			}
-
+		if (deathParticles_) {
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
-			deathParticles_ = new DeathParticle();
+			
 			deathParticles_->Initialize(modelParticle_, &camera_, deathParticlesPosition);
 		}
 
