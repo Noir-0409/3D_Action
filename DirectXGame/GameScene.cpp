@@ -258,20 +258,33 @@ void GameScene::GenerateBlocks() {
 			wt->Initialize();
 			wt->translation_ = blockPosition;
 
-			// タイプに合わせて適切なブロックを new する
-			if (type == MapChipType::kBlock) {
-				blocks_[y][x] = new NormalBlock(modelBlock_, wt);
-			} else if (type == MapChipType::kIce) {
-				blocks_[y][x] = new NormalBlock(modelIce_, wt);
-			} else if (type == MapChipType::kGoal) {
-				blocks_[y][x] = new NormalBlock(modelGoal_, wt);
-			} else if (type == MapChipType::kRed || type == MapChipType::kBlue) {
+			// --- 【完全再現】元のロジックと全く同じ判定順序・構造 ---
+			if (type == MapChipType::kRed || type == MapChipType::kBlue) {
 				// スイッチブロックの生成処理
 				auto getMapState = [this]() { return mapChipField_->GetMapChipType(); };
 				Model* normalModel = (type == MapChipType::kRed) ? modelRed_ : modelBlue_;
 				Model* vanishedModel = (type == MapChipType::kRed) ? modelRed2_ : modelBlue2_;
 
 				blocks_[y][x] = new SwitchBlock(normalModel, vanishedModel, wt, getMapState, type);
+			} else {
+				// ★ここを元のコードと「完全一致」させました！
+				// 基本は普通のブロック（modelBlock_）
+				Model* targetModel = modelBlock_;
+
+				// タイプに応じて、適切なモデルに上書きしていく
+				if (type == MapChipType::kIce) {
+					targetModel = modelIce_;
+				}
+				if (type == MapChipType::kGoal) {
+					targetModel = modelGoal_;
+				}
+				// ⭕ 炎など、これら以外のすべてのカスタムブロックも、ここで元の通り判定されるようになります
+				if (type == MapChipType::kDamage) {
+					targetModel = modelFire_;
+				}
+
+				// 最終的に決定した正しいモデルを使って NormalBlock を new する
+				blocks_[y][x] = new NormalBlock(targetModel, wt);
 			}
 		}
 	}
