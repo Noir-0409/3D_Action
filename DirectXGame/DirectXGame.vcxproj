@@ -159,6 +159,7 @@
     <ClCompile Include="Affin.cpp" />
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="ConcretePlayerStates.cpp" />
+    <ClCompile Include="ConcreteTitleStates.cpp" />
     <ClCompile Include="DeathParticle.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameScene.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="ClearScene.h" />
     <ClInclude Include="ConcretePlayerStates.h" />
+    <ClInclude Include="ConcreteTitleStates.h" />
     <ClInclude Include="DeathParticle.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameObject.h" />
@@ -286,6 +288,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerState.h" />
     <ClInclude Include="Skydome.h" />
+    <ClInclude Include="TitleFadeState.h" />
     <ClInclude Include="TitleScene.h" />
     <ClInclude Include="TitleSkydome.h" />
   </ItemGroup>
