@@ -1,7 +1,8 @@
 #include "Enemy.h"
 #include <numbers>
 
-void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
+// ★ 引数に「const」を追加
+void Enemy::Initialize(Model* model, const Camera* camera, const Vector3& position) {
 
 	worldTransform_.Initialize();
 	model_ = model;
@@ -16,7 +17,6 @@ void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	// 歩行モーション用タイマーを初期化
 	walkTimer_ = 0.0f;
-
 }
 
 void Enemy::Update() {
@@ -28,42 +28,29 @@ void Enemy::Update() {
 	// -1.0 ～ 1.0 の範囲で変化するパラメータ
 	float param = std::sin(t * 2.0f * std::numbers::pi_v<float>);
 
-	// 回転角を開始角～終了角の範囲にマッピング	
+	// 回転角を開始角～終了角の範囲にマッピング
 	float radian = kWalkMotionAngleStart + kWalkMotionAngleEnd * (param + 1.0f) / 2.0f;
 
 	// X軸回転として適用（歩行の揺れ表現）
 	worldTransform_.rotation_.x = radian;
 
 	worldTransform_.UpdateMatrix();
-
 }
 
+// ★ 親のルールに合わせて引数なしで実装（内部のcamera_を使用）
 void Enemy::Draw() {
-
+	if (model_ && camera_) {
+		model_->Draw(worldTransform_, *camera_);
+	}
 }
 
-Vector3 Enemy::GetWorldPosition() { 
-	
-	// ワールド座標を入れる変数
-	Vector3 worldPos;
+// ★「Vector3 Enemy::GetWorldPosition()」の定義は、
+// 親クラス（GameObject）が全く同じ中身のものを実装してくれているため、
+// 二重定義エラーを防ぐためにここからは完全に削除しました。
 
-	// ワールド行列の平行移動成分を取得
-	// ワールド行列のTx
-	worldPos.x = worldTransform_.translation_.x;
+AABB Enemy::GetAABB() {
 
-	// ワールド行列のTy
-	worldPos.y = worldTransform_.translation_.y;
-
-	// ワールド行列のTz
-	worldPos.z = worldTransform_.translation_.z;
-
-	return worldPos;
-	
-	 }
-
-AABB Enemy::GetAABB() { 
-
-	// 敵のワールド座標を取得
+	// ★ 親クラス（GameObject）から引き継いだ GetWorldPosition() を呼び出すので、このままで正常に動きます！
 	Vector3 worldPos = GetWorldPosition();
 
 	// 中心座標から幅・高さを使ってAABBを生成
@@ -74,11 +61,6 @@ AABB Enemy::GetAABB() {
 	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
 
 	return aabb;
-
 }
 
-void Enemy::OnCollision(const Player* player) {
-
-	(void)player;
-
-}
+void Enemy::OnCollision(const Player* player) { (void)player; }

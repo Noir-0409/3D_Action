@@ -1,60 +1,55 @@
 #pragma once
+#include "AABB.h"
+#include "GameObject.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
-#include "AABB.h"
 
 using namespace KamataEngine;
 
 class Player;
 
 /// <summary>
-/// enemyを管理するクラス
+/// enemyを管理するクラス（GameObjectを継承）
 /// </summary>
-class Enemy {
+class Enemy : public GameObject { // ★「: public GameObject」を追加して継承させる
 
 public:
+	// ★ 引数を親のルールに合わせて「const Camera* camera」に変更し、「override」を追加
+	void Initialize(Model* model, const Camera* camera, const Vector3& position) override;
 
-void Initialize(Model* model, Camera* viewProjection, const Vector3& position);
+	// ★「override」を追加
+	void Update() override;
 
-void Update();
+	// ★「override」を追加（引数なしで親クラスのDrawを上書きします）
+	void Draw() override;
 
-void Draw();
+	// マップチップの特定の座標に配置する
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
-//マップチップの特定の座標に配置する
-void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+	// 立方体の当たり判定
+	AABB GetAABB();
 
-//座標を受け取る
-Vector3 GetWorldPosition();
-
-//立方体の当たり判定
-AABB GetAABB();
-
-//当たっているかどうか
-void OnCollision(const Player* player);
+	// 当たっているかどうか
+	void OnCollision(const Player* player);
 
 private:
+	// ★「worldTransform_」「model_」「camera_」は
+	// 親クラス（GameObject）がすでに持っているので、二重定義エラーを防ぐためにここからは削除します！
 
-WorldTransform worldTransform_;
+	MapChipField* mapChipField_ = nullptr;
 
-Model* model_ = nullptr;
+	static inline const float kWalkSpeed = 0.04f;
 
-Camera* camera_ = nullptr;
+	Vector3 velocity_ = {};
 
-MapChipField* mapChipField_ = nullptr;
+	static inline const float kWalkMotionAngleStart = 0.0f;
 
-static inline const float kWalkSpeed = 0.04f;
+	static inline const float kWalkMotionAngleEnd = 0.3f;
 
-Vector3 velocity_ = {};
+	static inline const float kWalkMotionTime = 1.0f;
 
-static inline const float kWalkMotionAngleStart = 0.0f;
+	float walkTimer_ = 0.0f;
 
-static inline const float kWalkMotionAngleEnd = 0.3f;
-
-static inline const float kWalkMotionTime = 1.0f;
-
-float walkTimer_ = 0.0f;
-
-static inline const float kWidth = 0.8f;
-static inline const float kHeight = 0.8f;
-
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
 };
