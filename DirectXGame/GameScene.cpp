@@ -258,16 +258,18 @@ void GameScene::GenerateBlocks() {
 			wt->Initialize();
 			wt->translation_ = blockPosition;
 
-			// --- 【完全再現】元のロジックと全く同じ判定順序・構造 ---
+			// --- 【完全一致】元のロジックと100%同じ判定とモデル割り当て ---
 			if (type == MapChipType::kRed || type == MapChipType::kBlue) {
-				// スイッチブロックの生成処理
+
 				auto getMapState = [this]() { return mapChipField_->GetMapChipType(); };
+
+				// ★ ここがあなたの元のコードのロジックと完全に同じ処理です！
 				Model* normalModel = (type == MapChipType::kRed) ? modelRed_ : modelBlue_;
 				Model* vanishedModel = (type == MapChipType::kRed) ? modelRed2_ : modelBlue2_;
 
+				// 正しいモデルのペアを渡して SwitchBlock を生成
 				blocks_[y][x] = new SwitchBlock(normalModel, vanishedModel, wt, getMapState, type);
 			} else {
-				// ★ここを元のコードと「完全一致」させました！
 				// 基本は普通のブロック（modelBlock_）
 				Model* targetModel = modelBlock_;
 
@@ -278,7 +280,6 @@ void GameScene::GenerateBlocks() {
 				if (type == MapChipType::kGoal) {
 					targetModel = modelGoal_;
 				}
-				// ⭕ 炎など、これら以外のすべてのカスタムブロックも、ここで元の通り判定されるようになります
 				if (type == MapChipType::kDamage) {
 					targetModel = modelFire_;
 				}
