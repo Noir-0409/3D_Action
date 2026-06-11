@@ -1,153 +1,81 @@
 #pragma once
-#include "BaseBlock.h"
-#include "CameraController.h"
-#include "DeathParticle.h"
-#include "Enemy.h"
-#include "GameObject.h" // ★共通の基底クラスをインクルード
+#include "GameObject.h"
+#include "IGameState.h" // ★追加
 #include "IScene.h"
-#include "KamataEngine.h"
-#include "MapChipField.h"
-#include "MathUtillity.h"
-#include "Player.h"
-#include "Skydome.h"
-#include <vector> // ★vectorを使用するため追加
+#include <vector>
 
-using namespace KamataEngine;
+// 前置宣言
+class Player;
 
 /// <summary>
-/// ゲームシーンを管理するクラス
+/// ゲーム本編のシーン管理クラス
 /// </summary>
 class GameScene : public IScene {
-
-	enum class Phase { kCountDown, kPlay, kDeath, kGoal };
-
-	Phase phase_;
-
 public:
-	~GameScene() override;
+	GameScene();
+	~GameScene();
 
-	// 初期化
 	void Initialize() override;
-
-	// 更新
 	void Update(float deltaTime) override;
-
-	// 描画
 	void Draw() override;
+	bool IsFinished() const override;
 
-	// ブロックの配置
-	void GenerateBlocks();
+	void ChangeState(IGameState* newState);
+	void ChangeStateToPlay();
+	void ChangeStateToDeath();
+	void ChangeStateToGoal();
 
-	// シーンの終了
-	bool IsFinished() const override { return isFinished_; }
+	// ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+	// ★ステートパターン用：各状態クラスがデータにアクセスするための関数
+	// ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+	void SetPlayerInputEnabled(bool enabled);
 
-	// 全ての当たり判定
-	void CheckAllCollision();
+	float GetCountdownTimer() const { return countdownTimer_; }
+	void SetCountdownTimer(float time) { countdownTimer_ = time; }
 
-	// フェーズの変化
-	void ChangePhase();
+	float GetGameTimer() const { return gameTimer_; }
+	void SetGameTimer(float time) { gameTimer_ = time; }
+
+	float GetStartAlpha() const { return startAlpha_; }
+	void SetStartAlpha(float alpha) { startAlpha_ = alpha; }
+
+	float GetDeathAlpha() const { return deathAlpha_; }
+	void SetDeathAlpha(float alpha) { deathAlpha_ = alpha; }
+
+	float GetGoalAlpha() const { return goalAlpha_; }
+	void SetGoalAlpha(float alpha) { goalAlpha_ = alpha; }
+
+	bool CheckPlayerDeath();
+	bool CheckPlayerGoal();
+	bool IsSpaceKeyPressed();
+
+	void ResetGame();
+	void BackToTitle();
 
 private:
-	// カメラ
-	Camera camera_;
 
-	WorldTransform worldTransform_;
-
-	Input* input_ = nullptr;
-
-	Model* modelPlayer_ = nullptr;
-
-	Player* player_ = nullptr;
-
-	// 1のブロック
-	Model* modelBlock_ = nullptr;
-
-	// 2の即死ブロック
-	Model* modelFire_ = nullptr;
-
-	Model* modelGoal_ = nullptr;
-
-	Model* modelIce_ = nullptr;
-
-	Model* modelRed_ = nullptr;
-
-	Model* modelBlue_ = nullptr;
-
-	Model* modelRed2_ = nullptr;
-
-	Model* modelBlue2_ = nullptr;
-
-	std::vector<std::vector<BaseBlock*>> blocks_;
-
-	MapChipField* mapChipField_;
-
-	CameraController* cameraController_;
-
-	// ★先生の指摘：Player, Enemy, Skydomeを一括で管理するための「基底クラスのポインタ配列」
-	std::vector<GameObject*> gameObjects_;
-
-	std::list<Enemy*> enemies_;
-
-	Model* modelEnemy_ = nullptr;
-
-	Skydome* skydome_ = nullptr;
+	Camera* camera_;
 
 	Model* modelSkydome_ = nullptr;
+	Model* modelPlayer_ = nullptr;
+	Model* modelEnemy_ = nullptr;
 
-	bool isFinished_ = false;
+	// ポリモーフィズムで管理されるオブジェクトたち
+	std::vector<GameObject*> gameObjects_;
+	Player* player_ = nullptr; // プレイヤー固有の処理（フラグ確認など）を呼ぶため、ポインタは残す
 
-	DeathParticle* deathParticles_ = nullptr;
+	class MapChipField* mapChipField_ = nullptr;
 
-	Model* modelParticle_ = nullptr;
+	// ★ステートパターン：現在の方針（状態）を指すポインタ
+	IGameState* currentState_ = nullptr;
 
-	float countdownTimer_ = 0.0f;
-	int countdownNumber_ = 3;
-
-	uint32_t oneTextureHandle_ = 0;
-	Sprite* oneSprite_ = nullptr;
-
-	uint32_t twoTextureHandle_ = 0;
-	Sprite* twoSprite_ = nullptr;
-
-	uint32_t threeTextureHandle_ = 0;
-	Sprite* threeSprite_ = nullptr;
-
-	uint32_t startTextureHandle_ = 0;
-	Sprite* startSprite_ = nullptr;
-
-	uint32_t clearTextureHandle_ = 0u;
-	Sprite* clearSprite_ = nullptr;
-
-	uint32_t overTextureHandle_ = 0;
-	Sprite* overSprite_ = nullptr;
-
-	uint32_t overTitleTextureHandle_ = 0;
-	Sprite* overTitleSprite_ = nullptr;
-
-	uint32_t guideTextureHandle_ = 0;
-	Sprite* guideSprite_ = nullptr;
-
-	Vector2 numberPos_ = {0, 0};
-	Vector2 startPos_ = {0, 0};
-	Vector2 overPos_ = {0, 0};
-	Vector2 titlePos = {0, 0};
-	Vector2 guidePos_ = {0, 0};
-
-	float countdownScale_ = 1.0f; // スプライトの拡大率
-	float countdownScaleSpeed_ = 0.05f;
-
-	uint32_t fireTextureHandle1_ = 0;
-	uint32_t fireTextureHandle2_ = 0;
-	float fireSwitchTimer_ = 0.0f;
-	float fireSwitchInterval_ = 1.0f;
-	bool fireToggle_ = false;
-
+	// ゲーム内で使う様々な変数（以前のものと名前を合わせています）
+	float countdownTimer_ = 3.0f;
+	float gameTimer_ = 0.0f;
 	float startAlpha_ = 0.0f;
-	float overAlpha_ = 0.0f;
-	float clearAlpha_;
+	float deathAlpha_ = 0.0f;
+	float goalAlpha_ = 0.0f;
 
-	uint32_t fadeTextureHandle_ = 0;
-	Sprite* fadeSprite_ = nullptr; // 死亡フェード用スプライト
-	float fadeAlpha_ = 0.0f;       // 0.0 = 透明, 1.0 = 真っ黒
-	float fadeSpeed_ = 1.0f / 120.0f;
+	// シーン遷移用のフラグなど（あなたの環境に合わせて調整してください）
+	bool isFinished_ = false;
 };

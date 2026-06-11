@@ -38,7 +38,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		previousTime = currentTime;
 		float deltaTime = elapsed.count();
 
-		// ★【switch文が消滅！】今が何のシーンかに関わらず、現在のシーンを更新
 		if (currentScene) {
 			currentScene->Update(deltaTime);
 		}
