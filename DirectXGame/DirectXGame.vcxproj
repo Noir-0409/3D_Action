@@ -158,6 +158,7 @@
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Affin.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="ConcreteGamePhases.cpp" />
     <ClCompile Include="ConcretePlayerStates.cpp" />
     <ClCompile Include="ConcreteTitleStates.cpp" />
     <ClCompile Include="DeathParticle.cpp" />
@@ -276,11 +277,13 @@
     <ClInclude Include="BlockTypes.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="ClearScene.h" />
+    <ClInclude Include="ConcreteGamePhases.h" />
     <ClInclude Include="ConcretePlayerStates.h" />
     <ClInclude Include="ConcreteTitleStates.h" />
     <ClInclude Include="DeathParticle.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GamePhaseState.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="IScene.h" />
     <ClInclude Include="MapChipField.h" />
