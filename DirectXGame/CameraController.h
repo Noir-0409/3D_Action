@@ -35,7 +35,7 @@ void SetCamera(Camera* camera) { camera_ = camera; }
 void Reset();
 
 //範囲を指定する
-void SetMovableArea(Rect area) { movableArea_ = area; }
+void SetMovableArea(const Rect& area) { movableArea_ = area; }
 
 private:
 
