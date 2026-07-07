@@ -117,8 +117,6 @@ private:
 
 	bool isGoal_ = false;
 
-	// ★ bool isFalling_; は state_ の型（DeathFallStateかどうか）で判別できるため本来不要ですが、
-	// 外部（GameSceneなど）から IsFalling() が呼ばれている整合性を取るために残しています。
 	bool isFalling_ = false;
 	Vector3 deathFallVelocity_ = {0.0f, -5.0f, 0.0f};
 	float deathRotationSpeed_ = 180.0f;
