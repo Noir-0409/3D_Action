@@ -1,20 +1,21 @@
 #pragma once
 #include "BaseBlock.h"
 #include "CameraController.h"
+#include "CollisionObserver.h"
 #include "DeathParticle.h"
 #include "Enemy.h"
+#include "EnemyFactory.h"
 #include "GameObject.h"
-#include "GamePhaseState.h" // ★ 追加
+#include "GamePhaseState.h"
 #include "IScene.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
 #include "MathUtillity.h"
 #include "Player.h"
 #include "Skydome.h"
-#include <memory> // ★ 追加
+#include <list>
+#include <memory>
 #include <vector>
-#include "EnemyFactory.h"
-#include "CollisionObserver.h"
 
 using namespace KamataEngine;
 
@@ -27,13 +28,12 @@ public:
 	void GenerateBlocks();
 	bool IsFinished() const override { return isFinished_; }
 
-	// ★ Stateパターン用のフェーズ遷移関数 (switch文の代わりにポインタを差し替える)
 	void ChangePhase(std::unique_ptr<GamePhaseState> newPhase);
 
-	// --- 各フェーズクラスから安全にデータを操作するためのヘルパー関数群 ★ ---
-	Player* GetPlayer() const { return player_; }
-	CameraController* GetCameraController() const { return cameraController_; }
-	DeathParticle* GetDeathParticles() const { return deathParticles_; }
+	// --- ゲッターの戻り値をスマートポインタの実態に合わせて変更（.get()で生のポインタを渡すようにします） ---
+	Player* GetPlayer() const { return player_.get(); }
+	CameraController* GetCameraController() const { return cameraController_.get(); }
+	DeathParticle* GetDeathParticles() const { return deathParticles_.get(); }
 	Input* GetInput() const { return input_; }
 
 	float GetCountdownTimer() const { return countdownTimer_; }
@@ -54,15 +54,14 @@ public:
 
 	void SetFinished(bool finished) { isFinished_ = finished; }
 
-	Sprite* GetStartSprite() const { return startSprite_; }
-	Sprite* GetGuideSprite() const { return guideSprite_; }
-	Sprite* GetOverSprite() const { return overSprite_; }
-	Sprite* GetClearSprite() const { return clearSprite_; }
+	Sprite* GetStartSprite() const { return startSprite_.get(); }
+	Sprite* GetGuideSprite() const { return guideSprite_.get(); }
+	Sprite* GetOverSprite() const { return overSprite_.get(); }
+	Sprite* GetClearSprite() const { return clearSprite_.get(); }
 
-	// 共通で行うブロックの行列更新処理
 	void UpdateBlocksMatrix() {
 		for (auto& line : blocks_) {
-			for (auto* block : line) {
+			for (auto& block : line) { // ★ ポインタではなくスマートポインタの参照に変更
 				if (block) {
 					WorldTransform* wt = block->GetWorldTransform();
 					if (wt)
@@ -72,19 +71,17 @@ public:
 		}
 	}
 
-	// 死亡時のパーティクル初期化用ヘルパー
 	void CreateDeathParticlesIfNeeded() {
 		if (!deathParticles_) {
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
-			deathParticles_ = new DeathParticle();
+			deathParticles_ = std::make_unique<DeathParticle>(); // ★ std::make_uniqueを使用
 			deathParticles_->Initialize(modelParticle_, &camera_, deathParticlesPosition);
 		}
 	}
 
-	// ゴール時のパーティクル初期化用ヘルパー
 	void CreateGoalParticlesIfNeeded() {
 		if (!deathParticles_) {
-			deathParticles_ = new DeathParticle();
+			deathParticles_ = std::make_unique<DeathParticle>(); // ★ std::make_uniqueを使用
 			deathParticles_->Initialize(modelParticle_, &camera_, player_->GetWorldPosition());
 		}
 	}
@@ -92,18 +89,16 @@ public:
 	void NotifyCollisions();
 
 private:
-	
 	std::vector<std::unique_ptr<CollisionObserver>> collisionObservers_;
 	std::unique_ptr<EnemyFactory> enemyFactory_;
-
-	// ★ 現在のフェーズ状態を管理するスマートポインタ
 	std::unique_ptr<GamePhaseState> phaseState_;
 
 	Camera camera_;
 	WorldTransform worldTransform_;
 	Input* input_ = nullptr;
+
+	// アセット（モデル）はエンジン管理、またはGameSceneが所有権を持たないので生ポインタのままでOK
 	Model* modelPlayer_ = nullptr;
-	Player* player_ = nullptr;
 	Model* modelBlock_ = nullptr;
 	Model* modelFire_ = nullptr;
 	Model* modelGoal_ = nullptr;
@@ -112,37 +107,46 @@ private:
 	Model* modelBlue_ = nullptr;
 	Model* modelRed2_ = nullptr;
 	Model* modelBlue2_ = nullptr;
-	std::vector<std::vector<BaseBlock*>> blocks_;
-	MapChipField* mapChipField_;
-	CameraController* cameraController_;
-	std::vector<GameObject*> gameObjects_;
-	std::list<Enemy*> enemies_;
 	Model* modelEnemy_ = nullptr;
-	Skydome* skydome_ = nullptr;
 	Model* modelSkydome_ = nullptr;
-	bool isFinished_ = false;
-	DeathParticle* deathParticles_ = nullptr;
 	Model* modelParticle_ = nullptr;
+
+	// ❌ 生ポインタの配列から、⭕ スマートポインタの配列へ変更！
+	std::vector<std::vector<std::unique_ptr<BaseBlock>>> blocks_;
+	std::unique_ptr<MapChipField> mapChipField_;
+	std::unique_ptr<CameraController> cameraController_;
+
+	std::vector<std::unique_ptr<Enemy>> enemyOwnerList_;
+
+	// gameObjects_ 自体に寿命を管理させ、各具体的なスマートポインタから非所有ポインタ（.get()）を登録する形にします
+	std::vector<GameObject*> gameObjects_;
+	std::list<Enemy*> enemies_; // 判定用の非所有リスト
+
+	std::unique_ptr<Player> player_;
+	std::unique_ptr<Skydome> skydome_;
+	std::unique_ptr<DeathParticle> deathParticles_;
+
+	bool isFinished_ = false;
 
 	float countdownTimer_ = 0.0f;
 	int countdownNumber_ = 3;
 
 	uint32_t oneTextureHandle_ = 0;
-	Sprite* oneSprite_ = nullptr;
+	std::unique_ptr<Sprite> oneSprite_ = nullptr;
 	uint32_t twoTextureHandle_ = 0;
-	Sprite* twoSprite_ = nullptr;
+	std::unique_ptr<Sprite> twoSprite_ = nullptr;
 	uint32_t threeTextureHandle_ = 0;
-	Sprite* threeSprite_ = nullptr;
+	std::unique_ptr<Sprite> threeSprite_ = nullptr;
 	uint32_t startTextureHandle_ = 0;
-	Sprite* startSprite_ = nullptr;
+	std::unique_ptr<Sprite> startSprite_ = nullptr;
 	uint32_t clearTextureHandle_ = 0u;
-	Sprite* clearSprite_ = nullptr;
+	std::unique_ptr<Sprite> clearSprite_ = nullptr;
 	uint32_t overTextureHandle_ = 0;
-	Sprite* overSprite_ = nullptr;
+	std::unique_ptr<Sprite> overSprite_ = nullptr;
 	uint32_t overTitleTextureHandle_ = 0;
-	Sprite* overTitleSprite_ = nullptr;
+	std::unique_ptr<Sprite> overTitleSprite_ = nullptr;
 	uint32_t guideTextureHandle_ = 0;
-	Sprite* guideSprite_ = nullptr;
+	std::unique_ptr<Sprite> guideSprite_ = nullptr;
 
 	Vector2 numberPos_ = {0, 0};
 	Vector2 startPos_ = {0, 0};
@@ -164,7 +168,7 @@ private:
 	float clearAlpha_;
 
 	uint32_t fadeTextureHandle_ = 0;
-	Sprite* fadeSprite_ = nullptr;
+	std::unique_ptr<Sprite> fadeSprite_ = nullptr;
 	float fadeAlpha_ = 0.0f;
 	float fadeSpeed_ = 1.0f / 120.0f;
 };
