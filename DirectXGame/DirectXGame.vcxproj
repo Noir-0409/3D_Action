@@ -158,6 +158,7 @@
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Affin.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="CollisionObserver.cpp" />
     <ClCompile Include="ConcreteGamePhases.cpp" />
     <ClCompile Include="ConcretePlayerStates.cpp" />
     <ClCompile Include="ConcreteTitleStates.cpp" />

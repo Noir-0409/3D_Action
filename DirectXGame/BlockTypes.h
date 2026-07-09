@@ -1,12 +1,13 @@
 #pragma once
 
 #include "BaseBlock.h"
-#include <functional>
 #include "MapChipField.h"
+#include <functional>
+#include <memory> // ★ std::unique_ptr を使用するために追加
 
 class NormalBlock : public BaseBlock {
 public:
-	using BaseBlock::BaseBlock; // 親のコンストラクタをそのまま使う
+	using BaseBlock::BaseBlock; // 親のコンストラクタが std::unique_ptr になったので自動で追従します
 	void Draw(const KamataEngine::Camera& camera) override {
 		if (model_ && worldTransform_) {
 			model_->Draw(*worldTransform_, camera);
@@ -16,12 +17,14 @@ public:
 
 class FireBlock : public BaseBlock {
 private:
-	const bool& fireToggle_; 
+	const bool& fireToggle_;
 	uint32_t tex1_;
 	uint32_t tex2_;
 
 public:
-	FireBlock(KamataEngine::Model* model, KamataEngine::WorldTransform* wt, const bool& toggle, uint32_t t1, uint32_t t2) : BaseBlock(model, wt), fireToggle_(toggle), tex1_(t1), tex2_(t2) {}
+	// ⭕ 引数の wt を std::unique_ptr に変更し、BaseBlock へ std::move(wt) で渡す
+	FireBlock(KamataEngine::Model* model, std::unique_ptr<KamataEngine::WorldTransform> wt, const bool& toggle, uint32_t t1, uint32_t t2)
+	    : BaseBlock(model, std::move(wt)), fireToggle_(toggle), tex1_(t1), tex2_(t2) {}
 
 	void Draw(const KamataEngine::Camera& camera) override {
 		if (model_ && worldTransform_) {
@@ -38,8 +41,10 @@ private:
 	KamataEngine::Model* modelVanished_ = nullptr; // 消滅時（半透明）のモデル
 
 public:
-	SwitchBlock(KamataEngine::Model* modelNormal, KamataEngine::Model* modelVanished, KamataEngine::WorldTransform* wt, std::function<MapChipType()> getTypeFunc, MapChipType targetType)
-	    : BaseBlock(modelNormal, wt), modelVanished_(modelVanished), getTypeFunc_(getTypeFunc), targetType_(targetType) {}
+	// ⭕ 引数の wt を std::unique_ptr に変更し、BaseBlock へ std::move(wt) で渡す
+	SwitchBlock(
+	    KamataEngine::Model* modelNormal, KamataEngine::Model* modelVanished, std::unique_ptr<KamataEngine::WorldTransform> wt, std::function<MapChipType()> getTypeFunc, MapChipType targetType)
+	    : BaseBlock(modelNormal, std::move(wt)), modelVanished_(modelVanished), getTypeFunc_(getTypeFunc), targetType_(targetType) {}
 
 	void Draw(const KamataEngine::Camera& camera) override {
 		if (!worldTransform_)
