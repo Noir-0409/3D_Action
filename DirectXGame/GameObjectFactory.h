@@ -6,7 +6,7 @@
 #include "Skydome.h"
 #include <memory>
 
-// GameObjectを生成するための工場クラス
+// GameObjectを生成するための工場クラス 
 class GameObjectFactory {
 public:
 	// スカイドームの生成
