@@ -6,13 +6,6 @@
 
 // ⭕ 指摘事項1：デストラクタ内の手動 delete をすべて排除！
 GameScene::~GameScene() {
-	// モデル生成元（エンジン側）が管理しているOBJモデルのdelete（もし手動ルールなら残しますが、基本はスマートポインタ化で他は不要になります）
-	delete modelPlayer_;
-	delete modelBlock_;
-	delete modelFire_;
-	delete modelEnemy_;
-	delete modelSkydome_;
-	delete modelParticle_;
 
 	// unique_ptrが自動破棄してくれるため、player_、blocks_、mapChipField_、sprites_ などのdeleteは一切不要です！
 	gameObjects_.clear();
