@@ -1,12 +1,11 @@
 #include "TitleScene.h"
-#include "ConcreteTitleStates.h" // ★ 追加
+#include "ConcreteTitleStates.h"
 
+// ⭕ 指摘事項: デストラクタ内の手動 delete をすべて排除！
 TitleScene::~TitleScene() {
-	delete modelSkydome_;
-	delete titleSkydome_;
-	delete titleSprite_;
-	delete startSprite_;
-	delete fadeSprite_;
+	// titleSkydome_ や各スプライトは std::unique_ptr になったため、
+	// 自動で安全にメモリが解放されます。手動の delete は一切不要です！
+	// (modelSkydome_ はエンジン管理のアセットのため、元々ここでの delete は不要です)
 }
 
 void TitleScene::Initialize() {
@@ -19,21 +18,24 @@ void TitleScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	camera_.Initialize();
 
+	// アセットの読み込み（生ポインタ保持のままでOK）
 	modelSkydome_ = Model::CreateFromOBJ("titleSkydome", true);
 
-	titleSkydome_ = new TitleSkydome();
+	// ⭕ 指摘事項: new を排除し、std::make_unique で生成
+	titleSkydome_ = std::make_unique<TitleSkydome>();
 	titleSkydome_->Initialize(modelSkydome_, &camera_);
 
+	// ⭕ 指摘事項: Sprite::Create() の戻り値を .reset() で unique_ptr に格納
 	titleTextureHandle_ = TextureManager::Load("titleSprite.png");
-	titleSprite_ = Sprite::Create(titleTextureHandle_, spritePos_);
+	titleSprite_.reset(Sprite::Create(titleTextureHandle_, spritePos_));
 
 	startTextureHandle_ = TextureManager::Load("startSprite.png");
-	startSprite_ = Sprite::Create(startTextureHandle_, startPos_);
+	startSprite_.reset(Sprite::Create(startTextureHandle_, startPos_));
 
-	fadeSprite_ = Sprite::Create(0, {0, 0});
+	fadeSprite_.reset(Sprite::Create(0, {0, 0}));
 	fadeSprite_->SetSize({1920.0f, 1080.0f});
 
-	// ★ 初期状態を「フェードイン状態」に設定
+	// 初期状態を「フェードイン状態」に設定
 	fadeAlpha_ = 1.0f;
 	fadeState_ = std::make_unique<TitleFadeInState>();
 
@@ -44,7 +46,7 @@ void TitleScene::Update(float deltaTime) {
 	// 累積時間を加算（点滅用）
 	totalTime_ += deltaTime;
 
-	// ★ フェード処理を現在の状態クラスに丸投げ（ポリモーフィズム）
+	// フェード処理を現在の状態クラスに丸投げ（ポリモーフィズム）
 	if (fadeState_) {
 		fadeState_->Update(this, deltaTime);
 	}
@@ -86,5 +88,5 @@ void TitleScene::Draw() {
 	Sprite::PostDraw();
 }
 
-// ★ 状態を切り替える関数
+// 状態を切り替える関数
 void TitleScene::ChangeState(std::unique_ptr<TitleFadeState> newState) { fadeState_ = std::move(newState); }

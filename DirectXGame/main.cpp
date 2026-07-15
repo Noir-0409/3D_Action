@@ -4,11 +4,13 @@
 #include "TitleScene.h"
 #include <Windows.h>
 #include <chrono>
+#include <memory> // ★ std::unique_ptr を使用するために追加
 
 using namespace KamataEngine;
 
-// ★【ここがポリモーフィズム】現在アクティブなシーンを指す、共通のポインタ
-IScene* currentScene = nullptr;
+// ⭕ 指摘事項: 生ポインタを std::unique_ptr に変更
+// これにより、手動で delete する必要が完全になくなります
+std::unique_ptr<IScene> currentScene = nullptr;
 
 // 次にどのシーンを作るかを判定するための状態管理
 enum class SceneType { kTitle, kGame };
@@ -21,8 +23,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	KamataEngine::Initialize(L"Action_Run");
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	// 最初のシーン（タイトル）を生成して初期化
-	currentScene = new TitleScene();
+	// ⭕ 指摘事項: new を排除し、std::make_unique でタイトルシーンを生成
+	currentScene = std::make_unique<TitleScene>();
 	currentScene->Initialize();
 	currentSceneType = SceneType::kTitle;
 
@@ -38,7 +40,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		previousTime = currentTime;
 		float deltaTime = elapsed.count();
 
-		// ★【switch文が消滅！】今が何のシーンかに関わらず、現在のシーンを更新
+		// 今が何のシーンかに関わらず、現在のシーンを更新
 		if (currentScene) {
 			currentScene->Update(deltaTime);
 		}
@@ -48,7 +50,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		dxCommon->PreDraw();
 
-		// ★【switch文が消滅！】今が何のシーンかに関わらず、現在のシーンを描画
+		// 今が何のシーンかに関わらず、現在のシーンを描画
 		if (currentScene) {
 			currentScene->Draw();
 		}
@@ -56,9 +58,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		dxCommon->PostDraw();
 	}
 
-	// 最後に残ったシーンを安全に解放（virtualデストラクタなので適切に消えます）
-	delete currentScene;
-	currentScene = nullptr;
+	// ⭕ 指摘事項: 手動の delete は不要になったため完全に削除！
+	// currentScene = nullptr; // unique_ptr なので何もしなくても自動で安全に解放されます
 
 	KamataEngine::Finalize();
 	return 0;
@@ -70,17 +71,16 @@ void ChangeScene() {
 
 		switch (currentSceneType) {
 		case SceneType::kTitle:
-			// タイトルが終わったら、ゲームシーンへ切り替え
-			delete currentScene; // 古いシーンを破棄
-			currentScene = new GameScene();
+			// ⭕ 指摘事項: 手動 delete を排除。
+			// 新しいシーンを std::make_unique で代入すると、古いシーンは自動的かつ安全に破棄（delete）されます
+			currentScene = std::make_unique<GameScene>();
 			currentScene->Initialize();
 			currentSceneType = SceneType::kGame;
 			break;
 
 		case SceneType::kGame:
-			// ゲームシーンが終わったら、タイトルシーンへ戻る
-			delete currentScene; // 古いシーンを破棄
-			currentScene = new TitleScene();
+			// ⭕ 指摘事項: 同様に、代入するだけで古い GameScene は自動で破棄されます
+			currentScene = std::make_unique<TitleScene>();
 			currentScene->Initialize();
 			currentSceneType = SceneType::kTitle;
 			break;
