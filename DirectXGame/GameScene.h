@@ -30,7 +30,6 @@ public:
 
 	void ChangePhase(std::unique_ptr<GamePhaseState> newPhase);
 
-	// --- ゲッターの戻り値をスマートポインタの実態に合わせて変更（.get()で生のポインタを渡すようにします） ---
 	Player* GetPlayer() const { return player_.get(); }
 	CameraController* GetCameraController() const { return cameraController_.get(); }
 	DeathParticle* GetDeathParticles() const { return deathParticles_.get(); }
@@ -97,7 +96,6 @@ private:
 	WorldTransform worldTransform_;
 	Input* input_ = nullptr;
 
-	// アセット（モデル）はエンジン管理、またはGameSceneが所有権を持たないので生ポインタのままでOK
 	Model* modelPlayer_ = nullptr;
 	Model* modelBlock_ = nullptr;
 	Model* modelFire_ = nullptr;
@@ -111,16 +109,14 @@ private:
 	Model* modelSkydome_ = nullptr;
 	Model* modelParticle_ = nullptr;
 
-	// ❌ 生ポインタの配列から、⭕ スマートポインタの配列へ変更！
 	std::vector<std::vector<std::unique_ptr<BaseBlock>>> blocks_;
 	std::unique_ptr<MapChipField> mapChipField_;
 	std::unique_ptr<CameraController> cameraController_;
 
 	std::vector<std::unique_ptr<Enemy>> enemyOwnerList_;
 
-	// gameObjects_ 自体に寿命を管理させ、各具体的なスマートポインタから非所有ポインタ（.get()）を登録する形にします
 	std::vector<GameObject*> gameObjects_;
-	std::list<Enemy*> enemies_; // 判定用の非所有リスト
+	std::list<Enemy*> enemies_;
 
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Skydome> skydome_;
