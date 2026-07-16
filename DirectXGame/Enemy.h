@@ -33,8 +33,6 @@ public:
 	void OnCollision(const Player* player);
 
 private:
-	// ★「worldTransform_」「model_」「camera_」は
-	// 親クラス（GameObject）がすでに持っているので、二重定義エラーを防ぐためにここからは削除します！
 
 	MapChipField* mapChipField_ = nullptr;
 
