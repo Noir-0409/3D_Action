@@ -8,8 +8,6 @@
 
 using namespace KamataEngine;
 
-// ⭕ 指摘事項: 生ポインタを std::unique_ptr に変更
-// これにより、手動で delete する必要が完全になくなります
 std::unique_ptr<IScene> currentScene = nullptr;
 
 // 次にどのシーンを作るかを判定するための状態管理
@@ -58,9 +56,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		dxCommon->PostDraw();
 	}
 
-	// ⭕ 指摘事項: 手動の delete は不要になったため完全に削除！
-	// currentScene = nullptr; // unique_ptr なので何もしなくても自動で安全に解放されます
-
 	KamataEngine::Finalize();
 	return 0;
 }
@@ -71,15 +66,14 @@ void ChangeScene() {
 
 		switch (currentSceneType) {
 		case SceneType::kTitle:
-			// ⭕ 指摘事項: 手動 delete を排除。
-			// 新しいシーンを std::make_unique で代入すると、古いシーンは自動的かつ安全に破棄（delete）されます
+		
 			currentScene = std::make_unique<GameScene>();
 			currentScene->Initialize();
 			currentSceneType = SceneType::kGame;
 			break;
 
 		case SceneType::kGame:
-			// ⭕ 指摘事項: 同様に、代入するだけで古い GameScene は自動で破棄されます
+			
 			currentScene = std::make_unique<TitleScene>();
 			currentScene->Initialize();
 			currentSceneType = SceneType::kTitle;
