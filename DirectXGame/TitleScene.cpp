@@ -1,11 +1,8 @@
 #include "TitleScene.h"
 #include "ConcreteTitleStates.h"
 
-// ⭕ 指摘事項: デストラクタ内の手動 delete をすべて排除！
 TitleScene::~TitleScene() {
-	// titleSkydome_ や各スプライトは std::unique_ptr になったため、
-	// 自動で安全にメモリが解放されます。手動の delete は一切不要です！
-	// (modelSkydome_ はエンジン管理のアセットのため、元々ここでの delete は不要です)
+	
 }
 
 void TitleScene::Initialize() {

@@ -15,10 +15,8 @@ public:
 	void Draw() override;
 	bool IsFinished() const override { return isFinished_; }
 
-	// Stateパターン用の状態遷移関数
 	void ChangeState(std::unique_ptr<TitleFadeState> newState);
 
-	// --- 状態クラスからアクセスするためのヘルパー関数群 ---
 	Input* GetInput() const { return input_; }
 	float GetFadeTimer() const { return fadeTimer_; }
 	float GetFadeDuration() const { return fadeDuration_; }
@@ -35,14 +33,12 @@ private:
 	Audio* audio_ = nullptr;
 	Camera camera_;
 
-	// アセットモデルは非所有なので生ポインタでOKです
 	Model* modelSkydome_ = nullptr;
 
-	// ⭕ 指摘事項: TitleSkydome を std::unique_ptr に変更
 	std::unique_ptr<TitleSkydome> titleSkydome_ = nullptr;
 
 	uint32_t titleTextureHandle_ = 0;
-	// ⭕ 指摘事項: スプライト群を std::unique_ptr に変更
+	
 	std::unique_ptr<Sprite> titleSprite_ = nullptr;
 
 	uint32_t startTextureHandle_ = 0;
