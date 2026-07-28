@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+namespace KamataEngine { // ★ namespace の開始
+
 class Player;
 class Enemy;
 
@@ -16,3 +18,5 @@ class PlayerEnemyCollisionHandler : public CollisionObserver {
 public:
 	void OnPlayerEnemyCollision(Player* player, Enemy* enemy) override;
 };
+
+} // namespace KamataEngine

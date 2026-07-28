@@ -2,6 +2,8 @@
 #include "Player.h"
 #include <algorithm>
 
+namespace KamataEngine { // ★ namespace の開始
+
 // --- 通常状態の処理 ---
 void PlayerNormalState::Update(Player* player) {
 	// 1. 入力による移動速度計算
@@ -42,3 +44,5 @@ void PlayerDeathFallState::Update(Player* player) {
 		player->StopDeathFall();
 	}
 }
+
+} // namespace KamataEngine

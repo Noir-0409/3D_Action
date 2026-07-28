@@ -1,7 +1,9 @@
 #include "AABB.h"
 
-bool AABB::IsCollision(const AABB& aabb1, const AABB& aabb2) { 	
-	
+namespace KamataEngine { // ★ namespace の開始
+
+bool AABB::IsCollision(const AABB& aabb1, const AABB& aabb2) {
+
 	// X軸方向の判定
 	if (aabb1.max.x < aabb2.min.x || aabb1.min.x > aabb2.max.x) {
 		return false;
@@ -16,5 +18,6 @@ bool AABB::IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	}
 	// 全ての軸で交差している場合
 	return true;
-
 }
+
+} // namespace KamataEngine

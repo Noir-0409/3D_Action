@@ -1,8 +1,10 @@
 #pragma once
 
-#include "KamataEngine.h"
-#include "CameraController.h"
 #include "3D/Model.h"
+#include "CameraController.h"
+#include "KamataEngine.h"
+
+namespace KamataEngine { // ★ namespace の開始
 
 class GameObject {
 protected:
@@ -40,5 +42,6 @@ public:
 
 	// GameObject.h の public: の中に追加してください
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
-
 };
+
+} // namespace KamataEngine

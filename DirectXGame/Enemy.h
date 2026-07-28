@@ -4,23 +4,22 @@
 #include "KamataEngine.h"
 #include "MapChipField.h"
 
-using namespace KamataEngine;
+// ★ using namespace KamataEngine; は削除します
+
+namespace KamataEngine { // ★ namespace の開始
 
 class Player;
 
 /// <summary>
 /// enemyを管理するクラス（GameObjectを継承）
 /// </summary>
-class Enemy : public GameObject { // ★「: public GameObject」を追加して継承させる
+class Enemy : public GameObject {
 
 public:
-	// ★ 引数を親のルールに合わせて「const Camera* camera」に変更し、「override」を追加
 	void Initialize(Model* model, const Camera* camera, const Vector3& position) override;
 
-	// ★「override」を追加
 	void Update() override;
 
-	// ★「override」を追加（引数なしで親クラスのDrawを上書きします）
 	void Draw() override;
 
 	// マップチップの特定の座標に配置する
@@ -33,7 +32,6 @@ public:
 	void OnCollision(const Player* player);
 
 private:
-
 	MapChipField* mapChipField_ = nullptr;
 
 	static inline const float kWalkSpeed = 0.04f;
@@ -51,3 +49,5 @@ private:
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 };
+
+} // namespace KamataEngine
