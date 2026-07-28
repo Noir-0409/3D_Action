@@ -5,7 +5,9 @@
 #include "PlayerState.h" // ★ 追加
 #include <memory>        // ★ 追加
 
-using namespace KamataEngine;
+// ★ using namespace KamataEngine; は削除します
+
+namespace KamataEngine { // ★ namespace の開始
 
 class MapChipField;
 class Enemy;
@@ -128,3 +130,5 @@ private:
 	static inline const float kIceAttenuation = 0.001f;
 	static inline const float kIceMaxSpeed = 0.8f;
 };
+
+} // namespace KamataEngine

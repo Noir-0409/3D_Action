@@ -1,6 +1,8 @@
 #include "CollisionObserver.h"
-#include "Enemy.h" 
-#include "Player.h" 
+#include "Enemy.h"
+#include "Player.h"
+
+namespace KamataEngine { // ★ 追加
 
 void PlayerEnemyCollisionHandler::OnPlayerEnemyCollision(Player* player, Enemy* enemy) {
 	if (player && enemy) {
@@ -8,3 +10,5 @@ void PlayerEnemyCollisionHandler::OnPlayerEnemyCollision(Player* player, Enemy* 
 		enemy->OnCollision(player);
 	}
 }
+
+} // namespace KamataEngine

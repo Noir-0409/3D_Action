@@ -7,7 +7,9 @@
 #include <algorithm>
 #include <numbers>
 
-using namespace KamataEngine;
+// ★ using namespace KamataEngine; は削除します
+
+namespace KamataEngine { // ★ namespace の開始
 
 Player::~Player() {}
 
@@ -99,8 +101,7 @@ void Player::InputMove() {
 		}
 		acceleration.x -= accel;
 		lrDirection_ = LRDirection::kLeft;
-	}
-	else {
+	} else {
 		if (!onIce) {
 			velocity_.x *= (1.0f - attenuation);
 		} else {
@@ -116,14 +117,13 @@ void Player::InputMove() {
 		}
 	}
 
-
 	velocity_ += acceleration;
 
 	float maxSpeed = onIce ? kIceMaxSpeed : kLimitRunSpeed;
 	velocity_.x = std::clamp(velocity_.x, -maxSpeed, maxSpeed);
 
 	// ジャンプ処理
-	if (input_->PushKey(DIK_W)||input_->PushKey(DIK_SPACE)) {
+	if (input_->PushKey(DIK_W) || input_->PushKey(DIK_SPACE)) {
 		if (onGround_) {
 			velocity_.y = kJumpAcceleration;
 			onGround_ = false;
@@ -160,7 +160,6 @@ void Player::InputMove() {
 	if (input_->PushKey(DIK_D)) {
 
 		worldTransform_.rotation_.x += velocity_.x / radius;
-
 	}
 
 	if (input_->PushKey(DIK_A)) {
@@ -179,7 +178,6 @@ void Player::CheckMapCollision(CollisionMapInfo& info) {
 	CheckMapCollisionDown(info);
 	CheckMapCollisionRight(info);
 	CheckMapCollisionLeft(info);
-
 }
 
 void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
@@ -216,7 +214,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 
 			if (prevBottom >= rect.top && nextBottom <= rect.top) {
 
-				float deltaY = rect.top - worldTransform_.translation_.y + kHeight / 2.0f ;
+				float deltaY = rect.top - worldTransform_.translation_.y + kHeight / 2.0f;
 
 				if (deltaY > maxY) {
 					maxY = deltaY;
@@ -340,7 +338,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = (rect.right - playerLeft) + kEpsilon; // ★ ε追加
+		float deltaX = (rect.right - playerLeft) + kEpsilon;
 		if (deltaX > maxDeltaX)
 			maxDeltaX = deltaX;
 	}
@@ -354,7 +352,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = (rect.right - playerLeft) + kEpsilon; // ★ ε追加
+		float deltaX = (rect.right - playerLeft) + kEpsilon;
 		if (deltaX > maxDeltaX)
 			maxDeltaX = deltaX;
 	}
@@ -372,7 +370,6 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 			info.hitwall = true;
 		}
 	}
-
 }
 
 void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
@@ -403,7 +400,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = (rect.left - playerRight) - kEpsilon; // ★ ε追加
+		float deltaX = (rect.left - playerRight) - kEpsilon;
 		if (deltaX < minDeltaX)
 			minDeltaX = deltaX;
 	}
@@ -417,7 +414,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		isGoal_ = true;
 	else if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kIce || mapChipType == MapChipType::kRed || mapChipType == MapChipType::kBlue) {
 		rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-		float deltaX = (rect.left - playerRight) - kEpsilon; // ★ ε追加
+		float deltaX = (rect.left - playerRight) - kEpsilon;
 		if (deltaX < minDeltaX)
 			minDeltaX = deltaX;
 	}
@@ -485,7 +482,7 @@ void Player::UpdateHitWall(const CollisionMapInfo& info) {
 	}
 }
 
-AABB Player::GetAABB() { 
+AABB Player::GetAABB() {
 
 	Vector3 worldPos = GetWorldPosition();
 
@@ -496,12 +493,12 @@ AABB Player::GetAABB() {
 	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
 
 	return aabb;
-
 }
 
 void Player::OnCollision(const Enemy* enemy) {
 
 	(void)enemy;
 	isDead_ = true;
-
 }
+
+} // namespace KamataEngine

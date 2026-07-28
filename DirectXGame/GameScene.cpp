@@ -4,6 +4,8 @@
 #include "ConcreteGamePhases.h"
 #include "GameObjectFactory.h"
 
+namespace KamataEngine { // ★ namespace の開始
+
 // ⭕ 指摘事項1：デストラクタ内の手動 delete をすべて排除！
 GameScene::~GameScene() {
 
@@ -99,7 +101,6 @@ void GameScene::Initialize() {
 		gameObjects_.push_back(newEnemy.get()); // 描画・更新用非所有ポインタ
 
 		enemyOwnerList_.push_back(std::move(newEnemy));
-
 	}
 
 	collisionObservers_.push_back(std::make_unique<PlayerEnemyCollisionHandler>());
@@ -271,3 +272,5 @@ void GameScene::NotifyCollisions() {
 		}
 	}
 }
+
+} // namespace KamataEngine

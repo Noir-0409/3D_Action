@@ -3,6 +3,9 @@
 #include "CameraController.h"
 #include "MathUtillity.h"
 #include "Player.h"
+
+namespace KamataEngine { // ★ namespace の開始
+
 using namespace KamataEngine::MathUtility;
 
 void CameraController::Initialize() { camera_->Initialize(); }
@@ -55,3 +58,5 @@ void CameraController::Reset() {
 	camera_->translation_.y = targetWorldTransform.translation_.y + targetOffset_.y;
 	camera_->translation_.z = targetWorldTransform.translation_.z + targetOffset_.z;
 }
+
+} // namespace KamataEngine

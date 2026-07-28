@@ -1,16 +1,16 @@
 #pragma once
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
+namespace KamataEngine { // ★ namespace の開始
 
 class IScene {
 public:
-	
 	virtual ~IScene() = default;
 
-
 	virtual void Initialize() = 0;
-	virtual void Update(float deltaTime) = 0; 
+	virtual void Update(float deltaTime) = 0;
 	virtual void Draw() = 0;
 	virtual bool IsFinished() const = 0;
 };
+
+} // namespace KamataEngine

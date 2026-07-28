@@ -6,10 +6,11 @@
 #include <sstream>
 #include <vector>
 
-using namespace KamataEngine;
+// ★ using namespace KamataEngine; は削除します
+
+namespace KamataEngine { // ★ namespace の開始
 
 enum class MapChipType {
-
 	kBlank,
 	kBlock,
 	kDamage,
@@ -17,7 +18,6 @@ enum class MapChipType {
 	kIce,
 	kRed,
 	kBlue,
-
 };
 
 /// <summary>
@@ -27,24 +27,20 @@ class MapChipField {
 
 public:
 	struct MapChipData {
-
 		std::vector<std::vector<MapChipType>> data;
 	};
 
 	struct IndexSet {
-
 		uint32_t xIndex;
 		uint32_t yIndex;
 	};
 
 	struct Rect {
-
 		float left;
 		float right;
 		float bottom;
 		float top;
 	};
-
 
 	void Initialize();
 
@@ -52,31 +48,31 @@ public:
 
 	void Draw();
 
-	//データをリセット
+	// データをリセット
 	void ResetMapChipData();
 
-	//CSVを読み取って配置
+	// CSVを読み取って配置
 	void LoadMapChipCSV(const std::string& filePath);
 
-	//頂点の座標
-	Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
-	
-	//ブロックの種類判別
+	// 頂点の座標
+	KamataEngine::Vector3 GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex);
+
+	// ブロックの種類判別
 	MapChipType GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex);
 
-	//縦の数
+	// 縦の数
 	uint32_t GetNumBlockVirtical();
 
-	//横の数
+	// 横の数
 	uint32_t GetNumBlockHorizontal();
 
 	static inline const uint32_t kNumBlockVirtical = 50;
 	static inline const uint32_t kNumBlockHorizontal = 200;
 
-	//マップチップの座標
-	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+	// マップチップの座標
+	IndexSet GetMapChipIndexSetByPosition(const KamataEngine::Vector3& position);
 
-	//4辺の座標
+	// 4辺の座標
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 	MapChipType GetRawMapChipTypeByIndex(uint32_t x, uint32_t y);
@@ -84,7 +80,6 @@ public:
 	MapChipType GetMapChipType() { return (blinkPhase_ == BlinkPhase::Red) ? MapChipType::kRed : MapChipType::kBlue; }
 
 private:
-
 	enum class BlinkPhase {
 		Red,
 		Blue,
@@ -100,3 +95,5 @@ private:
 
 	MapChipData mapChipData_;
 };
+
+} // namespace KamataEngine

@@ -1,58 +1,48 @@
 #pragma once
 #include "KamataEngine.h"
 
-using namespace KamataEngine;
+namespace KamataEngine { // ★ namespace の開始
 
 class Player;
 
 struct Rect {
-
 	float left = 0.0f;
 	float right = 1.0f;
 	float bottom = 0.0f;
 	float top = 1.0f;
-
 };
 
 /// <summary>
 /// 追従カメラを管理するクラス
 /// </summary>
 class CameraController {
-
 public:
+	void Initialize();
+	void Update();
 
-void Initialize();
+	// 追従対象を追う
+	void SetTarget(Player* target) { target_ = target; }
 
-void Update();
+	// カメラをセットする
+	void SetCamera(Camera* camera) { camera_ = camera; }
 
-//追従対象を追う
-void SetTarget(Player* target) { target_ = target; }
+	// リセット
+	void Reset();
 
-//カメラをセットする
-void SetCamera(Camera* camera) { camera_ = camera; }
-
-//リセット
-void Reset();
-
-//範囲を指定する
-void SetMovableArea(const Rect& area) { movableArea_ = area; }
+	// 範囲を指定する
+	void SetMovableArea(const Rect& area) { movableArea_ = area; }
 
 private:
+	Camera* camera_ = nullptr;
+	Player* target_ = nullptr;
 
-Camera* camera_ = nullptr;
+	Vector3 targetOffset_ = {0, 0, -15.0f};
+	Rect movableArea_ = {0, 100, 0, 100};
+	Vector3 targetPosition_;
 
-Player* target_ = nullptr;
-
-Vector3 targetOffset_ = {0, 0, -15.0f};
-
-Rect movableArea_ = {0, 100, 0, 100};
-
-Vector3 targetPosition_;
-
-static inline const float kInterpolationRate_ = 0.3f;
-
-static inline const float kVeloicityBias = 0.5f;
-
-static inline const Rect margin_ = {-8.0f, 8.0f, -8.0f, 8.0f};
-
+	static inline const float kInterpolationRate_ = 0.3f;
+	static inline const float kVeloicityBias = 0.5f;
+	static inline const Rect margin_ = {-8.0f, 8.0f, -8.0f, 8.0f};
 };
+
+} // namespace KamataEngine

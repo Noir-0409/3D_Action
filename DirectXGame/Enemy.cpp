@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include <numbers>
 
+namespace KamataEngine { // ★ namespace の開始
+
 // ★ 引数に「const」を追加
 void Enemy::Initialize(Model* model, const Camera* camera, const Vector3& position) {
 
@@ -38,13 +40,7 @@ void Enemy::Update() {
 }
 
 // ★ 親のルールに合わせて引数なしで実装（内部のcamera_を使用）
-void Enemy::Draw() {
-
-}
-
-// ★「Vector3 Enemy::GetWorldPosition()」の定義は、
-// 親クラス（GameObject）が全く同じ中身のものを実装してくれているため、
-// 二重定義エラーを防ぐためにここからは完全に削除しました。
+void Enemy::Draw() {}
 
 AABB Enemy::GetAABB() {
 
@@ -62,3 +58,5 @@ AABB Enemy::GetAABB() {
 }
 
 void Enemy::OnCollision(const Player* player) { (void)player; }
+
+} // namespace KamataEngine

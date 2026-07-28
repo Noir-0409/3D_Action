@@ -17,7 +17,9 @@
 #include <memory>
 #include <vector>
 
-using namespace KamataEngine;
+// ★ ヘッダーファイルでの using namespace KamataEngine; は削除します（名前空間汚染防止のため）
+
+namespace KamataEngine { // ★ namespace の開始
 
 class GameScene : public IScene {
 public:
@@ -172,3 +174,5 @@ private:
 	float fadeAlpha_ = 0.0f;
 	float fadeSpeed_ = 1.0f / 120.0f;
 };
+
+} // namespace KamataEngine
