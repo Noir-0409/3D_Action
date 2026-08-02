@@ -5,7 +5,7 @@
 #include "TitleSkydome.h"
 #include <memory>
 
-using namespace KamataEngine;
+namespace KamataEngine { // ★ namespace の開始
 
 class TitleScene : public IScene {
 public:
@@ -38,7 +38,7 @@ private:
 	std::unique_ptr<TitleSkydome> titleSkydome_ = nullptr;
 
 	uint32_t titleTextureHandle_ = 0;
-	
+
 	std::unique_ptr<Sprite> titleSprite_ = nullptr;
 
 	uint32_t startTextureHandle_ = 0;
@@ -57,3 +57,5 @@ private:
 
 	bool isFinished_ = false;
 };
+
+} // namespace KamataEngine

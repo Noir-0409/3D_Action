@@ -1,13 +1,13 @@
 #include "DeathParticle.h"
 
-using namespace KamataEngine;
+namespace KamataEngine { // ★ namespace の開始
 
 void DeathParticle::Initialize(Model* model, Camera* camera, const Vector3& position) {
 
 	particleModel_ = model;
 	camera_ = camera;
 
-	 // 生成位置はすべて同じ位置からスタート
+	// 生成位置はすべて同じ位置からスタート
 	for (auto& worldTransform : worldTransforms_) {
 
 		worldTransform.Initialize();
@@ -55,7 +55,6 @@ void DeathParticle::Update() {
 		// 終了扱いにする
 		isFinished_ = true;
 	}
-
 }
 
 void DeathParticle::Draw() {
@@ -65,9 +64,10 @@ void DeathParticle::Draw() {
 		return;
 	}
 
-for (const auto& worldTransform : worldTransforms_) {
+	for (const auto& worldTransform : worldTransforms_) {
 
 		particleModel_->Draw(worldTransform, *camera_);
 	}
-
 }
+
+} // namespace KamataEngine

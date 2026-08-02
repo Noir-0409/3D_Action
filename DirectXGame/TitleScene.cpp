@@ -1,9 +1,9 @@
 #include "TitleScene.h"
 #include "ConcreteTitleStates.h"
 
-TitleScene::~TitleScene() {
-	
-}
+namespace KamataEngine { // ★ namespace の開始
+
+TitleScene::~TitleScene() {}
 
 void TitleScene::Initialize() {
 	spritePos_ = {65, -500};
@@ -15,14 +15,12 @@ void TitleScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	camera_.Initialize();
 
-	// アセットの読み込み（生ポインタ保持のままでOK）
+	// アセットの読み込み
 	modelSkydome_ = Model::CreateFromOBJ("titleSkydome", true);
 
-	// ⭕ 指摘事項: new を排除し、std::make_unique で生成
 	titleSkydome_ = std::make_unique<TitleSkydome>();
 	titleSkydome_->Initialize(modelSkydome_, &camera_);
 
-	// ⭕ 指摘事項: Sprite::Create() の戻り値を .reset() で unique_ptr に格納
 	titleTextureHandle_ = TextureManager::Load("titleSprite.png");
 	titleSprite_.reset(Sprite::Create(titleTextureHandle_, spritePos_));
 
@@ -87,3 +85,5 @@ void TitleScene::Draw() {
 
 // 状態を切り替える関数
 void TitleScene::ChangeState(std::unique_ptr<TitleFadeState> newState) { fadeState_ = std::move(newState); }
+
+} // namespace KamataEngine

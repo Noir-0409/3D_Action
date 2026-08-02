@@ -17,8 +17,6 @@
 #include <memory>
 #include <vector>
 
-// ★ ヘッダーファイルでの using namespace KamataEngine; は削除します（名前空間汚染防止のため）
-
 namespace KamataEngine { // ★ namespace の開始
 
 class GameScene : public IScene {

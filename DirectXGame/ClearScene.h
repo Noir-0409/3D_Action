@@ -2,10 +2,10 @@
 #include "KamataEngine.h"
 #include "input/Input.h"
 
-using namespace KamataEngine;
+namespace KamataEngine { // ★ namespace の開始
 
 /// <summary>
-///クリアシーンを管理するクラス 
+/// クリアシーンを管理するクラス
 /// </summary>
 class ClearScene {
 
@@ -16,7 +16,7 @@ public:
 
 	void Draw();
 
-	//シーンを終了
+	// シーンを終了
 	bool IsFinished() { return isFinished_; }
 
 private:
@@ -24,7 +24,9 @@ private:
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	KamataEngine::Camera camera_;
+	Camera camera_; // namespace 内なので KamataEngine:: の修飾は不要になります
 
 	bool isFinished_ = false;
 };
+
+} // namespace KamataEngine
