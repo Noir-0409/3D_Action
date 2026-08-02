@@ -5,8 +5,6 @@
 #include "PlayerState.h" // ★ 追加
 #include <memory>        // ★ 追加
 
-// ★ using namespace KamataEngine; は削除します
-
 namespace KamataEngine { // ★ namespace の開始
 
 class MapChipField;

@@ -4,8 +4,6 @@
 #include "KamataEngine.h"
 #include "MapChipField.h"
 
-// ★ using namespace KamataEngine; は削除します
-
 namespace KamataEngine { // ★ namespace の開始
 
 class Player;

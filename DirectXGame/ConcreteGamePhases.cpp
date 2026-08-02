@@ -3,6 +3,8 @@
 #include "ConcreteGamePhases.h"
 #include "GameScene.h"
 
+namespace KamataEngine { // ★ namespace の開始
+
 // ==========================================
 // 【1】カウントダウンフェーズ
 // ==========================================
@@ -134,3 +136,5 @@ void GoalPhase::Draw(GameScene* scene) {
 		scene->GetClearSprite()->Draw();
 	}
 }
+
+} // namespace KamataEngine

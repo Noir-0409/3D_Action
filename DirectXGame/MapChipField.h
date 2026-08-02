@@ -6,8 +6,6 @@
 #include <sstream>
 #include <vector>
 
-// ★ using namespace KamataEngine; は削除します
-
 namespace KamataEngine { // ★ namespace の開始
 
 enum class MapChipType {

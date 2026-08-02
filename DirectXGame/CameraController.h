@@ -1,7 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 
-namespace KamataEngine { // ★ namespace の開始
+namespace KamataEngine {
 
 class Player;
 

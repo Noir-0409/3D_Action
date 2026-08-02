@@ -1,6 +1,6 @@
 #include "AABB.h"
 
-namespace KamataEngine { // ★ namespace の開始
+namespace KamataEngine {
 
 bool AABB::IsCollision(const AABB& aabb1, const AABB& aabb2) {
 
@@ -20,4 +20,4 @@ bool AABB::IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	return true;
 }
 
-} // namespace KamataEngine
+}

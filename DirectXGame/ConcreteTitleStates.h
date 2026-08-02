@@ -1,6 +1,10 @@
 #pragma once
 #include "TitleFadeState.h"
 
+namespace KamataEngine { // ★ namespace の開始
+
+class TitleScene; // ★ 前方宣言
+
 // フェードイン状態
 class TitleFadeInState : public TitleFadeState {
 public:
@@ -18,3 +22,5 @@ class TitleFadeOutState : public TitleFadeState {
 public:
 	void Update(TitleScene* scene, float deltaTime) override;
 };
+
+} // namespace KamataEngine

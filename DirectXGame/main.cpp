@@ -4,25 +4,43 @@
 #include "TitleScene.h"
 #include <Windows.h>
 #include <chrono>
-#include <memory> // ★ std::unique_ptr を使用するために追加
+#include <memory>
 
-using namespace KamataEngine;
+// main.cpp 内でのみ使用する変数や関数は無名名前空間でカプセル化
+namespace {
 
-std::unique_ptr<IScene> currentScene = nullptr;
-
-// 次にどのシーンを作るかを判定するための状態管理
 enum class SceneType { kTitle, kGame };
+
+std::unique_ptr<KamataEngine::IScene> currentScene = nullptr;
 SceneType currentSceneType = SceneType::kTitle;
 
-void ChangeScene();
+void ChangeScene() {
+	if (currentScene && currentScene->IsFinished()) {
+		switch (currentSceneType) {
+		case SceneType::kTitle:
+			currentScene = std::make_unique<KamataEngine::GameScene>();
+			currentScene->Initialize();
+			currentSceneType = SceneType::kGame;
+			break;
+
+		case SceneType::kGame:
+			currentScene = std::make_unique<KamataEngine::TitleScene>();
+			currentScene->Initialize();
+			currentSceneType = SceneType::kTitle;
+			break;
+		}
+	}
+}
+
+} // namespace
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	KamataEngine::Initialize(L"Action_Run");
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+	KamataEngine::DirectXCommon* dxCommon = KamataEngine::DirectXCommon::GetInstance();
 
-	// ⭕ 指摘事項: new を排除し、std::make_unique でタイトルシーンを生成
-	currentScene = std::make_unique<TitleScene>();
+	// std::make_unique でタイトルシーンを生成
+	currentScene = std::make_unique<KamataEngine::TitleScene>();
 	currentScene->Initialize();
 	currentSceneType = SceneType::kTitle;
 
@@ -58,26 +76,4 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	KamataEngine::Finalize();
 	return 0;
-}
-
-// シーン切り替えのロジック
-void ChangeScene() {
-	if (currentScene && currentScene->IsFinished()) {
-
-		switch (currentSceneType) {
-		case SceneType::kTitle:
-		
-			currentScene = std::make_unique<GameScene>();
-			currentScene->Initialize();
-			currentSceneType = SceneType::kGame;
-			break;
-
-		case SceneType::kGame:
-			
-			currentScene = std::make_unique<TitleScene>();
-			currentScene->Initialize();
-			currentSceneType = SceneType::kTitle;
-			break;
-		}
-	}
 }

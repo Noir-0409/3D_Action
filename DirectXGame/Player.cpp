@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <numbers>
 
-// ★ using namespace KamataEngine; は削除します
-
 namespace KamataEngine { // ★ namespace の開始
 
 Player::~Player() {}

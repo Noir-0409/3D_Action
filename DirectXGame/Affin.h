@@ -1,9 +1,12 @@
 #pragma once
-#include <math/Matrix4x4.h>
-#include <math/Vector3.h>
+#include "KamataEngine.h"
+
+namespace KamataEngine {
 
 // アフィン変換行列の作成
-KamataEngine::Matrix4x4 MakeAffineMatrix(const KamataEngine::Vector3& scale, const KamataEngine::Vector3& rot, const KamataEngine::Vector3& translate);
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rot, const Vector3& translate);
 
 // 行列の掛け算
-KamataEngine::Matrix4x4 MatrixMultiply(const KamataEngine::Matrix4x4& m1, const KamataEngine::Matrix4x4& m2);
+Matrix4x4 MatrixMultiply(const Matrix4x4& m1, const Matrix4x4& m2);
+
+} // namespace KamataEngine

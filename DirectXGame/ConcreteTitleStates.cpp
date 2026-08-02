@@ -1,6 +1,8 @@
 #include "ConcreteTitleStates.h"
 #include "TitleScene.h"
 
+namespace KamataEngine { // ★ namespace の開始
+
 // --- フェードイン状態 ---
 void TitleFadeInState::Update(TitleScene* scene, float deltaTime) {
 	scene->AdvanceFadeTimer(deltaTime);
@@ -42,3 +44,5 @@ void TitleFadeOutState::Update(TitleScene* scene, float deltaTime) {
 		scene->SetFadeAlpha(alpha);
 	}
 }
+
+} // namespace KamataEngine

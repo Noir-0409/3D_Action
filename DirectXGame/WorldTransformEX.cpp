@@ -1,7 +1,7 @@
 #include "3D/WorldTransform.h"
 #include "Affin.h"
 
-using namespace KamataEngine;
+namespace KamataEngine { // ★ namespace の開始
 
 void WorldTransform::UpdateMatrix() {
 
@@ -11,3 +11,5 @@ void WorldTransform::UpdateMatrix() {
 	// 定数バッファに転送
 	TransferMatrix();
 }
+
+} // namespace KamataEngine
