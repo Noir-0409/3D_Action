@@ -17,6 +17,9 @@ enum class LRDirection {
 
 class Player : public GameObject {
 public:
+	// ★ 地面探索用の高度定数を public へ移動（Player.cpp 等から参照可能にします）
+	static inline const float kGroundSearchHeight = 0.01f;
+
 	struct CollisionMapInfo {
 		bool ceiling = false;
 		bool landing = false;
@@ -106,7 +109,6 @@ private:
 	static inline const float kHeight = 0.8f;
 	static inline const float kBlank = 0.04f;
 	static inline const float kAttenuationLanding = 0.0f;
-	static inline const float kGroundSearchHeight = 0.01f;
 	static inline const float kAttenuationWall = 0.00001f;
 
 	bool isAttacking_ = false;
